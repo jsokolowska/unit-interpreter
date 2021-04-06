@@ -1,0 +1,35 @@
+/** defining new unit types **/
+define kelvin;                          // base unit
+define joule (kilo k, meter m1, meter m2, second s1, second s2){ k * m1 * m2 / (s1 * s2) }
+define newton (kilo k, meter m, second s1, second s2) { k * m1 / ( s1 * s2 ) };
+define kiloMeter (meter m) { 1000 * m};
+
+/** adding new conversions **/
+
+joule convert (newton n, meter m) { n * m };
+meter convert (kiloMeter km) { km / 1000 }; //necessary because conversion is a one-way operation
+
+/** defining functions **/
+newton calculate_gravity (int gravity force, kilo weight){
+    second s1 = 1;
+    second s2 = 2;
+    meter m = 1;
+
+
+    /*----------- Conversion between types ------------*/
+    /* WRONG: not matching types error will be raised */
+    // joule result = weight * gravity force * m / (s1 * s2);
+
+    /* RIGHT: type conversion must be done explicitly */
+    joule result =  <joule> weight * gravity force * m / (s1 * s2);
+
+    /* WRONG: types must much exactly, intermediate conversions will not be performed */
+    kiloMeter = <kiloMeter> km;
+    // joule resultKM = <joule>weight * gravity force * km / (s1 * s2);
+
+    /* RIGHT: intermediate conversion is specified so it will be performed and
+     * after the conversion everything matches */
+    joule resultKM = <joule> weight * gravity force * (meter) km / (s1 * s2);
+
+    return result;
+}

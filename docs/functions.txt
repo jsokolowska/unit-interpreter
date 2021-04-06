@@ -1,0 +1,37 @@
+Funkcjonalności oferowane przez język:
+- obsługa typów prostych (bool, int, string, float)
+- obsługa typów prostych jednostek (kilo, meter, second)
+- definiowanie nowych typów prostych jednostek
+- definiowanie nowych typów pochodnych jednostek i konwersji między nimi
+- obsługa komentarzy jedno- i wielolinijkowych
+- tablice
+
+
+
+
+Założenia:
+- konwersje nie muszą być symetryczne - język pozwala na zdefiniowanie konwersji niesymetrycznych takich, że np
+    type_a a = 10;
+    type_b b;
+    a convert (type_b b1) {b1 * 0.4}
+    b convert (type_a a1) {a1 * 12}
+    <a> <b> a == a //Fałsz, ponieważ jest równoważne do 48 == 10?
+  Tworzenie takich konwersji nie będzie w jakikolwiek sposób monitorowane i leży to w gestii programisty,
+  aby zdefiniowane konwersje były symetryczne
+
+- Konwersje mogą być dokonywane tylko jeśli są wprost zadane i zgodne ze znanymi konwersjami
+- operator konwersji <> ma priorytet pomiędzy operacją przypisania a porównania
+- konwersje implicite pomiedzy typami podstawowymi a prostymi typami jednostek
+
+
+
+Operator precedence:
+ =
+ <>
+ or
+ and
+ == !=
+ <= >= > <
+ + -
+ * / %
+ !
