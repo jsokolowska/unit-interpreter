@@ -2,68 +2,73 @@
 module grammar;
 
 program : {unit_dcl | conversion_dcl} function_def {function_def};
-function_def : type id arg_list block_stmt;
+function_def : type identifier arg_list block_stmt;
 arg_list : "(" [type identifier {"," type identifier}] ")" ;
 block_stmt : "{" [stmt  {stmt}] "}";
-stmt: block_stmt | return_stmt | loop_stmt | call_stmt | if_stmt | print_stmt | list_conv_stmt  | assign_stmt
-| var_dcl_stmt | break_stmt | continue_stmt | array_dcl;
+stmt: block_stmt | return_stmt | loop_stmt | call_stmt | if_stmt | print_stmt | explain_stmt  | assign_stmt
+| var_dcl_stmt | break_stmt | continue_stmt | type_check_stmt;
 
-# basic statements
-return_stmt : "return" ( identifier | expression ) ";";
+# flow control statements
+return_stmt : "return" ( identifier | expr) ";";
 loop_stmt : "while" "(" expr ")" stmt ;
 call_stmt: identifier "(" args ")" ";";
 args: [expr {"," expr}];
-
 if_stmt : "if" "(" expr ")" stmt ["else" stmt];
-print_stmt : "print" "(" args ")" ";";
-list_conv_stmt : "list_conversions" "(" unit_type ")";
-assign_stmt : identifier "=" expr ";";
-var_dcl_stmt : type (identifier ";") | [assign_stmt] ;
 break_stmt : "break" ";";
 continue_stmt : "continue" ";";
-array_dcl : type identifier ["[" expr "]"] ";";
 
-# productions concerning units
-unit_dcl : "define" identifier [conversion] ";";
-conversion_dcl: unit_type "convert" conversion ";";
-conversion : arg_list "{" unit_expr "}";
+# bulit-in statements
+print_stmt : "print" "(" args ")" ";";
+explain_stmt : "explain" "(" unit_type ")";
+type_check_stmt: "type" "(" identifier ")";
+assign_stmt : identifier "=" expr ";";
+var_dcl_stmt : type (identifier ";") | [assign_stmt] ;
 
-unit_expr: multi_unit_expr [additive_op multi_unit_expr];
-multi_expr: unary_unit_expr [multi_op unary_unit_expr];
-unary_expr: ["-"] not_unary_expr;
-not_unary_expr: "(" unit_expr ")" | unit_value;
-unit_value: number | unit_type;
+
+# defining custom units
+unit_dcl : "unit" identifier ["as" compound_expr ] ";";
+# conversion expression for compound unit definition
+compound_expr: "<" compound_term ["//" compound_term] ">" ";"; # only one division is possible
+compound_term: compound_exp {"*" compound_exp};
+compound_exp: unit_type ["^" non_zero_number];
 unit_type: base_unit | identifier;
 
 
+# defining unit relationships
+conversion_dcl: "let" unit_type arg_list unit_expr";";
+# expressions limited to arithmetic operations
+unit_expr: multi_unit_expr {additive_op multi_unit_expr};
+multi_expr: power_unit_expr {m0ulti_op power_unit_expr};
+power_unit_expr: unary_unit_expr {power_op unary_unit_expr};
+unary_expr: ["-"] unit_value;
+unit_value: number | base_unit | identifier;
+
+
 # operator precedence
-expr : ["<" unit_type ">"] or_expr;
-or_expr : and_expr [ or_op and_expr];
-and_expr : comp_expr [and_op comp_expr];
-comp_expr : rel_expr [comp_op rel_expr];
-rel_expr : arithmetic_expr [rel_op arithmetic_expr];
-arithmetic_expr: multi_expr [additive_op multi_expr];
-multi_expr: unary_expr [multi_op unary_expr];
-unary_expr: [unary_op] not_unary_expr;
+expr : (unit_type "(" or_expr ")") | or_expr;
+or_expr : and_expr { "||" and_expr};
+and_expr : comp_expr {"&&" comp_expr};
+comp_expr : rel_expr {comp_op rel_expr};
+rel_expr : arithmetic_expr {rel_op arithmetic_expr};
+arithmetic_expr: multi_expr {additive_op multi_expr};
+multi_expr: power_expr {multi_op power_expr};
+power_unit_expr: unary_expr {"^" unary_expr};
+unary_expr: {unary_op} not_unary_expr;
 not_unary_expr: "(" expr ")" | value;
 
 # operators
-or_op : "||";
-and_op : "&&";
 comp_op: "==" | "!=";
 rel_op: "<="|">="|"<"|">";
 additive_op: "+" | "-";
-multi_op: "/" | "*" | "%";
+multi_op: "/" | "*" ;
 unary_op: "!"|"-";
 
-
 # values
-value : call_stmt |  literal | var_ref;
-var_ref : identifier ["[" number | call_stmt "]"];
+value : call_stmt |  literal | identifier;
 identifier : ((underscore  (letter | digit)) | letter) {letter | digit | underscore};
 literal: base_type| string | number;
 type: base_type | identifier;
-base_type: "int" | "float" | "bool" | "string" | base_unit;
+base_type: "int" | "float" | "bool" | "string"| "void" | base_unit;
 base_unit: "kilo" | "meter" | "second";
 string: "\"" {character} "\"";
 character: letter | digit |special_char;
@@ -71,7 +76,8 @@ letter: "a"-"z" | "A"-"Z";
 special_char: underscore | ("\\" escape_char) | "." | "," | "(" | ")" | "{" | "}" | " " | ":" |"-";
 escape_char: "t" | "n" | "\\";
 
-number : "0" | ( non_zero_digit {digit});
+number : "0" | non_zero_number;
+non_zero_number :  non_zero_digit {digit};
 digit: "0" | non_zero_digit;
 non_zero_digit: "1" - "9";
 
