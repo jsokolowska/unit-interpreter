@@ -16,11 +16,13 @@ public class StringSource implements Source{
     }
     @Override
     public int get() {
-        return currentChar;
+        int temp = currentChar;
+        nextChar();
+        return temp;
     }
 
-    @Override
-    public void nextToken() {
+
+    public void nextChar() {
         currentPos += 1;
         if (currentPos < text.length()){
             currentChar = text.charAt(currentPos);
@@ -28,4 +30,5 @@ public class StringSource implements Source{
             currentChar = EOF;
         }
     }
+
 }

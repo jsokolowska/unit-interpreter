@@ -1,8 +1,8 @@
 package source;
 
-public interface Source {
-    int get();
-    void nextToken();
+import java.io.IOException;
 
+public interface Source {
+    int get() throws IOException;
     int EOF = -1;
 }
