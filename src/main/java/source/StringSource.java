@@ -9,7 +9,7 @@ public class StringSource implements Source{
         this.text = text;
         currentPos = 0;
         if (currentPos >= text.length()){
-            currentChar = EOF;
+            currentChar = EOT;
         }else{
             currentChar = text.charAt(currentPos);
         }
@@ -27,7 +27,7 @@ public class StringSource implements Source{
         if (currentPos < text.length()){
             currentChar = text.charAt(currentPos);
         }else{
-            currentChar = EOF;
+            currentChar = EOT;
         }
     }
 

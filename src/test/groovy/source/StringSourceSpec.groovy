@@ -12,7 +12,7 @@ class StringSourceSpec extends Specification {
         first == expected
         where:
         str     || expected
-        ""      || Source.EOF
+        ""      || Source.EOT
         "aaaa"  || "a"
     }
     def "String source should return next chars one by one and then EOF"(){
@@ -22,6 +22,6 @@ class StringSourceSpec extends Specification {
         }
         where:
         str     || c_list
-        "tak"   || ["t", "a", "k", Source.EOF]
+        "tak"   || ["t", "a", "k", Source.EOT]
     }
 }

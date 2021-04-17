@@ -1,10 +1,10 @@
 package source
 import spock.lang.Specification
-import util.position.SourcePositionWrapper
+import util.position.PositionWrapper
 
 class PositionWrapperSpec extends Specification {
     def "PositionWrapper should enable position tracking for Source"(){
-        def positionWrapper = new SourcePositionWrapper(new StringSource(str))
+        def positionWrapper = new PositionWrapper(new StringSource(str))
         for (int i =0 ; i< line_list.size(); i++){
             positionWrapper.get()
             assert positionWrapper.getColumn() == col_list[i]

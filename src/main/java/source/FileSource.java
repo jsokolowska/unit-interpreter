@@ -21,7 +21,7 @@ public class FileSource implements Source{
     public void nextChar() throws IOException {
         currentChar = bufferedReader.read();
         if (currentChar == -1){
-            currentChar = EOF;
+            currentChar = EOT;
         }
     }
 

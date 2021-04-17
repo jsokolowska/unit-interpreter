@@ -1,7 +1,6 @@
 package util;
 
 import util.position.Position;
-import util.values.Value;
 
 public class Token {
     public enum TokenType{
@@ -12,16 +11,18 @@ public class Token {
         LESS,               // <
         GREATER_EQUAL,      // >=
         LESS_EQUAL,         // <=
+        ASSIGN,             // =
+
+        NOT,                // !
+        AND,                // &&
+        OR,                 // ||
+
 
         PLUS,               // +
         MINUS,              // -
         MULTIPLY,           // *
         DIVIDE,             // /
         POWER,              // ^
-
-        NOT,                // !
-        AND,                // &&
-        OR,                 // ||
 
         OPEN_BRACKET,       // (
         CLOSE_BRACKET,      // )
@@ -63,31 +64,35 @@ public class Token {
         STRING_LITERAL,     // string: "\"" {character} "\"";
         BOOL_LITERAL,       // "true", "false"
 
-        UNKNOWN             // Unknown token
+        UNKNOWN,             // Unknown token
+        EOT
     }
 
-    private final Value value;
+    private final Object value;
     private final TokenType type;
     private final Position position;
 
     public Token (TokenType type){
         this(type, null, null);
     }
-    public Token (TokenType type, Value value){
+    public Token (TokenType type, Object value){
         this(type, value, null);
     }
     public Token (TokenType type, Position position){
         this(type, null, position);
     }
-    public Token (TokenType type, Value value, Position position){
+    public Token (TokenType type, Object value, Position position){
         this.type = type;
         this.value = value;
         this.position = position;
     }
 
-    public Value getValue(){
-        return value;
+    public String getStringValue(){
+        return (String) value;
     }
+    public Integer getIntegerValue(){return (Integer) value;}
+    public Float getFloatValue(){return (Float) value;}
+    public TokenType getTokenType() {return type;}
 
     @Override
     public String toString() {
