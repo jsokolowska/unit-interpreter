@@ -35,6 +35,10 @@ public class Scanner {
             return;
         }else if (buildOperators()){
             return;
+        }else if (buildStringLiteral()){
+            return;
+        }else if (buildNumber()){
+            return;
         }
         currentToken = new Token(Token.TokenType.UNKNOWN, currChar, tokenPosition);
 
@@ -64,9 +68,9 @@ public class Scanner {
     }
     private boolean buildDoubleOperators() throws IOException, ScannerException {
         int firstChar = currChar;
-        currChar = source.get();
         switch(firstChar){
             case '=':
+                currChar = source.get();
                 if (currChar == '='){
                     currentToken = new Token(Token.TokenType.EQUAL, "==", tokenPosition);
                     currChar = source.get();
@@ -74,6 +78,7 @@ public class Scanner {
                     currentToken = new Token(Token.TokenType.ASSIGN, "=", tokenPosition);
                 }break;
             case '!':
+                currChar = source.get();
                 if(currChar == '='){
                     currentToken = new Token(Token.TokenType.NOT_EQUAL, "!=", tokenPosition);
                     currChar = source.get();
@@ -81,6 +86,7 @@ public class Scanner {
                     currentToken = new Token(Token.TokenType.NOT, "!", tokenPosition);
                 }break;
             case '<':
+                currChar = source.get();
                 if(currChar == '='){
                     currentToken = new Token(Token.TokenType.LESS_EQUAL, "<=", tokenPosition);
                     currChar = source.get();
@@ -88,6 +94,7 @@ public class Scanner {
                     currentToken = new Token(Token.TokenType.LESS, "<", tokenPosition);
                 }break;
             case '>':
+                currChar = source.get();
                 if(currChar == '='){
                     currentToken = new Token(Token.TokenType.GREATER_EQUAL, ">=", tokenPosition);
                     currChar = source.get();
@@ -95,6 +102,7 @@ public class Scanner {
                     currentToken = new Token(Token.TokenType.GREATER, ">", tokenPosition);
                 }break;
             case '&':
+                currChar = source.get();
                 if (currChar =='&'){
                     currentToken = new Token(Token.TokenType.AND, "&&", tokenPosition);
                     currChar = source.get();
@@ -102,6 +110,7 @@ public class Scanner {
                     throw new ScannerException(source.getPosition(), "Missing &");
                 }break;
             case '|':
+                currChar = source.get();
                 if (currChar == '|'){
                     currentToken = new Token(Token.TokenType.OR, "||", tokenPosition);
                     currChar = source.get();
@@ -115,5 +124,79 @@ public class Scanner {
     }
     private boolean buildIdentifier() throws IOException{
         return false;
+    }
+    private boolean buildStringLiteral () throws ScannerException, IOException {
+        if(currChar !='"'){
+            return false;
+        }
+        currChar = source.get();
+        StringBuilder value = new StringBuilder();
+        while(currChar != '"'){
+            if (currChar == Source.EOT) {
+                // this situation means that
+                throw new ScannerException(tokenPosition, "Missing \"");
+            }
+            value.append((char) currChar);
+            currChar = source.get();
+        }
+        currentToken = new Token(Token.TokenType.STRING_LITERAL, value.toString(), tokenPosition);
+        currChar = source.get();
+        return true;
+    }
+    private boolean buildNumber() throws IOException {
+        if (!Character.isDigit(currChar)){
+            return false;
+        }
+        // first character is digit so its either a number or a mistake
+        int value = buildInteger();
+        float fraction = 0;
+        if (currChar == '.'){
+            currChar = source.get();
+            fraction = buildFraction();
+        }
+        currentToken = new Token(Token.TokenType.NUMERIC_LITERAL, value + fraction, tokenPosition);
+        return true;
+    }
+    private int buildInteger() throws IOException {
+        if(isZeroNum()){
+            return 0;
+        }
+        return buildNonZeroNum();
+    }
+    private boolean isZeroNum() throws IOException {
+        if (currChar != '0'){
+            return false;
+        }
+        currChar = source.get();
+        if (Character.isDigit(currChar)){
+            throw  new ScannerException(tokenPosition, "Number should not start with 0");
+        }
+        return true;
+    }
+    private int buildNonZeroNum() throws IOException {
+        int value = 0;
+        while(Character.isDigit(currChar)){
+            value = 10 * value + (currChar - '0');
+            currChar = source.get();
+        }
+        return value;
+    }
+    private float buildFraction () throws IOException {
+        int exponent = ignoreZeros() + 1;
+        float value = 0;
+        while(Character.isDigit(currChar)){
+            value += (currChar - '0')/(float)(Math.pow(10, exponent));
+            currChar = source.get();
+            exponent ++;
+        }
+        return value;
+    }
+    private int ignoreZeros() throws IOException {
+        int numIgnored = 0;
+        while(currChar == '0'){
+            numIgnored ++;
+            currChar = source.get();
+        }
+        return numIgnored;
     }
 }

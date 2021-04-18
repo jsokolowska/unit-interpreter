@@ -29,14 +29,16 @@ public class ScannerMaps {
         keywords.put("unit", Token.TokenType.UNIT);
         keywords.put("as", Token.TokenType.AS);
         keywords.put("let", Token.TokenType.LET);
-        keywords.put("int", Token.TokenType.INT);
-        keywords.put("float", Token.TokenType.FLOAT);
-        keywords.put("bool", Token.TokenType.BOOL);
-        keywords.put("string", Token.TokenType.STRING);
-        keywords.put("compound", Token.TokenType.COMPOUND);
-        keywords.put("kilo", Token.TokenType.KILO);
-        keywords.put("meter", Token.TokenType.METER);
-        keywords.put("second", Token.TokenType.SECOND);
+        keywords.put("int", Token.TokenType.BASE_TYPE);
+        keywords.put("float", Token.TokenType.BASE_TYPE);
+        keywords.put("bool", Token.TokenType.BASE_TYPE);
+        keywords.put("string", Token.TokenType.BASE_TYPE);
+        keywords.put("compound", Token.TokenType.BASE_TYPE);
+        keywords.put("kilo", Token.TokenType.BASE_TYPE);
+        keywords.put("meter", Token.TokenType.BASE_TYPE);
+        keywords.put("second", Token.TokenType.BASE_TYPE);
+        keywords.put("true", Token.TokenType.BOOL_LITERAL);
+        keywords.put("false", Token.TokenType.BOOL_LITERAL);
     }
 
     private static void initSingleCharMap(){

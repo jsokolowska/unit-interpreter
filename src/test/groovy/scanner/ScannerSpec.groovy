@@ -28,8 +28,8 @@ class ScannerSpec extends Specification{
 
         def token;
         expected_types.each{
-            token = scanner.getToken();
-            assert it == token.getTokenType();
+            token = scanner.getToken()
+            assert it == token.getTokenType()
         }
 
     }
@@ -42,10 +42,49 @@ class ScannerSpec extends Specification{
         def token;
 
         expected_types.each{
-            token = scanner.getToken();
-            assert it == token.getTokenType();
+            token = scanner.getToken()
+            assert it == token.getTokenType()
         }
     }
+    def "Should recognize strings with double quotes"(){
+        given:
+        def str = "This is a string literal "
+        def scanner = new Scanner(new StringSource("\"" + str + "\""))
+        def token
+        when:
+        token = scanner.getToken()
+        then:
+        token.getTokenType() == TokenType.STRING
+        token.getStringValue() ==  str
+
+    }
+    def "Should build number tokens"(){
+        given:
+        def scanner = new Scanner(new StringSource(str))
+        when:
+        def token = scanner.getToken()
+        then:
+        token.getTokenType() == TokenType.NUMERIC_LITERAL
+        token.getFloatValue() == (Float) value
+        where:
+        str     || value
+        "2745"  || 2745
+        "0"     || 0
+        "9.02"  || 9.02
+        "0.008" || 0.008
+        "0.0080"|| 0.008
+    }
+    def "Should not allow for nonzero number to start with zero"(){
+        given:
+        def str = "009"
+        def scanner = new Scanner(new StringSource(str))
+        when:
+        scanner.getToken()
+        then:
+        thrown(ScannerException)
+
+    }
+
    /* def "If second char of logical operator is missing throw ScannerException"(){
         setup:
         def scanner = new Scanner(new StringSource("&2" ))

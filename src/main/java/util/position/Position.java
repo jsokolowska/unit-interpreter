@@ -27,6 +27,6 @@ public class Position {
         column ++;
     }
     public String toString(){
-        return "(l:"+line + " c:" + column + ")";
+        return "line"+line + " col" + column;
     }
 }

@@ -74,7 +74,8 @@ letter: "a"-"z" | "A"-"Z";
 special_char: underscore | "\\" escape_char | "." | "," | "(" | ")" | "{" | "}" | " " | ":" |"-";
 escape_char: "t" | "n" | "\\";
 
-number : "0" | non_zero_number;
+number : integer ["." integer];
+integer : "0" | non_zero_number;
 non_zero_number :  non_zero_digit {digit};
 digit: "0" | non_zero_digit;
 non_zero_digit: "1" - "9";

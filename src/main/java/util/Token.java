@@ -46,17 +46,6 @@ public class Token {
         AS,                 // as
         LET,                // let
 
-        //types
-        INT,                // int
-        FLOAT,              // float
-        BOOL,               // bool
-        STRING,             // string
-        COMPOUND,           // compound
-        KILO,               // kilo
-        METER,              // meter
-        SECOND,             // second
-
-
         //literals
         IDENTIFIER,         // identifier : ((underscore  (letter | digit)) | letter) {letter | digit | underscore};
         BASE_TYPE,          // int, float, bool, string, compound, kilo, meter, second
