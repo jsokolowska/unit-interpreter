@@ -3,6 +3,8 @@ package util;
 import util.position.Position;
 
 public class Token {
+    public static int MAX_NUMBER = Integer.MAX_VALUE;
+    public static int MAX_IDENTIFIER_LEN = 100;
     public enum TokenType{
         //operators
         EQUAL,              // ==
@@ -79,20 +81,38 @@ public class Token {
     public String getStringValue(){
         return (String) value;
     }
-    public Integer getIntegerValue(){return (Integer) value;}
     public Float getFloatValue(){return (Float) value;}
     public TokenType getTokenType() {return type;}
+
+    public Position getPosition() {return position;}
 
     @Override
     public String toString() {
         String str = "Token { type = " + type;
         if (value!=null){
-            str += ", value = " + value;
+            str += ", value = \"" + value + "\"";
         }
         if (position != null){
-            str += ", position = " + position;
+            str += ", position = " + position ;
         }
         str += " }";
         return str;
+    }
+    @Override
+    public boolean equals(Object obj){
+        if(obj == null){
+            return  false;
+        }
+        if(this.getClass()!=obj.getClass()){
+            return false;
+        }
+        Token token = (Token) obj;
+        if(this.getTokenType()!= token.getTokenType()){
+            return false;
+        }
+        if(this.getPosition().equals(token.getPosition())) {
+            return true;
+        }
+        return false;
     }
 }

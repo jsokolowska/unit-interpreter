@@ -29,4 +29,23 @@ public class Position {
     public String toString(){
         return "line"+line + " col" + column;
     }
+
+    @Override
+    public boolean equals(Object obj){
+        if(obj == null){
+            return false;
+        }
+        if(obj.getClass()!= this.getClass()){
+            return false;
+        }
+        Position pos = (Position) obj;
+        boolean c = pos.getColumn() == this.getColumn();
+        boolean l = pos.getLine() == this.getLine();
+        return c && l;
+    }
+
+    @Override
+    public Position clone(){
+        return new Position(line, column);
+    }
 }

@@ -33,5 +33,7 @@ public class PositionWrapper implements Source{
     public int getLine(){
         return position.getLine();
     }
-    public Position getPosition(){return position;}
+    public Position getPosition(){return position.clone();}
+
+
 }
