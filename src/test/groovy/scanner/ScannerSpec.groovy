@@ -84,7 +84,7 @@ class ScannerSpec extends Specification{
         "0.0080"|| 0.008
     }
 
-    def "Should not allow for nonzero number to start with zero"(){
+    def "Should not allow for invalid number literals"(){
         when:
         new Scanner(new StringSource(str))
 
@@ -118,7 +118,7 @@ class ScannerSpec extends Specification{
         "|-"|| "Missing |"
     }
 
-    def "Check simple program"(){
+    def "Should tokenize simple program"(){
         given:
         def str = "int x=3"
         def scanner = new Scanner(new StringSource(str))
