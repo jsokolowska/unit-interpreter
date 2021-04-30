@@ -7,16 +7,12 @@ import util.position.Position;
 import util.position.PositionWrapper;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 public class Scanner {
     private final PositionWrapper source;
     private Token currentToken;
     private int currChar;
     private Position tokenPosition;
-    private StringBuilder tempId;
-    private int tempLen;
 
     public Scanner (PositionWrapper positionWrapper) throws IOException, ScannerException {
         this.source = positionWrapper;
@@ -225,60 +221,69 @@ public class Scanner {
         return numIgnored;
     }
 
-    private boolean buildIdentifier() throws IOException{
-        tempId = new StringBuilder();
-        tempLen = 0;
-        if(isValidIdBeginning()){
-            while(isValidIdPart() && tempLen < Token.MAX_IDENTIFIER_LEN){
-                tempId.append((char)currChar);
-                tempLen ++;
-                currChar = source.get();
-            }
-            if(isValidIdPart()){
-                //max len exceeded
-                throw new ScannerException(tokenPosition, "Invalid identifier (max identifier " +
-                                                           "length" + Token.MAX_IDENTIFIER_LEN + ")");
-            }
-            if(buildKeyword()){
+    private boolean buildIdentifier() throws IOException {
+        IdentifierScanner scanner = new IdentifierScanner();
+        return scanner.buildIdentifier();
+    }
+
+    private class IdentifierScanner{
+        private StringBuilder identifier = new StringBuilder();
+        private int idLen = 0;
+
+        public boolean buildIdentifier() throws IOException{
+            if(isValidIdBeginning()){
+                while(isValidIdPart() && idLen < Token.MAX_IDENTIFIER_LEN){
+                    identifier.append((char)currChar);
+                    idLen ++;
+                    currChar = source.get();
+                }
+                if(isValidIdPart()){
+                    //max len exceeded
+                    throw new ScannerException(tokenPosition, "Invalid identifier (max identifier " +
+                            "length" + Token.MAX_IDENTIFIER_LEN + ")");
+                }
+                if(buildKeyword(identifier)){
+                    return true;
+                }
+                currentToken = new Token(Token.TokenType.IDENTIFIER, identifier.toString(), tokenPosition);
                 return true;
             }
-            currentToken = new Token(Token.TokenType.IDENTIFIER, tempId.toString(), tokenPosition);
-            return true;
+            return false;
         }
-        return false;
-    }
 
-    private boolean isValidIdBeginning() throws IOException {
-        if(Character.isAlphabetic(currChar)){
-            tempId.append((char)currChar);
-            currChar = source.get();
-            tempLen ++;
-            return true;
-        }else if (currChar == '_'){
-            tempId.append((char)currChar);
-            currChar = source.get();
-            if(Character.isLetterOrDigit(currChar)) {
-                tempId.append((char)currChar);
+        private boolean isValidIdBeginning() throws IOException {
+            if(Character.isAlphabetic(currChar)){
+                identifier.append((char)currChar);
                 currChar = source.get();
-                tempLen += 2;
+                idLen++;
+                return true;
+            }else if (currChar == '_'){
+                identifier.append((char)currChar);
+                currChar = source.get();
+                if(Character.isLetterOrDigit(currChar)) {
+                    identifier.append((char)currChar);
+                    currChar = source.get();
+                    idLen += 2;
+                    return true;
+                }
+                // only identifiers can start with "_" so throw exception
+                throw new ScannerException(source.getPosition(),"Invalid identifier");
+            }
+            return false;
+        }
+
+        private boolean isValidIdPart (){
+            return Character.isLetterOrDigit(currChar) || currChar == '_';
+        }
+
+        private boolean buildKeyword (StringBuilder identifier){
+            Token.TokenType tempType = ScannerMaps.keywords.get(identifier.toString());
+            if(tempType!=null){
+                currentToken = new Token(tempType, identifier.toString(), tokenPosition);
                 return true;
             }
-            // only identifiers can start with "_" so throw exception
-            throw new ScannerException(source.getPosition(),"Invalid identifier");
+            return false;
         }
-        return false;
     }
 
-    private boolean isValidIdPart (){
-        return Character.isLetterOrDigit(currChar) || currChar == '_';
-    }
-
-    private boolean buildKeyword (){
-        Token.TokenType tempType = ScannerMaps.keywords.get(tempId.toString());
-        if(tempType!=null){
-            currentToken = new Token(tempType, tempId.toString(), tokenPosition);
-            return true;
-        }
-        return false;
-    }
 }

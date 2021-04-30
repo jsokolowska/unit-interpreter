@@ -161,7 +161,7 @@ class ScannerSpec extends Specification{
         def str = "int x=3"
         def scanner = new Scanner(new StringSource(str))
         def token = scanner.getToken()
-       
+
         assert token == new Token(TokenType.BASE_TYPE, new Position(1,1))
         assert token.getStringValue() == "int"
         token = scanner.getToken()
