@@ -22,14 +22,17 @@ public class Scanner {
         currChar = source.get();
         nextToken();
     }
+
     public Scanner (Source source) throws IOException, ScannerException {
         this(new PositionWrapper(source));
     }
+
     public Token getToken() throws IOException, ScannerException {
         Token temp = currentToken;
         nextToken();
         return temp;
     }
+
     private void nextToken() throws IOException, ScannerException {
         ignoreWhitespaces();
         tokenPosition = source.getPosition();
@@ -47,11 +50,13 @@ public class Scanner {
         currentToken = new Token(Token.TokenType.UNKNOWN, (char) currChar, tokenPosition);
 
     }
+
     private void ignoreWhitespaces() throws IOException {
         while (Character.isWhitespace(currChar)){
             currChar = source.get();
         }
     }
+
     private boolean buildEOT() throws IOException {
         if(currChar == Source.EOT){
             currentToken = new Token(Token.TokenType.EOT, tokenPosition);
@@ -60,6 +65,7 @@ public class Scanner {
         }
         return false;
     }
+
     private boolean buildOperators() throws IOException, ScannerException {
         Token.TokenType tempType = ScannerMaps.singleOperators.get((char)currChar);
         if (tempType != null)
@@ -70,6 +76,7 @@ public class Scanner {
         }
         return buildDoubleOperators();
     }
+
     private boolean buildDoubleOperators() throws IOException, ScannerException {
         int firstChar = currChar;
         switch(firstChar){
@@ -126,6 +133,7 @@ public class Scanner {
         }
         return true;
     }
+
     private boolean buildStringLiteral () throws ScannerException, IOException {
         if(currChar !='"'){
             return false;
@@ -144,6 +152,7 @@ public class Scanner {
         currChar = source.get();
         return true;
     }
+
     private boolean buildNumber() throws IOException {
         if (!Character.isDigit(currChar)){
             return false;
@@ -158,12 +167,14 @@ public class Scanner {
         currentToken = new Token(Token.TokenType.NUMERIC_LITERAL, value + fraction, tokenPosition);
         return true;
     }
+
     private int buildInteger() throws IOException {
         if(isZeroNum()){
             return 0;
         }
         return buildNonZeroNum();
     }
+
     private boolean isZeroNum() throws IOException {
         if (currChar != '0'){
             return false;
@@ -174,6 +185,7 @@ public class Scanner {
         }
         return true;
     }
+
     private int buildNonZeroNum() throws IOException {
         int value = 0;
         while(Character.isDigit(currChar) && value < Token.MAX_NUMBER){
@@ -185,6 +197,7 @@ public class Scanner {
         }
         return value;
     }
+
     private float buildFraction () throws IOException {
         int exponent = ignoreZeros() + 1;
         float value = 0;
@@ -195,6 +208,7 @@ public class Scanner {
         }
         return value;
     }
+
     private int ignoreZeros() throws IOException {
         int numIgnored = 0;
         while(currChar == '0'){
@@ -203,6 +217,7 @@ public class Scanner {
         }
         return numIgnored;
     }
+
     private boolean buildIdentifier() throws IOException{
         tempId = new StringBuilder();
         tempLen = 0;
@@ -225,6 +240,7 @@ public class Scanner {
         }
         return false;
     }
+
     private boolean isValidIdBeginning() throws IOException {
         if(Character.isAlphabetic(currChar)){
             tempId.append((char)currChar);
@@ -245,9 +261,11 @@ public class Scanner {
         }
         return false;
     }
+
     private boolean isValidIdPart (){
         return Character.isLetterOrDigit(currChar) || currChar == '_';
     }
+
     private boolean buildKeyword (){
         Token.TokenType tempType = ScannerMaps.keywords.get(tempId.toString());
         if(tempType!=null){

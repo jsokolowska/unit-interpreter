@@ -19,13 +19,13 @@ public class StringSource implements Source{
             currentChar = text.charAt(currentPos);
         }
     }
+
     @Override
     public int get() {
         int temp = currentChar;
         nextChar();
         return temp;
     }
-
 
     public void nextChar() {
         currentPos += 1;

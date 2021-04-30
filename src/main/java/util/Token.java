@@ -50,7 +50,9 @@ public class Token {
 
         //literals
         IDENTIFIER,         // identifier : ((underscore  (letter | digit)) | letter) {letter | digit | underscore};
-        BASE_TYPE,          // int, float, bool, string, compound, kilo, meter, second
+        BASE_TYPE,          // int, float, bool, string
+        BASE_UNIT,          // kg, meter, second
+        COMPOUND,           // compound
         NUMERIC_LITERAL,    // number : "0" | non_zero_number;
         STRING_LITERAL,     // string: "\"" {character} "\"";
         BOOL_LITERAL,       // "true", "false"
@@ -66,12 +68,15 @@ public class Token {
     public Token (TokenType type){
         this(type, null, null);
     }
+
     public Token (TokenType type, Object value){
         this(type, value, null);
     }
+
     public Token (TokenType type, Position position){
         this(type, null, position);
     }
+
     public Token (TokenType type, Object value, Position position){
         this.type = type;
         this.value = value;
@@ -81,7 +86,9 @@ public class Token {
     public String getStringValue(){
         return (String) value;
     }
+
     public Float getFloatValue(){return (Float) value;}
+
     public TokenType getTokenType() {return type;}
 
     public Position getPosition() {return position;}
@@ -98,6 +105,7 @@ public class Token {
         str += " }";
         return str;
     }
+
     @Override
     public boolean equals(Object obj){
         if(obj == null){
@@ -110,9 +118,6 @@ public class Token {
         if(this.getTokenType()!= token.getTokenType()){
             return false;
         }
-        if(this.getPosition().equals(token.getPosition())) {
-            return true;
-        }
-        return false;
+        return this.getPosition().equals(token.getPosition());
     }
 }
