@@ -1,0 +1,46 @@
+
+/** defining base units */
+unit kelvin;
+unit celsius;
+unit farenheit;
+unit kiloMeter;
+
+/** defining compound units */
+unit joule as  <kilo * meter^2 / (second ^2)>;
+unit newton as <kilo * meter / ( second ^2)>;
+
+
+
+/** adding conversions **/
+let meter (kiloMeter km) : 1000 * km;
+let kelvin (celsius c) : c + 273.15;
+let farenheit (celsius c) : c * 9/5 + 32;
+
+
+/** using conversions **/
+celsius c = 10;
+farenheit f = farenheit(c);
+int temp = int(f); //conversion to numeric is supported
+
+/** unit arithmetic **/
+/-- addition: possible as long as both components are of the same type --/
+kelvin + kelvin //OK
+kelvin + celcius //Not OK, language does not support implicit conversions
+kelvin + kelvin (celcius) //OK, after conversion types match
+kelvin + 4 //Not OK, implicit conversion between numeric and unit is not supported
+kelvin + kelvin (4) //OK
+
+/-- multiplication: possible for any units, the result will be either a base unit or compound unit --/
+celsius * kelvin // type: <celcius * kelvin>
+newton * joule //type: <kilo^2 * meter^3/ (second^4)>
+joule / newton // type: meter
+joule * 2 //type: joule
+
+/-- exponentiation: base can by any numeric or unit, exponent must be integer --/
+second^2 //OK
+second ^0.5 //Not supported
+second ^ kg //Not supported
+
+
+
+
