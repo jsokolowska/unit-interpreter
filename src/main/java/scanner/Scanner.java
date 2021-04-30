@@ -79,57 +79,46 @@ public class Scanner {
         int firstChar = currChar;
         switch(firstChar){
             case '=':
-                currChar = source.get();
-                if (currChar == '='){
-                    currentToken = new Token(Token.TokenType.EQUAL, "==", tokenPosition);
-                    currChar = source.get();
-                }else{
-                    currentToken = new Token(Token.TokenType.ASSIGN, "=", tokenPosition);
-                }break;
+                buildComparisonOperators(Token.TokenType.ASSIGN, Token.TokenType.EQUAL);
+                break;
             case '!':
-                currChar = source.get();
-                if(currChar == '='){
-                    currentToken = new Token(Token.TokenType.NOT_EQUAL, "!=", tokenPosition);
-                    currChar = source.get();
-                }else{
-                    currentToken = new Token(Token.TokenType.NOT, "!", tokenPosition);
-                }break;
+                buildComparisonOperators(Token.TokenType.NOT, Token.TokenType.NOT_EQUAL);
+                break;
             case '<':
-                currChar = source.get();
-                if(currChar == '='){
-                    currentToken = new Token(Token.TokenType.LESS_EQUAL, "<=", tokenPosition);
-                    currChar = source.get();
-                }else{
-                    currentToken = new Token(Token.TokenType.LESS, "<", tokenPosition);
-                }break;
+                buildComparisonOperators(Token.TokenType.LESS, Token.TokenType.LESS_EQUAL);
+                break;
             case '>':
-                currChar = source.get();
-                if(currChar == '='){
-                    currentToken = new Token(Token.TokenType.GREATER_EQUAL, ">=", tokenPosition);
-                    currChar = source.get();
-                }else{
-                    currentToken = new Token(Token.TokenType.GREATER, ">", tokenPosition);
-                }break;
+                buildComparisonOperators(Token.TokenType.GREATER, Token.TokenType.GREATER_EQUAL);
+                break;
             case '&':
-                currChar = source.get();
-                if (currChar =='&'){
-                    currentToken = new Token(Token.TokenType.AND, "&&", tokenPosition);
-                    currChar = source.get();
-                }else{
-                    throw new ScannerException(source.getPosition(), "Missing &");
-                }break;
+                buildLogicalOperators(Token.TokenType.AND, '&');
+                break;
             case '|':
-                currChar = source.get();
-                if (currChar == '|'){
-                    currentToken = new Token(Token.TokenType.OR, "||", tokenPosition);
-                    currChar = source.get();
-                }else{
-                    throw new ScannerException(source.getPosition(), "Missing |");
-                }break;
+                buildLogicalOperators(Token.TokenType.OR, '|');
+                break;
             default:
                 return false;
         }
         return true;
+    }
+    private void buildComparisonOperators (Token.TokenType shorter, Token.TokenType longer) throws IOException {
+        currChar = source.get();
+        if(currChar == '='){
+            currentToken = new Token(longer, tokenPosition);
+            currChar = source.get();
+        }else{
+            currentToken = new Token(shorter, tokenPosition);
+        }
+    }
+
+    private void buildLogicalOperators ( Token.TokenType type, char expected) throws IOException {
+        currChar = source.get();
+        if (currChar == expected){
+            currentToken = new Token(type, tokenPosition);
+            currChar = source.get();
+        }else{
+            throw new ScannerException(source.getPosition(), "Missing " + expected);
+        }
     }
 
     private boolean buildStringLiteral () throws ScannerException, IOException {
@@ -227,7 +216,7 @@ public class Scanner {
     }
 
     private class IdentifierScanner{
-        private StringBuilder identifier = new StringBuilder();
+        private final StringBuilder identifier = new StringBuilder();
         private int idLen = 0;
 
         public boolean buildIdentifier() throws IOException{
