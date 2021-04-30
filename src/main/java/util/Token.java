@@ -2,6 +2,8 @@ package util;
 
 import util.position.Position;
 
+import java.math.BigDecimal;
+
 public class Token {
     public static int MAX_NUMBER = Integer.MAX_VALUE;
     public static int MAX_IDENTIFIER_LEN = 100;
@@ -53,7 +55,8 @@ public class Token {
         BASE_TYPE,          // int, float, bool, string
         BASE_UNIT,          // kg, meter, second
         COMPOUND,           // compound
-        NUMERIC_LITERAL,    // number : "0" | non_zero_number;
+        INT_LITERAL,        // number : "0" | non_zero_number;
+        FLOAT_LITERAL,      // for floating point values
         STRING_LITERAL,     // string: "\"" {character} "\"";
         BOOL_LITERAL,       // "true", "false"
 
@@ -87,7 +90,9 @@ public class Token {
         return (String) value;
     }
 
-    public Float getFloatValue(){return (Float) value;}
+    public double getDoubleValue(){return (Double) value;}
+
+    public int getIntegerValue(){return (Integer) value;}
 
     public TokenType getTokenType() {return type;}
 

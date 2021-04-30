@@ -1,7 +1,6 @@
 package scanner
 
 import exception.ScannerException
-import org.codehaus.groovy.syntax.TokenException
 import source.StringSource
 import spock.lang.*
 import util.Token
@@ -84,7 +83,23 @@ class ScannerSpec extends Specification{
 
     }
 
-    def "Should build number tokens"(){
+    def "Should build integer tokens"(){
+        given:
+        def scanner = new Scanner(new StringSource(str))
+
+        when:
+        def token = scanner.getToken()
+
+        then:
+        token == new Token(TokenType.INT_LITERAL, value, new Position(1, 1))
+        token.getIntegerValue() == value
+
+        where:
+        str     || value
+        "2745"  || 2745
+        "0"     || 0
+    }
+    def "Should build floating point tokens"(){
         given:
         def epsilon = 0.0001
         def scanner = new Scanner(new StringSource(str))
@@ -93,13 +108,11 @@ class ScannerSpec extends Specification{
         def token = scanner.getToken()
 
         then:
-        token == new Token(TokenType.NUMERIC_LITERAL, value, new Position(1, 1))
-        Math.abs(token.getFloatValue() - (Float)value) < epsilon
+        token == new Token(TokenType.FLOAT_LITERAL, value, new Position(1, 1))
+        Math.abs(token.getDoubleValue() - (Double)value) < epsilon
 
         where:
         str     || value
-        "2745"  || 2745
-        "0"     || 0
         "9.02"  || 9.02
         "0.07"  || 0.07
         "0.0080"|| 0.008
@@ -148,8 +161,7 @@ class ScannerSpec extends Specification{
         def str = "int x=3"
         def scanner = new Scanner(new StringSource(str))
         def token = scanner.getToken()
-
-
+       
         assert token == new Token(TokenType.BASE_TYPE, new Position(1,1))
         assert token.getStringValue() == "int"
         token = scanner.getToken()
@@ -158,8 +170,8 @@ class ScannerSpec extends Specification{
         token = scanner.getToken()
         assert token == new Token(TokenType.ASSIGN, new Position(1,6))
         token = scanner.getToken()
-        assert token == new Token(TokenType.NUMERIC_LITERAL, new Position(1,7))
-        assert token.getFloatValue() == (Float) 3
+        assert token == new Token(TokenType.INT_LITERAL, new Position(1,7))
+        assert token.getIntegerValue() == 3
         token = scanner.getToken()
         assert token == new Token(TokenType.EOT, new Position(1,8))
     }
@@ -236,7 +248,7 @@ class ScannerSpec extends Specification{
         "bool"      || TokenType.BASE_TYPE
         "string"    || TokenType.BASE_TYPE
         "compound"  || TokenType.COMPOUND
-        "kilo"      || TokenType.BASE_UNIT
+        "kilogram"  || TokenType.BASE_UNIT
         "meter"     || TokenType.BASE_UNIT
         "second"    || TokenType.BASE_UNIT
         "true"      || TokenType.BOOL_LITERAL

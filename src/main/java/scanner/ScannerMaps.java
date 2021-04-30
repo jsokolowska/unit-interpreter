@@ -34,7 +34,7 @@ public class ScannerMaps {
         keywords.put("bool", Token.TokenType.BASE_TYPE);
         keywords.put("string", Token.TokenType.BASE_TYPE);
         keywords.put("compound", Token.TokenType.COMPOUND);
-        keywords.put("kilo", Token.TokenType.BASE_UNIT);
+        keywords.put("kilogram", Token.TokenType.BASE_UNIT);
         keywords.put("meter", Token.TokenType.BASE_UNIT);
         keywords.put("second", Token.TokenType.BASE_UNIT);
         keywords.put("true", Token.TokenType.BOOL_LITERAL);

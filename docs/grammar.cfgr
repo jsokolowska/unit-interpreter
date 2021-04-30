@@ -27,7 +27,7 @@ var_dcl_stmt : type (identifier ";") | [assign_stmt] ;
 unit_dcl : "unit" identifier ["as" compound_expr ] ";";
 # conversion expression for compound unit definition
 # only one division is possible
-compound_expr: "<" compound_term ["//" compound_term] ">" ";";
+compound_expr: "<" compound_term ["/" compound_term] ">" ";";
 compound_term: compound_exp {"*" compound_exp};
 compound_exp: unit_type ["^" non_zero_number];
 unit_type: base_unit | identifier;
@@ -50,7 +50,7 @@ comp_expr : rel_expr {comp_op rel_expr};
 rel_expr : arithmetic_expr {rel_op arithmetic_expr};
 arithmetic_expr: multi_expr {additive_op multi_expr};
 multi_expr: power_expr {multi_op power_expr};
-power_unit_expr: unary_expr {"^" unary_expr};
+power_unit_expr: {unary_expr "^"} unary_expr;
 unary_expr: {unary_op} not_unary_expr;
 not_unary_expr: "(" expr ")" | value;
 
@@ -74,7 +74,7 @@ letter: "a"-"z" | "A"-"Z";
 special_char: underscore | "\\" escape_char | "." | "," | "(" | ")" | "{" | "}" | " " | ":" |"-";
 escape_char: "t" | "n" | "\\";
 
-number : integer ["." {"0"} integer];
+number : integer ["." {"0"} non_zero_number];
 integer : "0" | non_zero_number;
 non_zero_number :  non_zero_digit {digit};
 digit: "0" | non_zero_digit;

@@ -7,6 +7,8 @@ import util.position.Position;
 import util.position.PositionWrapper;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public class Scanner {
     private final PositionWrapper source;
@@ -157,25 +159,26 @@ public class Scanner {
         if (!Character.isDigit(currChar)){
             return false;
         }
+
         // first character is digit so its either a number or a mistake
         int value = buildInteger();
-        float fraction = 0;
+        currentToken = new Token(Token.TokenType.INT_LITERAL, value, tokenPosition);
+
         if (currChar == '.'){
             currChar = source.get();
-            fraction = buildFraction();
+            buildFraction(value);
         }
-        currentToken = new Token(Token.TokenType.NUMERIC_LITERAL, value + fraction, tokenPosition);
         return true;
     }
 
     private int buildInteger() throws IOException {
-        if(isZeroNum()){
+        if(isZeroNumber()){
             return 0;
         }
-        return buildNonZeroNum();
+        return buildNonZeroNumber();
     }
 
-    private boolean isZeroNum() throws IOException {
+    private boolean isZeroNumber() throws IOException {
         if (currChar != '0'){
             return false;
         }
@@ -186,7 +189,7 @@ public class Scanner {
         return true;
     }
 
-    private int buildNonZeroNum() throws IOException {
+    private int buildNonZeroNumber() throws IOException {
         int value = 0;
         while(Character.isDigit(currChar) && value < Token.MAX_NUMBER){
             value = 10 * value + (currChar - '0');
@@ -198,15 +201,19 @@ public class Scanner {
         return value;
     }
 
-    private float buildFraction () throws IOException {
-        int exponent = ignoreZeros() + 1;
-        float value = 0;
-        while(Character.isDigit(currChar)){
-            value += (currChar - '0')/(float)(Math.pow(10, exponent));
-            currChar = source.get();
-            exponent ++;
+    private void buildFraction (int value) throws IOException {
+        int scale = ignoreZeros();
+        int fractionValue = 0;
+        if (!Character.isDigit(currChar)) {
+            throw new ScannerException(tokenPosition, "Improper floating point number");
         }
-        return value;
+        while(Character.isDigit(currChar)){
+            fractionValue = fractionValue * 10 + currChar - '0';
+            currChar = source.get();
+            scale ++;
+        }
+        double final_val = value + (float)fractionValue / Math.pow(10, scale);
+        currentToken = new Token(Token.TokenType.FLOAT_LITERAL, final_val, tokenPosition);
     }
 
     private int ignoreZeros() throws IOException {
