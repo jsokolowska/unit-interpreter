@@ -18,7 +18,7 @@ public class FileSource implements Source{
         return temp;
     }
 
-    public void nextChar() throws IOException {
+    private void nextChar() throws IOException {
         currentChar = bufferedReader.read();
         if (currentChar == -1){
             currentChar = EOT;
