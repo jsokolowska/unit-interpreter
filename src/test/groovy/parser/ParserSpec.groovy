@@ -127,7 +127,7 @@ class ParserSpec extends Specification{
         "<a ^ 2 * b ^ 3 / c^4>;"    || [new CompoundTerm(new Unit("a"), 2), new CompoundTerm(new Unit("b"), 3),
                                         new CompoundTerm(new Unit("c"), -4)]
     }
-    def "Check "(){
+    def "Should parse partial unit declarations "(){
         given:
         def parser = prepareParser(str)
         def result;
@@ -151,5 +151,25 @@ class ParserSpec extends Specification{
         "a_a as <a ^ 2 * b ^ 3 / c^4>;"    || "a_a"    | [new CompoundTerm(new Unit("a"), 2), new CompoundTerm(new Unit("b"), 3),
                                                                 new CompoundTerm(new Unit("c"), -4)]
     }
+
+    def "Should parse argument list"(){
+        given:
+        def parser = prepareParser(str)
+        def result
+
+        when:
+        result = parser.parseArgList();
+
+        then:
+        result.getType() == type
+        result.getName() == name
+
+        where:
+        str         ||   type    | name
+        "int val"   || "int"    | "val"
+        "second s"  || "second" | "s"
+        "kkk k"     || "kkk"    | "k"
+    }
+
 
 }

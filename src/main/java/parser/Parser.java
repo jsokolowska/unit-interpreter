@@ -1,10 +1,10 @@
 package parser;
 
 import exception.ParserException;
-import org.jetbrains.annotations.VisibleForTesting;
 import scanner.Scanner;
 import util.Token;
 import util.Token.TokenType;
+import util.tree.ArgList;
 import util.tree.Expression;
 import util.tree.Function;
 import util.tree.Program;
@@ -14,6 +14,7 @@ import util.tree.unit.Unit;
 import util.tree.unit.UnitDeclaration;
 import util.tree.unit.compound.CompoundTerm;
 import util.tree.unit.compound.CompoundExpr;
+import util.tree.var.Argument;
 
 import java.io.IOException;
 
@@ -146,8 +147,6 @@ public class Parser {
         return token.getTokenType() == TokenType.IDENTIFIER || token.getTokenType() == TokenType.BASE_UNIT;
     }
 
-
-
     private Conversion parseUnitConversion() {
         return new Conversion();
     }
@@ -166,7 +165,13 @@ public class Parser {
     }
 
     private BlockStatement parseBlockStatement() throws IOException{
-        return null;
+        BlockStatement block = new BlockStatement();
+        token = scanner.getToken();
+        while (token.getTokenType()!= TokenType.CURLY_CLOSE && token.getTokenType() != TokenType.EOT){
+            Statement st = parseOneStatement();
+            block.add(st);
+        }
+        return block;
     }
 
     private Statement parseOneStatement() throws IOException{
@@ -225,5 +230,37 @@ public class Parser {
 
     private Expression parseExpression () throws IOException{
         return null;
+    }
+
+    private ArgList parseArgList () throws IOException {
+        if (token.getTokenType() != TokenType.OPEN_BRACKET){
+            throwTokenTypeException(TokenType.OPEN_BRACKET);
+        }
+        ArgList argList = new ArgList();
+        token = scanner.getToken();
+        while (isType()){
+            argList.add(parseArgument());
+            token = scanner.getToken();
+        }
+        if (token.getTokenType()!=TokenType.CLOSE_BRACKET){
+            throwTokenTypeException(TokenType.CLOSE_BRACKET);
+        }
+        return argList;
+    }
+
+    private boolean isType(){
+        return token.getTokenType() == TokenType.IDENTIFIER
+                || token.getTokenType() == TokenType.BASE_TYPE
+                || token.getTokenType() == TokenType.BASE_UNIT;
+    }
+
+    private Argument parseArgument() throws IOException {
+        Token type = token;
+        token = scanner.getToken();
+        if (token.getTokenType() != TokenType.IDENTIFIER){
+            throwTokenTypeException(TokenType.IDENTIFIER);
+
+        }
+        return new Argument(type.getStringValue(), token.getStringValue());
     }
 }
