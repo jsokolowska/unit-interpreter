@@ -1,4 +1,4 @@
-package util.tree.variable;
+package util.tree.var;
 
 import util.tree.literal.IntLiteral;
 

@@ -125,4 +125,5 @@ public class Token {
         }
         return this.getPosition().equals(token.getPosition());
     }
+
 }

@@ -1,6 +1,6 @@
 module grammar;
 # main part
-program : {unit_dcl | conversion_dcl} function_def {function_def};
+program : {unit_dcl | conversion_dcl} function_def {function_def};          #done
 function_def : type identifier arg_list block_stmt;
 arg_list : "(" [type identifier {"," type identifier}] ")" ;
 block_stmt : "{" [stmt  {stmt}] "}";
@@ -8,7 +8,7 @@ stmt: block_stmt | return_stmt | loop_stmt | call_stmt | if_stmt | print_stmt | 
 | var_dcl_stmt | break_stmt | continue_stmt | type_check_stmt;
 
 # flow control statements
-return_stmt : "return" ( identifier | expr) ";";
+return_stmt : "return" expr ";";
 loop_stmt : "while" "(" expr ")" stmt ;
 call_stmt: identifier "(" args ")" ";";
 args: [expr {"," expr}];
