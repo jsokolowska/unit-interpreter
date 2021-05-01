@@ -4,9 +4,13 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class CompoundExpr {
-    private final SortedSet<CompoundPart> parts =  new TreeSet<>();
+    private final SortedSet<CompoundTerm> parts =  new TreeSet<>();
 
-    public boolean addPart(CompoundPart part){
+    public boolean addPart(CompoundTerm part){
         return parts.add(part);
+    }
+
+    public boolean contains (CompoundTerm part){
+        return  parts.contains(part);
     }
 }

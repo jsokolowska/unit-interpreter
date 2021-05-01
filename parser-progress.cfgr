@@ -8,13 +8,13 @@ stmt: block_stmt | return_stmt | loop_stmt | call_stmt | if_stmt | print_stmt | 
 | var_dcl_stmt | break_stmt | continue_stmt | type_check_stmt;
 
 # flow control statements
-return_stmt : "return" expr ";";
-loop_stmt : "while" "(" expr ")" stmt ;
+return_stmt : "return" expr ";";                        #done
+loop_stmt : "while" "(" expr ")" stmt ;         #in progress, will work afer expr and statement
 call_stmt: identifier "(" args ")" ";";
 args: [expr {"," expr}];
 if_stmt : "if" "(" expr ")" stmt ["else" stmt];
-break_stmt : "break" ";";
-continue_stmt : "continue" ";";
+break_stmt : "break" ";";                       #done!
+continue_stmt : "continue" ";";                 #done!
 
 # bulit-in statements
 print_stmt : "print" "(" args ")" ";";
@@ -27,9 +27,9 @@ var_dcl_stmt : type (identifier ";") | [assign_stmt] ;
 unit_dcl : "unit" identifier ["as" compound_expr ] ";";
 # conversion expression for compound unit definition
 # only one division is possible
-compound_expr: "<" compound_term ["/" compound_term] ">" ";";
-compound_term: compound_exp {"*" compound_exp};
-compound_exp: unit_type ["^" non_zero_number];
+compound_expr: "<" compound_part ["/" compound_part] ">" ";";
+compound_part: compound_term {"*" compound_term};
+compound_term: unit_type ["^" non_zero_number];
 unit_type: base_unit | identifier;
 
 # defining unit relationships
@@ -42,8 +42,6 @@ power_unit_expr: {unary_unit_expr "^"} unary_unit_expr;
 unary_expr: ["-"] not_unary_expr;
 not_unary_expr: "(" unit_expr ")" | unit_value;
 unit_value: number | base_unit | identifier;
-
-
 
 
 # operator precedence

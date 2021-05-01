@@ -8,12 +8,11 @@ import util.Token.TokenType;
 import util.tree.Expression;
 import util.tree.Function;
 import util.tree.Program;
-import util.tree.statement.BlockStatement;
-import util.tree.statement.ReturnStatement;
-import util.tree.statement.Statement;
+import util.tree.statement.*;
 import util.tree.unit.Conversion;
+import util.tree.unit.Unit;
 import util.tree.unit.UnitDeclaration;
-import util.tree.unit.compound.CompoundPart;
+import util.tree.unit.compound.CompoundTerm;
 import util.tree.unit.compound.CompoundExpr;
 
 import java.io.IOException;
@@ -22,14 +21,13 @@ public class Parser {
     private final Scanner scanner;
     private Token token;
 
-    public Parser (Scanner scanner){
+    public Parser (Scanner scanner) throws IOException {
         this.scanner = scanner;
     }
 
     public Program parse() throws IOException {
         Program program = new Program();
         token = scanner.getToken();
-
         while(token.getTokenType() == TokenType.UNIT || token.getTokenType() == TokenType.LET){
             if(token.getTokenType() == TokenType.UNIT){
                     UnitDeclaration u = parseUnitDeclaration();
@@ -65,27 +63,90 @@ public class Parser {
             token = scanner.getToken();
             CompoundExpr type = null;
             if(token.getTokenType() == TokenType.AS){
-                type = parseCompoundType();
+                type = parseCompoundExpression();
             }
             if(token.getTokenType() == TokenType.SEMICOLON){
-                return  new UnitDeclaration(unitName, type);
+                return new UnitDeclaration(unitName, type);
             }else{
-                throw new ParserException(TokenType.SEMICOLON, token.getTokenType(), token.getPosition());
+                throwTokenTypeException(TokenType.SEMICOLON);
             }
         }
         throw new ParserException(TokenType.IDENTIFIER, token.getTokenType(), token.getPosition());
     }
 
-    private CompoundExpr parseCompoundType() throws IOException{
+    private CompoundExpr parseCompoundExpression() throws IOException{
         token = scanner.getToken();
+        //check opening token
+        if (token.getTokenType() != TokenType.LESS){
+            throwTokenTypeException(TokenType.LESS);
+        }
+        //must have at least one compound term
+        CompoundExpr compoundExpr = new CompoundExpr();
+        parseCompoundNumerator(compoundExpr);
 
+        if(token.getTokenType() == TokenType.DIVIDE){
+            parseCompoundDenominator(compoundExpr);
+        }
 
-        return null;
+        //check if compound expression has a proper ending
+        if(token.getTokenType() != TokenType.GREATER){
+            throwTokenTypeException(TokenType.GREATER);
+        }
+        token = scanner.getToken();
+        if(token.getTokenType() != TokenType.SEMICOLON){
+            throwTokenTypeException(TokenType.SEMICOLON);
+        }
+
+        return compoundExpr;
     }
-    private CompoundPart parseCompoundPart(){
 
-        return null;
+    private void throwTokenTypeException (TokenType expected){
+        throw  new ParserException(expected, token.getTokenType(), token.getPosition());
     }
+
+    private void parseCompoundNumerator (CompoundExpr expr) throws IOException{
+        parseCompoundTerms(expr, false);
+    }
+
+    private void parseCompoundDenominator (CompoundExpr expr) throws IOException{
+        parseCompoundTerms(expr, true);
+    }
+
+    private void parseCompoundTerms(CompoundExpr expr, boolean isDenominator) throws IOException {
+            CompoundTerm one = parseOneCompoundTerm();
+            expr.addPart(one);
+            token = scanner.getToken();
+            while (token.getTokenType() == TokenType.MULTIPLY){
+                CompoundTerm term = parseOneCompoundTerm();
+                if (isDenominator) term.negate();
+                expr.addPart(term);
+                token = scanner.getToken();
+            }
+    }
+
+    private CompoundTerm parseOneCompoundTerm () throws IOException {
+        token = scanner.getToken();
+        if(!isUnitType()){
+            throw new ParserException("unit type", token.getTokenType(), token.getPosition());
+        }
+        Unit unit = new Unit(token.getStringValue());
+        int exponent = 1;
+        token = scanner.getToken();
+        if (token.getTokenType() == TokenType.POWER){
+            token = scanner.getToken();
+            if (token.getIntegerValue()== 0) {
+                throw new ParserException("exponent in unit expression cannot be 0", token.getPosition());
+            }
+            exponent = token.getIntegerValue();
+        }
+        return new CompoundTerm(unit, exponent);
+    }
+
+    private boolean isUnitType (){
+        return token.getTokenType() == TokenType.IDENTIFIER || token.getTokenType() == TokenType.BASE_UNIT;
+    }
+
+
 
     private Conversion parseUnitConversion() {
         return new Conversion();
@@ -95,7 +156,6 @@ public class Parser {
         return  new Function();
     }
 
-    @VisibleForTesting
     private Statement parseStatements() throws IOException {
         token = scanner.getToken();
         if (token.getTokenType()==TokenType.CURLY_OPEN){
@@ -104,16 +164,35 @@ public class Parser {
             return parseOneStatement();
         }
     }
-    private Statement parseOneStatement() throws IOException{
-        if (token.getTokenType()==TokenType.RETURN){
-            return parseReturnStatement();
-        }
-        return null;
-    }
+
     private BlockStatement parseBlockStatement() throws IOException{
         return null;
     }
-    private ReturnStatement parseReturnStatement() throws IOException{
+
+    private Statement parseOneStatement() throws IOException{
+        return switch (token.getTokenType()) {
+            case RETURN -> parseReturn();
+            case WHILE -> parseLoop();
+            case BREAK -> parseBreak();
+            case CONTINUE -> parseContinue();
+            default -> null;
+        };
+    }
+
+    private WhileStatement parseLoop() throws IOException {
+        token = scanner.getToken();
+        if (token.getTokenType() != TokenType.OPEN_BRACKET){
+            throwTokenTypeException(TokenType.OPEN_BRACKET);
+        }
+        Expression cond = parseExpression();
+        if (token.getTokenType() != TokenType.CLOSE_BRACKET){
+            throwTokenTypeException(TokenType.CLOSE_BRACKET);
+        }
+        Statement body = parseStatements();
+        return new WhileStatement(body, cond);
+    }
+
+    private ReturnStatement parseReturn() throws IOException{
         token = scanner.getToken();
         Expression expr = null;
 
@@ -121,14 +200,30 @@ public class Parser {
         if(token.getTokenType() != TokenType.SEMICOLON){
             expr = parseExpression();
         }
+        if (token.getTokenType() != TokenType.SEMICOLON){
+            throwTokenTypeException(TokenType.SEMICOLON);
+        }
         return new ReturnStatement(expr);
 
     }
+
+    private BreakStatement parseBreak() throws IOException{
+        token = scanner.getToken();
+        if (token.getTokenType() != TokenType.SEMICOLON){
+            throwTokenTypeException(TokenType.SEMICOLON);
+        }
+        return new BreakStatement();
+    }
+
+    private ContinueStatement parseContinue() throws IOException{
+        token = scanner.getToken();
+        if (token.getTokenType() != TokenType.SEMICOLON){
+            throwTokenTypeException(TokenType.SEMICOLON);
+        }
+        return new ContinueStatement();
+    }
+
     private Expression parseExpression () throws IOException{
         return null;
     }
-
-
-
-
 }
