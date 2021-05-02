@@ -13,4 +13,8 @@ public class CompoundExpr {
     public boolean contains (CompoundTerm part){
         return  parts.contains(part);
     }
+
+    public boolean hasTerms (){
+        return parts.size()>0;
+    }
 }

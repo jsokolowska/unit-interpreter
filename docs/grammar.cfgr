@@ -47,7 +47,7 @@ unit_value: number | base_unit | identifier;
 
 
 # operator precedence
-expr : unit_type "(" or_expr ")" | or_expr;
+expr : unit_type "(" ( or_expr  | or_expr ) ")";
 or_expr : and_expr { "||" and_expr};
 and_expr : comp_expr {"&&" comp_expr};
 comp_expr : rel_expr {comp_op rel_expr};

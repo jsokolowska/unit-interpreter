@@ -15,7 +15,7 @@ class ScannerSpec extends Specification{
         def scanner = new Scanner(source)
 
         when:
-        def token = scanner.getToken()
+        def token = scanner.getNextToken()
 
         then:
         token.getTokenType() == TokenType.EOT
@@ -28,7 +28,7 @@ class ScannerSpec extends Specification{
         def scanner = new Scanner(source)
 
         expect:
-        scanner.getToken() == new Token(type, new Position(1,1))
+        scanner.getNextToken() == new Token(type, new Position(1,1))
 
         where:
         str || type
@@ -51,7 +51,7 @@ class ScannerSpec extends Specification{
         def scanner = new Scanner(new StringSource(str))
 
         expect:
-        scanner.getToken() == new Token(type, new Position(1, 1))
+        scanner.getNextToken() == new Token(type, new Position(1, 1))
 
         where:
         str || type
@@ -74,7 +74,7 @@ class ScannerSpec extends Specification{
         def token
 
         when:
-        token = scanner.getToken()
+        token = scanner.getNextToken()
 
         then:
         token.getTokenType() == TokenType.STRING_LITERAL
@@ -88,7 +88,7 @@ class ScannerSpec extends Specification{
         def scanner = new Scanner(new StringSource(str))
 
         when:
-        def token = scanner.getToken()
+        def token = scanner.getNextToken()
 
         then:
         token == new Token(TokenType.INT_LITERAL, value, new Position(1, 1))
@@ -105,7 +105,7 @@ class ScannerSpec extends Specification{
         def scanner = new Scanner(new StringSource(str))
 
         when:
-        def token = scanner.getToken()
+        def token = scanner.getNextToken()
 
         then:
         token == new Token(TokenType.FLOAT_LITERAL, value, new Position(1, 1))
@@ -119,8 +119,11 @@ class ScannerSpec extends Specification{
     }
 
     def "Should not allow for invalid number literals"(){
+        given:
+        def scanner = new Scanner(new StringSource(str))
+
         when:
-        new Scanner(new StringSource(str))
+        scanner.getNextToken();
 
         then:
         thrown(ScannerException)
@@ -140,10 +143,10 @@ class ScannerSpec extends Specification{
 
     def "If second char of logical operator is missing Scanner should throw ScannerException"(){
         given:
-        def source = new StringSource(str)
+        def scanner = new Scanner(new StringSource(str))
 
         when:
-        new Scanner(source)
+        scanner.getNextToken();
 
         then:
         def ex = thrown(ScannerException)
@@ -160,26 +163,31 @@ class ScannerSpec extends Specification{
         given:
         def str = "int x=3"
         def scanner = new Scanner(new StringSource(str))
-        def token = scanner.getToken()
+        def token = scanner.getNextToken()
 
         assert token == new Token(TokenType.BASE_TYPE, new Position(1,1))
         assert token.getStringValue() == "int"
-        token = scanner.getToken()
+
+        token = scanner.getNextToken();
         assert token == new Token(TokenType.IDENTIFIER, new Position(1,5))
         assert token.getStringValue() == "x"
-        token = scanner.getToken()
+
+
+        token = scanner.getNextToken()
         assert token == new Token(TokenType.ASSIGN, new Position(1,6))
-        token = scanner.getToken()
+
+        token = scanner.getNextToken()
         assert token == new Token(TokenType.INT_LITERAL, new Position(1,7))
         assert token.getIntegerValue() == 3
-        token = scanner.getToken()
+
+        token = scanner.getNextToken()
         assert token == new Token(TokenType.EOT, new Position(1,8))
     }
 
     def "Should return valid identifier token"(){
         given:
         def scanner = new Scanner(new StringSource(str))
-        def token = scanner.getToken()
+        def token = scanner.getNextToken()
 
         expect:
         token == new Token(TokenType.IDENTIFIER, new Position(1,1))
@@ -194,15 +202,18 @@ class ScannerSpec extends Specification{
         def scanner = new Scanner(new StringSource("#"))
 
         when:
-        def token = scanner.getToken()
+        def token = scanner.getNextToken()
 
         then:
         token == new Token(TokenType.UNKNOWN, new Position(1,1))
     }
 
     def "Should throw scanner exception when given invalid identifier"(){
+        given:
+        def scanner = new Scanner(new StringSource(str))
+
         when:
-        new Scanner(new StringSource(str))
+        scanner.getNextToken();
 
         then:
         thrown(ScannerException)
@@ -214,9 +225,10 @@ class ScannerSpec extends Specification{
     def "Should throw scanner exception when given invalid string literal"(){
         given:
         def str = "\"a"
+        def scanner = new Scanner(new StringSource(str))
 
         when:
-        new Scanner(new StringSource(str))
+        scanner.getNextToken();
 
         then:
         thrown(ScannerException)
@@ -227,7 +239,7 @@ class ScannerSpec extends Specification{
         def scanner = new Scanner(new StringSource(str))
 
         expect:
-        scanner.getToken() == new Token(type, new Position(1,1))
+        scanner.getNextToken() == new Token(type, new Position(1,1))
 
         where:
         str         || type

@@ -1,4 +1,4 @@
-package util.tree;
+package util.tree.math;
 
 public class Expression {
 }

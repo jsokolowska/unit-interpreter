@@ -1,7 +1,7 @@
 package util.tree.statement;
 
 
-import util.tree.Expression;
+import util.tree.math.Expression;
 
 public class ReturnStatement extends Statement{
     private final Expression returnExpression;

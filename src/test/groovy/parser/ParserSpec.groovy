@@ -74,7 +74,7 @@ class ParserSpec extends Specification{
         str << ["break", "continue", "return"]
 
     }
-    def "Check compound term parsing" (){
+    def "Should parse compound terms" (){
         given:
         def parser = prepareParser(str)
         def res;
@@ -104,10 +104,10 @@ class ParserSpec extends Specification{
         thrown(ParserException)
 
         where:
-        str << ["kkk^0"]
+        str << ["kkk^0", "9^3", "a^-9"]
     }
 
-    def "Check compound expression parsing" () {
+    def "Should parse compound expressions" () {
         given:
         def parser = prepareParser(str)
         def result;
@@ -122,12 +122,12 @@ class ParserSpec extends Specification{
 
         where:
         str                         || parts
-        "<aaa ^ 2>;"                || [new CompoundTerm(new Unit("aaa"), 2)]
-        "<kilogram ^2 / meter ^4>;" || [new CompoundTerm(new Unit("kilogram"), 2), new CompoundTerm(new Unit ("meter"), -4)]
-        "<a ^ 2 * b ^ 3 / c^4>;"    || [new CompoundTerm(new Unit("a"), 2), new CompoundTerm(new Unit("b"), 3),
+        "<aaa ^ 2>"                || [new CompoundTerm(new Unit("aaa"), 2)]
+        "<kilogram ^2 / meter ^4>" || [new CompoundTerm(new Unit("kilogram"), 2), new CompoundTerm(new Unit ("meter"), -4)]
+        "<a ^ 2 * b ^ 3 / c^4>"    || [new CompoundTerm(new Unit("a"), 2), new CompoundTerm(new Unit("b"), 3),
                                         new CompoundTerm(new Unit("c"), -4)]
     }
-    def "Should parse partial unit declarations "(){
+    def "Should parse unit declarations "(){
         given:
         def parser = prepareParser(str)
         def result;
@@ -146,13 +146,28 @@ class ParserSpec extends Specification{
 
         where:
         str                                     || name     | parts
-        "k as<aaa ^ 2>;"                   || "k"      | [new CompoundTerm(new Unit("aaa"), 2)]
-        "m2 as<kilogram ^2 / meter ^4>;"   || "m2"     | [new CompoundTerm(new Unit("kilogram"), 2), new CompoundTerm(new Unit ("meter"), -4)]
-        "a_a as <a ^ 2 * b ^ 3 / c^4>;"    || "a_a"    | [new CompoundTerm(new Unit("a"), 2), new CompoundTerm(new Unit("b"), 3),
+        "unit k as<aaa ^ 2>;"                   || "k"      | [new CompoundTerm(new Unit("aaa"), 2)]
+        "unit m2 as<kilogram ^2 / meter ^4>;"   || "m2"     | [new CompoundTerm(new Unit("kilogram"), 2), new CompoundTerm(new Unit ("meter"), -4)]
+        "unit a_a as <a ^ 2 * b ^ 3 / c^4>;"    || "a_a"    | [new CompoundTerm(new Unit("a"), 2), new CompoundTerm(new Unit("b"), 3),
                                                                 new CompoundTerm(new Unit("c"), -4)]
     }
 
-    def "Should parse argument list"(){
+    def "Should throw exception if parsing an improper unit declaration" (){
+        given:
+        def parser = prepareParser(str)
+        def result;
+
+        when:
+        result = parser.parseUnitDeclaration();
+
+        then:
+        thrown(ParserException)
+
+        where:
+        str <<["unit as <a>", "unit k as i"]
+    }
+
+    /*def "Should parse argument list"(){
         given:
         def parser = prepareParser(str)
         def result
@@ -169,7 +184,7 @@ class ParserSpec extends Specification{
         "int val"   || "int"    | "val"
         "second s"  || "second" | "s"
         "kkk k"     || "kkk"    | "k"
-    }
+    }*/
 
 
 }

@@ -1,6 +1,6 @@
 package util.tree.statement;
 
-import util.tree.Expression;
+import util.tree.math.Expression;
 
 public class WhileStatement extends Statement{
     private Statement body;

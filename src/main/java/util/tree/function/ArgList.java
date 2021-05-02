@@ -1,4 +1,4 @@
-package util.tree;
+package util.tree.function;
 
 import util.tree.var.Argument;
 

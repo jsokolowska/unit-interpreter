@@ -14,24 +14,22 @@ public class Scanner {
     private int currChar;
     private Position tokenPosition;
 
-    public Scanner (PositionWrapper positionWrapper) throws IOException, ScannerException {
+    public Scanner (PositionWrapper positionWrapper) throws IOException {
         this.source = positionWrapper;
         currentToken = new Token(Token.TokenType.UNKNOWN);
         currChar = source.get();
-        nextToken();
     }
 
-    public Scanner (Source source) throws IOException, ScannerException {
+    public Scanner (Source source) throws IOException{
         this(new PositionWrapper(source));
     }
 
-    public Token getToken() throws IOException, ScannerException {
-        Token temp = currentToken;
-        nextToken();
-        return temp;
+    /** @return current token */
+    private Token getToken() {
+        return currentToken;
     }
 
-    private void nextToken() throws IOException, ScannerException {
+    private void nextToken() throws IOException {
         ignoreWhitespaces();
         tokenPosition = source.getPosition();
         if (buildEOT()){
@@ -46,7 +44,12 @@ public class Scanner {
             return;
         }
         currentToken = new Token(Token.TokenType.UNKNOWN, (char) currChar, tokenPosition);
+    }
 
+    /** Moves to the next token and returns it*/
+    public Token getNextToken() throws IOException{
+        nextToken();
+        return currentToken;
     }
 
     private void ignoreWhitespaces() throws IOException {
@@ -64,7 +67,7 @@ public class Scanner {
         return false;
     }
 
-    private boolean buildOperators() throws IOException, ScannerException {
+    private boolean buildOperators() throws IOException {
         Token.TokenType tempType = ScannerMaps.singleOperators.get((char)currChar);
         if (tempType != null)
         {
@@ -75,7 +78,7 @@ public class Scanner {
         return buildDoubleOperators();
     }
 
-    private boolean buildDoubleOperators() throws IOException, ScannerException {
+    private boolean buildDoubleOperators() throws IOException {
         int firstChar = currChar;
         switch(firstChar){
             case '=':
@@ -121,7 +124,7 @@ public class Scanner {
         }
     }
 
-    private boolean buildStringLiteral () throws ScannerException, IOException {
+    private boolean buildStringLiteral () throws IOException {
         if(currChar !='"'){
             return false;
         }
