@@ -7,7 +7,7 @@ import spock.lang.*
 import util.tree.statement.BreakStatement
 import util.tree.statement.ContinueStatement
 import util.tree.statement.ReturnStatement
-import util.tree.unit.Unit
+import util.tree.type.UnitType
 import util.tree.unit.UnitDeclaration
 import util.tree.unit.CompoundTerm
 
@@ -83,14 +83,14 @@ class ParserSpec extends Specification{
         res = parser.parseOneCompoundTerm();
 
         then:
-        res.getUnit().getName() == name
+        res.getUnitType().getName() == name
         res.getExponent() == exponent
 
         where:
-        str         || name     | exponent
-        "aaaa ^ 2"  || "aaaa"   | 2
-        "bbb"       || "bbb"    | 1
-        "meter"     || "meter"  | 1
+        str         || name         | exponent
+        "meter ^ 2" || "meter"      | 2
+        "kilogram"  || "kilogram"   | 1
+        "second"    || "second"     | 1
     }
 
     def "Should throw exception for incorrect compound terms"(){
@@ -104,7 +104,7 @@ class ParserSpec extends Specification{
         thrown(ParserException)
 
         where:
-        str << ["kkk^0", "9^3", "a^-9"]
+        str << ["second^0", "9^3", "meter^-9"]
     }
 
     def "Should parse compound expressions" () {
@@ -121,11 +121,14 @@ class ParserSpec extends Specification{
         }
 
         where:
-        str                         || parts
-        "<aaa ^ 2>"                || [new CompoundTerm(new Unit("aaa"), 2)]
-        "<kilogram ^2 / meter ^4>" || [new CompoundTerm(new Unit("kilogram"), 2), new CompoundTerm(new Unit ("meter"), -4)]
-        "<a ^ 2 * b ^ 3 / c^4>"    || [new CompoundTerm(new Unit("a"), 2), new CompoundTerm(new Unit("b"), 3),
-                                        new CompoundTerm(new Unit("c"), -4)]
+        str                                     || parts
+        "<second ^ 2>"                          || [new CompoundTerm(new UnitType("second"), 2)]
+
+        "<kilogram ^2 / meter ^4 * second^2>"   || [new CompoundTerm(new UnitType("kilogram"), 2), new CompoundTerm(new UnitType("second"), -2),
+                                                    new CompoundTerm(new UnitType ("meter"), -4)]
+
+        "<second ^ 2 * meter^ 3 / kilogram ^4>" || [new CompoundTerm(new UnitType("second"), 2), new CompoundTerm(new UnitType("meter"), 3),
+                                                    new CompoundTerm(new UnitType("meter"), -4)]
     }
     def "Should parse unit declarations "(){
         given:
@@ -145,11 +148,12 @@ class ParserSpec extends Specification{
         }
 
         where:
-        str                                     || name     | parts
-        "unit k as<aaa ^ 2>;"                   || "k"      | [new CompoundTerm(new Unit("aaa"), 2)]
-        "unit m2 as<kilogram ^2 / meter ^4>;"   || "m2"     | [new CompoundTerm(new Unit("kilogram"), 2), new CompoundTerm(new Unit ("meter"), -4)]
-        "unit a_a as <a ^ 2 * b ^ 3 / c^4>;"    || "a_a"    | [new CompoundTerm(new Unit("a"), 2), new CompoundTerm(new Unit("b"), 3),
-                                                                new CompoundTerm(new Unit("c"), -4)]
+        str                                                 || name     | parts
+        "unit k as<second ^ 2>;"                            || "k"      | [new CompoundTerm(new UnitType("second"), 2)]
+        "unit m2 as<kilogram ^2 / meter ^4>;"               || "m2"     | [new CompoundTerm(new UnitType("kilogram"), 2),
+                                                                           new CompoundTerm(new UnitType ("meter"), -4)]
+        "unit a_a as <second ^ 2 * meter^ 3 / kilogram ^4>;"|| "a_a"    | [new CompoundTerm(new UnitType("second"), 2), new CompoundTerm(new UnitType("meter"), 3),
+                                                                           new CompoundTerm(new UnitType("meter"), -4)]
     }
 
     def "Should throw exception if parsing an improper unit declaration" (){

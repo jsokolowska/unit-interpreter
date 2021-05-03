@@ -2,7 +2,6 @@ package util.tree;
 
 import util.tree.function.Function;
 import util.tree.unit.Conversion;
-import util.tree.unit.Unit;
 import util.tree.unit.UnitDeclaration;
 
 import java.util.ArrayList;

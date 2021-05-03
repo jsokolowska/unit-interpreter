@@ -1,16 +1,17 @@
 package util.tree.unit;
 
 import util.tree.Node;
+import util.tree.type.UnitType;
 
 public class CompoundTerm implements Comparable<CompoundTerm>, Node {
-    private Unit unit;
+    private final UnitType unit;
     private int exponent;
 
-    public CompoundTerm (Unit unit, int exponent){
+    public CompoundTerm (UnitType unit, int exponent){
         this.unit = unit;
         this.exponent = exponent;
     }
-    public Unit getUnit() {
+    public UnitType getUnitType() {
         return unit;
     }
 
@@ -24,7 +25,7 @@ public class CompoundTerm implements Comparable<CompoundTerm>, Node {
 
     @Override
     public int compareTo (CompoundTerm c){
-        return unit.getName().compareTo(c.getUnit().getName());
+        return unit.getName().compareTo(c.getUnitType().getName());
     }
 
     @Override
@@ -34,6 +35,6 @@ public class CompoundTerm implements Comparable<CompoundTerm>, Node {
         }
         CompoundTerm term = (CompoundTerm) obj;
         return term.getExponent() == this.getExponent() &&
-                term.getUnit().getName().equals(this.getUnit().getName());
+                term.getUnitType() == this.getUnitType();
     }
 }

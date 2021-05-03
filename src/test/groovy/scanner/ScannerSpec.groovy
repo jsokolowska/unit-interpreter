@@ -165,7 +165,7 @@ class ScannerSpec extends Specification{
         def scanner = new Scanner(new StringSource(str))
         def token = scanner.getNextToken()
 
-        assert token == new Token(TokenType.BASE_TYPE, new Position(1,1))
+        assert token == new Token(TokenType.TYPE_INT, new Position(1,1))
         assert token.getStringValue() == "int"
 
         token = scanner.getNextToken();
@@ -255,14 +255,14 @@ class ScannerSpec extends Specification{
         "as"        || TokenType.AS
         "unit"      || TokenType.UNIT
         "let"       || TokenType.LET
-        "int"       || TokenType.BASE_TYPE
-        "float"     || TokenType.BASE_TYPE
-        "bool"      || TokenType.BASE_TYPE
-        "string"    || TokenType.BASE_TYPE
+        "int"       || TokenType.TYPE_INT
+        "float"     || TokenType.TYPE_FLOAT
+        "bool"      || TokenType.TYPE_BOOL
+        "string"    || TokenType.TYPE_STRING
         "compound"  || TokenType.COMPOUND
-        "kilogram"  || TokenType.BASE_UNIT
-        "meter"     || TokenType.BASE_UNIT
-        "second"    || TokenType.BASE_UNIT
+        "kilogram"  || TokenType.TYPE_KG
+        "meter"     || TokenType.TYPE_METER
+        "second"    || TokenType.TYPE_SEC
         "true"      || TokenType.BOOL_LITERAL
         "false"     || TokenType.BOOL_LITERAL
     }

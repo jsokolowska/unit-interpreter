@@ -52,8 +52,13 @@ public class Token {
 
         //literals
         IDENTIFIER,         // identifier : ((underscore  (letter | digit)) | letter) {letter | digit | underscore};
-        BASE_TYPE,          // int, float, bool, string
-        BASE_UNIT,          // kg, meter, second
+        TYPE_INT,
+        TYPE_FLOAT,
+        TYPE_BOOL,
+        TYPE_STRING,
+        TYPE_METER,
+        TYPE_KG,
+        TYPE_SEC,
         COMPOUND,           // compound
         INT_LITERAL,        // number : "0" | non_zero_number;
         FLOAT_LITERAL,      // for floating point values
@@ -97,6 +102,19 @@ public class Token {
     public TokenType getTokenType() {return type;}
 
     public Position getPosition() {return position;}
+
+    public boolean isBaseUnit (){
+        return type == TokenType.TYPE_METER
+                || type == TokenType.TYPE_SEC
+                || type == TokenType.TYPE_KG;
+    }
+
+    public boolean isBaseType (){
+        return  type == TokenType.TYPE_BOOL
+                || type == TokenType.TYPE_FLOAT
+                || type == TokenType.TYPE_INT
+                || type == TokenType.TYPE_STRING;
+    }
 
     @Override
     public String toString() {
