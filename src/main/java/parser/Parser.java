@@ -5,16 +5,16 @@ import scanner.Scanner;
 import util.Token;
 import util.Token.TokenType;
 import util.tree.function.ArgList;
-import util.tree.math.Expression;
+import util.tree.expression.Expression;
 import util.tree.function.Function;
 import util.tree.Program;
 import util.tree.statement.*;
 import util.tree.unit.Conversion;
 import util.tree.unit.Unit;
 import util.tree.unit.UnitDeclaration;
-import util.tree.unit.compound.CompoundTerm;
-import util.tree.unit.compound.CompoundExpr;
-import util.tree.var.Argument;
+import util.tree.unit.CompoundTerm;
+import util.tree.unit.CompoundExpr;
+import util.tree.function.Argument;
 
 import java.io.IOException;
 
@@ -255,10 +255,7 @@ public class Parser {
     }
 
     private Argument parseArgument() throws IOException {
-        if (!matchesType(token)) {
-            throwTokenTypeException(TokenType.IDENTIFIER);
-        }
-        return new Argument(token.getStringValue(), token.getStringValue());
+       return null;
     }
 
     private boolean tokenHasType(TokenType type) {

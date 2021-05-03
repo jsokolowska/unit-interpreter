@@ -1,8 +1,8 @@
 module grammar;
 # main part
 program : {unit_dcl | conversion_dcl} function_def {function_def};
-function_def : type identifier arg_list block_stmt;
-arg_list : "(" [type identifier {"," type identifier}] ")" ;
+function_def : type identifier parameters block_stmt;
+parameters : "(" [type identifier {"," type identifier}] ")" ;           # parameters
 block_stmt : "{" [stmt  {stmt}] "}";
 stmt: block_stmt | return_stmt | loop_stmt | call_stmt | if_stmt | print_stmt | explain_stmt  | assign_stmt
 | var_dcl_stmt | break_stmt | continue_stmt | type_check_stmt;
@@ -11,7 +11,7 @@ stmt: block_stmt | return_stmt | loop_stmt | call_stmt | if_stmt | print_stmt | 
 return_stmt : "return" ( identifier | expr) ";";
 loop_stmt : "while" "(" expr ")" stmt ;
 call_stmt: identifier "(" args ")" ";";
-args: [expr {"," expr}];
+args: [expr {"," expr}];                #arguments
 if_stmt : "if" "(" expr ")" stmt ["else" stmt];
 break_stmt : "break" ";";
 continue_stmt : "continue" ";";
@@ -33,7 +33,7 @@ compound_exp: unit_type ["^" non_zero_number];
 unit_type: base_unit | identifier;
 
 # defining unit relationships
-conversion_dcl: "let" unit_type arg_list unit_expr";";
+conversion_dcl: "let" unit_type parameters unit_expr";";
 # expressions limited to arithmetic operations
 unit_expr: multi_unit_expr {additive_op multi_unit_expr};
 multi_expr: power_unit_expr {multi_op power_unit_expr};

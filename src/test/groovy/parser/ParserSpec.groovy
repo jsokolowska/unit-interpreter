@@ -9,7 +9,7 @@ import util.tree.statement.ContinueStatement
 import util.tree.statement.ReturnStatement
 import util.tree.unit.Unit
 import util.tree.unit.UnitDeclaration
-import util.tree.unit.compound.CompoundTerm
+import util.tree.unit.CompoundTerm
 
 
 class ParserSpec extends Specification{

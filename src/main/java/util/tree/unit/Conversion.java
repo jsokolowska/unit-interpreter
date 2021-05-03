@@ -1,4 +1,6 @@
 package util.tree.unit;
 
-public class Conversion {
+import util.tree.Node;
+
+public class Conversion implements Node {
 }

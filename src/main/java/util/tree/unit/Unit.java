@@ -1,6 +1,8 @@
 package util.tree.unit;
 
-public class Unit {
+import util.tree.Node;
+
+public class Unit implements Node {
     private String name;
 
     public Unit(String name){

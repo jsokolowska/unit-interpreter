@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Program {
+public class Program implements Node{
     private final List<UnitDeclaration> unitDcls = new ArrayList<>();
     private final List<Conversion> conversions = new ArrayList<>();
     private final Map<String, Function> functions = new HashMap<>();

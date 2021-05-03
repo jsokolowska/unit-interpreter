@@ -1,8 +1,8 @@
 package util.tree.unit;
 
-import util.tree.unit.compound.CompoundExpr;
+import util.tree.Node;
 
-public class UnitDeclaration {
+public class UnitDeclaration implements Node {
     private String name;
     private CompoundExpr type;
 

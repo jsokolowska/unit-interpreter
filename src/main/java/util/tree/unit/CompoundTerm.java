@@ -1,8 +1,8 @@
-package util.tree.unit.compound;
+package util.tree.unit;
 
-import util.tree.unit.Unit;
+import util.tree.Node;
 
-public class CompoundTerm implements Comparable<CompoundTerm>{
+public class CompoundTerm implements Comparable<CompoundTerm>, Node {
     private Unit unit;
     private int exponent;
 

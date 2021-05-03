@@ -1,9 +1,11 @@
-package util.tree.unit.compound;
+package util.tree.unit;
+
+import util.tree.Node;
 
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class CompoundExpr {
+public class CompoundExpr implements Node {
     private final SortedSet<CompoundTerm> parts =  new TreeSet<>();
 
     public boolean addPart(CompoundTerm part){
