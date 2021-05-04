@@ -2,15 +2,16 @@ package util.tree.unit;
 
 import util.tree.Node;
 import util.tree.function.Parameters;
+import util.tree.type.UnitType;
 
 public class Conversion implements Node {
-    private String name;
+    private UnitType to;
     private Parameters parameters;
     private ConversionFunction conversionFunction;
 
-    public Conversion (String name, Parameters parameters, ConversionFunction conversionFunction){
+    public Conversion (UnitType to, Parameters parameters, ConversionFunction conversionFunction){
         this.conversionFunction = conversionFunction;
-        this.name = name;
+        this.to = to;
         this.parameters = parameters;
     }
 }

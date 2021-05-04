@@ -3,13 +3,20 @@ package util.tree.function;
 import util.tree.Node;
 import util.tree.type.Type;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Parameters implements Node {
-    private List<Type> parameters = new ArrayList<>();
+    private SortedMap<String, Type> parameters = new TreeMap<>();
 
-    private void addParameter (Type type){
-        parameters.add(type);
+    public void addParameter (String name, Type type){
+        parameters.put(name, type);
+    }
+
+    public boolean contains (String name, Type type){
+        Type result;
+        if((result = parameters.get(name) )!= null){
+            return result == type;
+        }
+        return false;
     }
 }

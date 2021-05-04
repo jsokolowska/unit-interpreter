@@ -1,4 +1,4 @@
 package util.tree.statement;
 
-public class PrintStatement extends Statement {
+public class PrintStatement extends Statement{
 }

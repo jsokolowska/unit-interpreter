@@ -2,8 +2,10 @@ module grammar;
 # main part
 program : {unit_dcl | conversion_dcl} function_def {function_def};          #done
 function_def : type identifier arg_list block_stmt;
-arg_list : "(" [type identifier {"," type identifier}] ")" ;
-block_stmt : "{" {stmt} "}";
+
+arg_list : "(" [type identifier {"," type identifier}] ")" ;                #done
+
+block_stmt : "{" {stmt} "}";                                                #done
 stmt: block_stmt | return_stmt | loop_stmt | call_stmt | if_stmt | print_stmt
 | explain_stmt  | assign_stmt
 | var_dcl_stmt | break_stmt | continue_stmt | type_check_stmt;          #done
@@ -34,24 +36,24 @@ compound_term: unit_type ["^" non_zero_number];                 # done
 unit_type: base_unit | identifier;                              # done
 
 # defining unit relationships
-conversion_dcl: "let" unit_type arg_list unit_expr";";          # todo
+conversion_dcl: "let" unit_type arg_list conv_fun;              #todo
 # expressions limited to arithmetic operations
-unit_expr: multi_unit_expr {additive_op multi_unit_expr};
-multi_expr: power_unit_expr {multi_op power_unit_expr};
-
-power_unit_expr: {unary_unit_expr "^"} unary_unit_expr;
-unary_expr: ["-"] not_unary_expr;
-not_unary_expr: "(" unit_expr ")" | unit_value;
+conv_fun : "{" conv_unit_expr "}" ";";
+ conv_unit_expr: multi_unit_expr {add_op multi_unit_expr};      #done
+multi_unit_expr: power_unit_expr {multi_op power_unit_expr};    #done
+power_unit_expr: {unary_unit_expr "^"} unary_unit_expr;         #done
+unary_unit_expr: ["-"] unit_expr;
+unit_expr: "(" conv_unit_expr ")" | unit_value;
 unit_value: number | base_unit | identifier;
 
 
 # operator precedence
-expr : unit_type "(" or_expr ")" | or_expr;                     # todo
+expr : unit_type "(" or_expr ")" | or_expr;                     #todo
 or_expr : and_expr { "||" and_expr};
 and_expr : comp_expr {"&&" comp_expr};
 comp_expr : rel_expr {comp_op rel_expr};
 rel_expr : arithmetic_expr {rel_op arithmetic_expr};
-arithmetic_expr: multi_expr {additive_op multi_expr};
+arithmetic_expr: multi_expr {add_op multi_expr};
 multi_expr: power_expr {multi_op power_expr};
 power_expr: {unary_expr "^"} unary_expr;
 unary_expr: {unary_op} not_unary_expr;
@@ -62,7 +64,7 @@ not_unary_expr: "(" expr ")" | value;
 # operators
 comp_op: "==" | "!=";
 rel_op: "<="|">="|"<"|">";
-additive_op: "+" | "-";
+add_op: "+" | "-";
 multi_op: "/" | "*" ;
 unary_op: "!"|"-";
 

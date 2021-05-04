@@ -15,7 +15,7 @@ public class ParserException extends RuntimeException{
     }
 
     public ParserException (String message, Token token){
-        super("ParserException in: " + token.getPosition() + ": expected " + message
+        super("ParserException in: " + token.getPosition() + ": " + message
                 + " found " + token.getTokenType());
     }
 

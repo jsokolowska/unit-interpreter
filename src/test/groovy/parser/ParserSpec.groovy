@@ -7,6 +7,7 @@ import spock.lang.*
 import util.tree.statement.BreakStatement
 import util.tree.statement.ContinueStatement
 import util.tree.statement.ReturnStatement
+import util.tree.type.IntType
 import util.tree.type.UnitType
 import util.tree.unit.UnitDeclaration
 import util.tree.unit.CompoundTerm
@@ -24,7 +25,7 @@ class ParserSpec extends Specification{
         def result;
 
         when: "trying to parse Statement"
-        result = parser.parseStatements()
+        result = parser.parseStatement()
 
         then: "A not null instance of ReturnStatement class is parsed"
         result != null;
@@ -40,7 +41,7 @@ class ParserSpec extends Specification{
         def result;
 
         when:
-        result = parser.parseStatements();
+        result = parser.parseStatement();
 
         then:
         result != null
@@ -53,7 +54,7 @@ class ParserSpec extends Specification{
         def result;
 
         when:
-        result = parser.parseStatements();
+        result = parser.parseStatement();
 
         then:
         result != null
@@ -65,7 +66,7 @@ class ParserSpec extends Specification{
         def parser = prepareParser(str)
 
         when:
-        parser.parseStatements();
+        parser.parseStatement();
 
         then:
         thrown(ParserException)
@@ -74,6 +75,7 @@ class ParserSpec extends Specification{
         str << ["break", "continue", "return"]
 
     }
+
     def "Should parse compound terms" (){
         given:
         def parser = prepareParser(str)
@@ -130,6 +132,7 @@ class ParserSpec extends Specification{
         "<second ^ 2 * meter^ 3 / kilogram ^4>" || [new CompoundTerm(new UnitType("second"), 2), new CompoundTerm(new UnitType("meter"), 3),
                                                     new CompoundTerm(new UnitType("meter"), -4)]
     }
+
     def "Should parse unit declarations "(){
         given:
         def parser = prepareParser(str)
@@ -171,24 +174,25 @@ class ParserSpec extends Specification{
         str <<["unit as <a>", "unit k as i"]
     }
 
-    /*def "Should parse argument list"(){
+    def "Should parse parameters"(){
         given:
         def parser = prepareParser(str)
         def result
+        def len = types.size();
 
         when:
-        result = parser.parseArgList();
+        result = parser.parseParameters();
 
         then:
-        result.getType() == type
-        result.getName() == name
+        for (int i=0; i<len; i++){
+            result.contains(names[i], types[i])
+        }
 
         where:
-        str         ||   type    | name
-        "int val"   || "int"    | "val"
-        "second s"  || "second" | "s"
-        "kkk k"     || "kkk"    | "k"
-    }*/
-
+        str                         ||   types                                                  | names
+        "(int val)"                 || [new IntType()]                                          |["val"]
+        "(second s, meter k)"       || [new UnitType("second"), new UnitType("meter")]          |["s", "k"]
+        "(meter k, int a, int b)"   || [new UnitType("meter"), new IntType(), new IntType()]    |["k", "a", "b"]
+    }
 
 }

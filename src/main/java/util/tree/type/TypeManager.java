@@ -2,7 +2,6 @@ package util.tree.type;
 
 import exception.TypeException;
 import util.Token;
-import util.tree.unit.CompoundExpr;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -65,4 +64,5 @@ public class TypeManager {
         if (unitToken.getTokenType()!= Token.TokenType.IDENTIFIER) return false;
         return units.containsKey(unitToken.getStringValue());
     }
+
 }

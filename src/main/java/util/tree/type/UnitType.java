@@ -15,7 +15,6 @@ public class UnitType extends Type {
         if(obj.getClass()!= this.getClass()){
             return false;
         }
-
         return ((UnitType) obj).getName().equals(this.getName());
     }
 }

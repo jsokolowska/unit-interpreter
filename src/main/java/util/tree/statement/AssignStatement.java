@@ -1,4 +1,4 @@
 package util.tree.statement;
 
-public class AssignStatement {
+public class AssignStatement extends Statement {
 }
