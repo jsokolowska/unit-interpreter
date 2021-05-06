@@ -28,8 +28,8 @@ class ParserSpec extends Specification{
         result = parser.parseStatement()
 
         then: "A not null instance of ReturnStatement class is parsed"
-        result != null
-        result instanceof ReturnStatement
+        assert result != null
+        assert result instanceof ReturnStatement
 
         where:
         str << ["return ;"] //, "return 2;", "return _a;"] will not work until expresion parsing is done
@@ -44,8 +44,8 @@ class ParserSpec extends Specification{
         result = parser.parseStatement()
 
         then:
-        result != null
-        result instanceof BreakStatement
+        assert result != null
+        assert result instanceof BreakStatement
     }
 
     def "Should parse continue"(){
@@ -57,8 +57,8 @@ class ParserSpec extends Specification{
         result = parser.parseStatement()
 
         then:
-        result != null
-        result instanceof ContinueStatement
+        assert result != null
+        assert result instanceof ContinueStatement
     }
 
     def "Should throw parsing exception for missing semicolons" (){
@@ -85,14 +85,15 @@ class ParserSpec extends Specification{
         res = parser.parseOneCompoundTerm()
 
         then:
-        res.getUnitType().getName() == name
-        res.getExponent() == exponent
+        assert res.getUnitType().getName() == name
+        assert res.getExponent() == exponent
 
         where:
         str         || name         | exponent
         "meter ^ 2" || "meter"      | 2
         "kilogram"  || "kilogram"   | 1
         "second"    || "second"     | 1
+
     }
 
     def "Should throw exception for incorrect compound terms"(){
@@ -109,7 +110,7 @@ class ParserSpec extends Specification{
         str << ["second^0", "9^3", "meter^-9"]
     }
 
-    def "Should parse compound expressions" () {
+    def "Should parsecompound expressions" () {
         given:
         def parser = prepareParser(str)
         def result
@@ -119,7 +120,7 @@ class ParserSpec extends Specification{
 
         then:
         parts.each{
-            result.contains(it)
+            assert result.contains(it)
         }
 
         where:
@@ -130,7 +131,27 @@ class ParserSpec extends Specification{
                                                     new CompoundTerm(new UnitType ("meter"), -4)]
 
         "<second ^ 2 * meter^ 3 / kilogram ^4>" || [new CompoundTerm(new UnitType("second"), 2), new CompoundTerm(new UnitType("meter"), 3),
-                                                    new CompoundTerm(new UnitType("meter"), -4)]
+                                                    new CompoundTerm(new UnitType("kilogram"), -4)]
+        "<kilogram ^2 / meter ^4 * kilogram^1>"   || [new CompoundTerm(new UnitType("kilogram"), 1),
+                                                    new CompoundTerm(new UnitType ("meter"), -4)]
+
+        "<kilogram ^2 * kilogram^2 / meter ^4>"   || [new CompoundTerm(new UnitType("kilogram"), 4),
+                                                      new CompoundTerm(new UnitType ("meter"), -4)]
+    }
+
+    def "Should simplify compound expressions"(){
+        given:
+        def parser = prepareParser("<kilogram ^2 / meter ^4 * kilogram^2>" )
+        def result
+        def right = new CompoundTerm(new UnitType("meter"), -4)
+        def wrong = new CompoundTerm(new UnitType("kilogram"), 0)
+
+        when:
+        result = parser.parseCompoundExpression()
+
+        then:
+        result.contains(right)
+        !result.contains(wrong)
     }
 
     def "Should parse unit declarations "(){
@@ -147,7 +168,7 @@ class ParserSpec extends Specification{
         result instanceof UnitDeclaration
         result.getName() == name
         parts.each{
-            expr.contains(it)
+            assert expr.contains(it)
         }
 
         where:
@@ -156,7 +177,7 @@ class ParserSpec extends Specification{
         "unit m2 as<kilogram ^2 / meter ^4>;"               || "m2"     | [new CompoundTerm(new UnitType("kilogram"), 2),
                                                                            new CompoundTerm(new UnitType ("meter"), -4)]
         "unit a_a as <second ^ 2 * meter^ 3 / kilogram ^4>;"|| "a_a"    | [new CompoundTerm(new UnitType("second"), 2), new CompoundTerm(new UnitType("meter"), 3),
-                                                                           new CompoundTerm(new UnitType("meter"), -4)]
+                                                                           new CompoundTerm(new UnitType("kilogram"), -4)]
     }
 
     def "Should throw exception if parsing an improper unit declaration" (){
@@ -194,5 +215,7 @@ class ParserSpec extends Specification{
         "(second s, meter k)"       || [new UnitType("second"), new UnitType("meter")]          |["s", "k"]
         "(meter k, int a, int b)"   || [new UnitType("meter"), new IntType(), new IntType()]    |["k", "a", "b"]
     }
+
+
 
 }

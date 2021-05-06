@@ -1,4 +1,4 @@
 package util.tree.statement;
 
-public class Statement {
+public abstract class Statement {
 }

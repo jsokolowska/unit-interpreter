@@ -5,7 +5,11 @@ import scanner.Scanner;
 import util.Token;
 import util.Token.TokenType;
 import util.tree.Program;
+import util.tree.Variable;
 import util.tree.expression.Expression;
+import util.tree.expression.operator.Operator;
+import util.tree.expression.operator.OperatorFactory;
+import util.tree.expression.unit.*;
 import util.tree.function.Arguments;
 import util.tree.function.Function;
 import util.tree.function.Parameters;
@@ -14,6 +18,8 @@ import util.tree.type.Type;
 import util.tree.type.TypeManager;
 import util.tree.type.UnitType;
 import util.tree.unit.*;
+import util.tree.value.Value;
+import util.tree.value.literal.*;
 
 import java.io.IOException;
 
@@ -113,6 +119,7 @@ public class Parser {
         if (token.getTokenType() != TokenType.GREATER) {
             throw new ParserException(TokenType.GREATER, token);
         }
+        compoundExpr.simplify();
         return compoundExpr;
     }
 
@@ -127,6 +134,7 @@ public class Parser {
     private void parseCompoundTerms(CompoundExpr expr, boolean isDenominator) throws IOException {
         // will always return a term or throw ParserException
         CompoundTerm one = parseOneCompoundTerm();
+        if (isDenominator) one.negate();
         expr.addPart(one);
         token = scanner.getNextToken();
 
@@ -177,12 +185,22 @@ public class Parser {
             throw new ParserException(TokenType.OPEN_BRACKET, token);
         }else{
             token = scanner.getNextToken();
-            ConversionFunction conversionFunction = parseConversionFunction();
-            if (conversionFunction != null){
-                return new Conversion(unit, parameters, conversionFunction);
-            }else{
+            if (!tokenHasType(TokenType.CURLY_OPEN)){
+                throw new ParserException(TokenType.CURLY_OPEN, token);
+            }
+            token = scanner.getNextToken();
+
+            Expression conversionExpression = parseConversionExpression();
+            if (conversionExpression == null){
                 throw new ParserException("Expected function body ", token);
             }
+
+            token = scanner.getNextToken();
+            if(! tokenHasType(TokenType.CURLY_CLOSE)){
+                throw new ParserException(TokenType.CURLY_CLOSE, token);
+            }
+            return new Conversion(unit, parameters, conversionExpression);
+
         }
     }
 
@@ -223,9 +241,144 @@ public class Parser {
         parameters.addParameter(token.getStringValue(), type);
     }
 
-    private ConversionFunction parseConversionFunction(){
-        return new ConversionFunction();
+    private Expression parseConversionExpression() throws IOException {
+        Expression expressionPart = parseMulUnitExpression();
+        if (expressionPart == null) return null;
+
+        ConversionExpression expression = new ConversionExpression();
+        expression.add(expression);
+
+        token = scanner.getNextToken();
+
+        while(tokenHasType(TokenType.PLUS) || tokenHasType(TokenType.MINUS) ){
+            Operator op = OperatorFactory.getAdditiveOperator(token.getTokenType());
+            token = scanner.getNextToken();
+            expressionPart = parseMulUnitExpression();
+            if (expressionPart == null){
+                throw new ParserException("Expected expression", token.getPosition());
+            }
+            expression.add(expressionPart, op);
+        }
+
+        if(expression.size()>1){
+            return expression;
+        }
+        return expressionPart;
     }
+
+    private Expression parseMulUnitExpression () throws IOException {
+        Expression expressionPart = parsePowerUnitExpression();
+        if (expressionPart == null) return null;
+
+        MulUnitExpression expression = new MulUnitExpression();
+        expression.add(expression);
+
+        token = scanner.getNextToken();
+
+        while(tokenHasType(TokenType.DIVIDE) || tokenHasType(TokenType.MULTIPLY) ){
+            Operator op = OperatorFactory.getOperator(token);
+            token = scanner.getNextToken();
+            expressionPart = parsePowerUnitExpression();
+            if (expressionPart == null){
+                throw new ParserException("Expected expression", token.getPosition());
+            }
+            expression.add(expressionPart, op);
+        }
+
+        if(expression.size()>1){
+            return expression;
+        }
+        return expressionPart;
+    }
+
+    private Expression parsePowerUnitExpression () throws IOException {
+        Expression expressionPart = parseUnaryUnitExpression();
+        if (expressionPart == null) return null;
+
+        PowerUnitExpression expression = new PowerUnitExpression();
+        expression.add(expression);
+
+        token = scanner.getNextToken();
+
+        while(tokenHasType(TokenType.POWER) ){
+            //Operator op = OperatorFactory.getOperator(token);
+            token = scanner.getNextToken();
+            expressionPart = parseUnaryUnitExpression();
+            expression.add(expressionPart);
+        }
+        if(expression.size()>1){
+            return expression;
+        }
+        return expressionPart;
+    }
+
+    private Expression parseUnaryUnitExpression () throws IOException {
+        if(tokenHasType(TokenType.MINUS)){
+            token = scanner.getNextToken();
+            UnaryUnitExpression expr = new UnaryUnitExpression();
+            Expression expressionPart = parseUnitExpression();
+            if(expressionPart == null){
+                throw new ParserException("Expected expression", token.getPosition());
+            }
+            expr.add(expressionPart);
+            return expr;
+        }
+        Expression expressionPart = parseUnitExpression();
+        if(expressionPart == null){
+            throw new ParserException("Expected expression", token.getPosition());
+        }
+        return expressionPart;
+    }
+
+    private Expression parseUnitExpression () throws IOException {
+        if(tokenHasType(TokenType.OPEN_BRACKET)){
+            Expression expr = parseConversionExpression();
+            if(expr == null){
+                throw new ParserException("Expected expression", token.getPosition());
+            }
+            token = scanner.getNextToken();
+            if(tokenHasType(TokenType.CLOSE_BRACKET)){
+                throw new ParserException(TokenType.CLOSE_BRACKET, token);
+            }
+            return expr;
+        }
+        Expression value = parseNumberLiteral();
+        return value;
+
+
+        //unit
+    }
+
+    private Literal parseNumberLiteral (){
+        return switch (token.getTokenType()){
+            case INT_LITERAL -> new IntLiteral(token.getIntegerValue());
+            case FLOAT_LITERAL -> new FloatLiteral(token.getDoubleValue());
+            default -> null;
+        };
+    }
+
+    private Literal parseLiteral (){
+        return switch (token.getTokenType()){
+            case STRING_LITERAL -> new StringLiteral(token.getStringValue());
+            case BOOL_LITERAL -> new BoolLiteral(token.getBoolValue());
+            case INT_LITERAL -> new IntLiteral(token.getIntegerValue());
+            case FLOAT_LITERAL -> new FloatLiteral(token.getDoubleValue());
+            default -> null;
+        };
+    }
+
+    private boolean isLiteral (TokenType type){
+        return type == TokenType.STRING_LITERAL || type == TokenType.INT_LITERAL
+                || type == TokenType.FLOAT_LITERAL || type == TokenType.BOOL_LITERAL;
+    }
+
+
+
+
+
+
+
+
 
     private Function parseFunction() {
         return new Function();

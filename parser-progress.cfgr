@@ -1,23 +1,24 @@
 module grammar;
 # main part
-program : {unit_dcl | conversion_dcl} function_def {function_def};          #done
-function_def : type identifier arg_list block_stmt;
+program : {unit_dcl | conversion_dcl} function_def {function_def};
+function_def : type identifier parameters block_stmt;
 
-arg_list : "(" [type identifier {"," type identifier}] ")" ;                #done
+parameters : "(" [type identifier {"," type identifier}] ")" ;
 
-block_stmt : "{" {stmt} "}";                                                #done
-stmt: block_stmt | return_stmt | loop_stmt | call_stmt | if_stmt | print_stmt
+
+block_stmt : "{" {stmt} "}";
+stmt: block_stmt | return_stmt | while_stmt | call_stmt | if_else_stmt | print_stmt
 | explain_stmt  | assign_stmt
-| var_dcl_stmt | break_stmt | continue_stmt | type_check_stmt;          #done
+| var_dcl_stmt | break_stmt | continue_stmt | type_check_stmt;
 
 # flow control statements
-return_stmt : "return" expr ";";                        #done
-loop_stmt : "while" "(" expr ")" stmt ;         #in progress, will work afer expr and statement
+return_stmt : "return" expr ";";
+while_stmt : "while" "(" expr ")" stmt ;
 call_stmt: identifier "(" args ")" ";";
 args: [expr {"," expr}];
-if_stmt : "if" "(" expr ")" stmt ["else" stmt];
-break_stmt : "break" ";";                       #done!
-continue_stmt : "continue" ";";                 #done!
+if_else_stmt : "if" "(" expr ")" stmt ["else" stmt];
+break_stmt : "break" ";";
+continue_stmt : "continue" ";";
 
 # bulit-in statements
 print_stmt : "print" "(" args ")" ";";
@@ -27,28 +28,26 @@ assign_stmt : identifier "=" expr ";";
 var_dcl_stmt : type (identifier ";") | [assign_stmt] ;
 
 # defining custom units
-unit_dcl : "unit" identifier ["as" compound_expr ] ";";         # done
+unit_dcl : "unit" identifier ["as" compound_expr ] ";";
 # conversion expression for compound unit definition
 # only one division is possible
-compound_expr: "<" compound_part ["/" compound_part] ">" ";";   # done
-compound_part: compound_term {"*" compound_term};               # done
-compound_term: unit_type ["^" non_zero_number];                 # done
-unit_type: base_unit | identifier;                              # done
+compound_expr: "<" compound_part ["/" compound_part] ">" ";";
+compound_part: compound_term {"*" compound_term};
+compound_term: unit_type ["^" non_zero_number];
+unit_type: base_unit | identifier;
 
 # defining unit relationships
-conversion_dcl: "let" unit_type arg_list conv_fun;              #todo
+conversion_dcl: "let" unit_type arg_list "{" conv_unit_expr "}" ";";
 # expressions limited to arithmetic operations
-conv_fun : "{" conv_unit_expr "}" ";";
- conv_unit_expr: multi_unit_expr {add_op multi_unit_expr};      # done
-multi_unit_expr: power_unit_expr {multi_op power_unit_expr};    #done
-power_unit_expr: {unary_unit_expr "^"} unary_unit_expr;         #done
+ conv_unit_expr: multi_unit_expr {add_op multi_unit_expr};
+multi_unit_expr: power_unit_expr {multi_op power_unit_expr};
+power_unit_expr: {unary_unit_expr "^"} unary_unit_expr;     # need to reconsider that one
 unary_unit_expr: ["-"] unit_expr;
 unit_expr: "(" conv_unit_expr ")" | number | base_unit | identifier;
 
 
 
 # operator precedence
-expr : unit_type "(" or_expr ")" | or_expr;                     #todo
 or_expr : and_expr { "||" and_expr};
 and_expr : comp_expr {"&&" comp_expr};
 comp_expr : rel_expr {comp_op rel_expr};
@@ -56,8 +55,8 @@ rel_expr : arithmetic_expr {rel_op arithmetic_expr};
 arithmetic_expr: multi_expr {add_op multi_expr};
 multi_expr: power_expr {multi_op power_expr};
 power_expr: {unary_expr "^"} unary_expr;
-unary_expr: {unary_op} not_unary_expr;
-not_unary_expr: "(" expr ")" | value;
+unary_expr: [unary_op] not_unary_expr;
+expr: "(" or_expr ")" | value;
 
 # eliminate left recursion in power operators
 
@@ -69,8 +68,10 @@ multi_op: "/" | "*" ;
 unary_op: "!"|"-";
 
 # values
-value : call_stmt |  literal | identifier;
+value : call |  literal | identifier;
+call : unit_type "(" args ")";
 identifier : ((underscore  (letter | digit)) | letter) {letter | digit | underscore};
+
 literal: base_type| string | number;
 type: base_type | identifier;
 base_type: "int" | "float" | "bool" | "string" | "compound" | base_unit;

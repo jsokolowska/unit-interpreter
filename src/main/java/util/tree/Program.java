@@ -15,8 +15,8 @@ public class Program implements Node{
     private final Map<String, Function> functions = new HashMap<>();
 
     // Enable Id lookup for units
-    // private final Map<int, UnitDeclaration> unitDeclarationMap = new HashMap<>();
-    // private final Map<int, Conversion> conversionMap = new HashMap<>();
+    // private final Map<UnitType, UnitDeclaration> unitDeclarationMap = new HashMap<>();
+    // private final Map<UnitType, Conversion> conversionMap = new HashMap<>();
 
 
 

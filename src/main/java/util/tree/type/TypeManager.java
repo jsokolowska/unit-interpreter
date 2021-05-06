@@ -8,8 +8,8 @@ import java.util.Map;
 
 public class TypeManager {
 
-    private final Map<Token.TokenType, Type> baseTypes = new HashMap<>();   //for built in types and units
-    private final Map<String, UnitType> units = new HashMap<>();            //for custom units
+    private static final Map<Token.TokenType, Type> baseTypes = new HashMap<>();   //for built in types and units
+    private static final Map<String, UnitType> units = new HashMap<>();            //for custom units
 
     public TypeManager (){
         initBaseTypes();
