@@ -110,10 +110,10 @@ class UnitExpressionToStringSpec extends Specification{
 
     def "Check multiple ConversionExpression"(){
         given:
-        def obj = new ConversionExpression();
+        def obj = new ConversionExpression()
 
         when:
-        obj.add(new Expression());
+        obj.add(new Expression())
         obj.add(new Expression(), new PlusOperator())
         obj.add(new Expression(), new MinusOperator())
 

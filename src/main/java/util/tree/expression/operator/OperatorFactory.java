@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class OperatorFactory {
-    private static Map<Token.TokenType, Operator> tokenToOperator = new HashMap<>();
+    private static final Map<Token.TokenType, Operator> tokenToOperator = new HashMap<>();
     static {
         initTokenToOperatorMap();
     }

@@ -3,8 +3,8 @@ package util.tree.statement;
 import util.tree.function.Arguments;
 
 public class CallStatement extends Statement{
-    private String identifier;
-    private Arguments arguments;
+    private final String identifier;
+    private final Arguments arguments;
 
     public CallStatement(String id, Arguments arguments){
         identifier = id;
