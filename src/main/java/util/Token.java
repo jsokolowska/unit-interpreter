@@ -77,10 +77,6 @@ public class Token {
         this(type, null, null);
     }
 
-    public Token (TokenType type, Object value){
-        this(type, value, null);
-    }
-
     public Token (TokenType type, Position position){
         this(type, null, position);
     }
@@ -89,6 +85,10 @@ public class Token {
         this.type = type;
         this.value = value;
         this.position = position;
+    }
+
+    public Boolean getBoolValue(){
+        return (Boolean) value;
     }
 
     public String getStringValue(){

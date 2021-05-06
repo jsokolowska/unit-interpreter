@@ -2,6 +2,7 @@ package util
 
 
 import spock.lang.Specification
+import util.tree.expression.Expression
 import util.tree.expression.operator.DivOperator
 import util.tree.expression.operator.MinusOperator
 import util.tree.expression.operator.MulOperator
@@ -10,13 +11,12 @@ import util.tree.expression.unit.ConversionExpression
 import util.tree.expression.unit.MulUnitExpression
 import util.tree.expression.unit.PowerUnitExpression
 import util.tree.expression.unit.UnaryUnitExpression
-import util.tree.expression.unit.UnitExpression
 
 class UnitExpressionToStringSpec extends Specification{
 
     def "Check singular UnitExpression"(){
         given:
-        def obj = new UnitExpression()
+        def obj = new Expression()
 
         expect:
         obj.toString() == "u"
@@ -27,7 +27,7 @@ class UnitExpressionToStringSpec extends Specification{
         def obj = new MulUnitExpression()
 
         when:
-        obj.add(new UnitExpression())
+        obj.add(new Expression())
 
         then:
         obj.toString() == "u"
@@ -38,7 +38,7 @@ class UnitExpressionToStringSpec extends Specification{
         def obj = new PowerUnitExpression()
 
         when:
-        obj.add(new UnitExpression())
+        obj.add(new Expression())
 
         then:
         obj.toString() == "u"
@@ -49,7 +49,7 @@ class UnitExpressionToStringSpec extends Specification{
         def obj = new UnaryUnitExpression()
 
         when:
-        obj.add(new UnitExpression())
+        obj.add(new Expression())
 
         then:
         obj.toString() == "[-u]"
@@ -60,7 +60,7 @@ class UnitExpressionToStringSpec extends Specification{
         def obj = new ConversionExpression()
 
         when:
-        obj.add(new UnitExpression())
+        obj.add(new Expression())
 
         then:
         obj.toString() == "u"
@@ -71,9 +71,9 @@ class UnitExpressionToStringSpec extends Specification{
         def obj = new MulUnitExpression()
 
         when:
-        obj.add(new UnitExpression())
-        obj.add(new UnitExpression(), new MulOperator())
-        obj.add(new UnitExpression(), new DivOperator())
+        obj.add(new Expression())
+        obj.add(new Expression(), new MulOperator())
+        obj.add(new Expression(), new DivOperator())
 
         then:
         obj.toString() == "[u*u/u]"
@@ -84,9 +84,9 @@ class UnitExpressionToStringSpec extends Specification{
         def obj = new PowerUnitExpression()
 
         when:
-        obj.add(new UnitExpression())
-        obj.add(new UnitExpression())
-        obj.add(new UnitExpression())
+        obj.add(new Expression())
+        obj.add(new Expression())
+        obj.add(new Expression())
 
         then:
         obj.toString() == "[u^u^u]"
@@ -97,7 +97,7 @@ class UnitExpressionToStringSpec extends Specification{
         def obj = new UnaryUnitExpression()
         def obj2 = new UnaryUnitExpression()
         def obj3 = new UnaryUnitExpression()
-        def obj4 = new UnitExpression()
+        def obj4 = new Expression()
 
         when:
         obj3.add(obj4)
@@ -113,9 +113,9 @@ class UnitExpressionToStringSpec extends Specification{
         def obj = new ConversionExpression();
 
         when:
-        obj.add(new UnitExpression());
-        obj.add(new UnitExpression(), new PlusOperator())
-        obj.add(new UnitExpression(), new MinusOperator())
+        obj.add(new Expression());
+        obj.add(new Expression(), new PlusOperator())
+        obj.add(new Expression(), new MinusOperator())
 
         then:
         obj.toString() == "u+u-u"
@@ -131,16 +131,16 @@ class UnitExpressionToStringSpec extends Specification{
         def obj6 = new MulUnitExpression()
 
         when:
-        obj6.add(new UnitExpression())
-        obj6.add(new UnitExpression(), new MulOperator())
+        obj6.add(new Expression())
+        obj6.add(new Expression(), new MulOperator())
         obj5.add(obj6)
-        obj4.add(new UnitExpression())
+        obj4.add(new Expression())
         obj4.add(obj5)
-        obj4.add(new UnitExpression())
+        obj4.add(new Expression())
         obj3.add(obj4)
-        obj3.add(new UnitExpression(), new MulOperator())
-        obj2.add(new UnitExpression())
-        obj2.add(new UnitExpression(), new DivOperator())
+        obj3.add(new Expression(), new MulOperator())
+        obj2.add(new Expression())
+        obj2.add(new Expression(), new DivOperator())
         obj1.add(obj2)
         obj1.add(obj3, new PlusOperator())
 

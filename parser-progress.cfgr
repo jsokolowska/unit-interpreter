@@ -39,12 +39,12 @@ unit_type: base_unit | identifier;                              # done
 conversion_dcl: "let" unit_type arg_list conv_fun;              #todo
 # expressions limited to arithmetic operations
 conv_fun : "{" conv_unit_expr "}" ";";
- conv_unit_expr: multi_unit_expr {add_op multi_unit_expr};      #done
+ conv_unit_expr: multi_unit_expr {add_op multi_unit_expr};      # done
 multi_unit_expr: power_unit_expr {multi_op power_unit_expr};    #done
 power_unit_expr: {unary_unit_expr "^"} unary_unit_expr;         #done
 unary_unit_expr: ["-"] unit_expr;
-unit_expr: "(" conv_unit_expr ")" | unit_value;
-unit_value: number | base_unit | identifier;
+unit_expr: "(" conv_unit_expr ")" | number | base_unit | identifier;
+
 
 
 # operator precedence

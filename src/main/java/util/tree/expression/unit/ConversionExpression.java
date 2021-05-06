@@ -1,23 +1,24 @@
 package util.tree.expression.unit;
 
 
+import util.tree.expression.Expression;
 import util.tree.expression.operator.Operator;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConversionExpression extends UnitExpression {
+public class ConversionExpression extends Expression {
 
-    private final List<UnitExpression> expressions = new ArrayList<>();
+    private final List<Expression> expressions = new ArrayList<>();
     private final List<Operator> operators = new ArrayList<>();
 
 
-    public void add(UnitExpression expr, Operator operator){
+    public void add(Expression expr, Operator operator){
         expressions.add(expr);
         operators.add(operator);
     }
 
-    public void add(UnitExpression expr){
+    public void add(Expression expr){
         expressions.add(expr);
     }
 
@@ -32,5 +33,10 @@ public class ConversionExpression extends UnitExpression {
             str.append(expressions.get(i));
         }
         return str.toString();
+    }
+
+    @Override
+    public int size() {
+        return expressions.size();
     }
 }

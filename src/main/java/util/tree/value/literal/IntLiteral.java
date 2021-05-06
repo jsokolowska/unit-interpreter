@@ -2,8 +2,8 @@ package util.tree.value.literal;
 
 import util.tree.value.Value;
 
-public class BoolLiteral extends Literal {
-    public BoolLiteral(Boolean value){
+public class IntLiteral extends Literal {
+    public IntLiteral (Integer value){
         super(value);
     }
 }

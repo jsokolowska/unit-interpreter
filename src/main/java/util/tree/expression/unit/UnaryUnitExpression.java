@@ -1,9 +1,11 @@
 package util.tree.expression.unit;
 
-public class UnaryUnitExpression extends UnitExpression{
-    private UnitExpression expr;
+import util.tree.expression.Expression;
 
-    public void add (UnitExpression expr){
+public class UnaryUnitExpression extends Expression{
+    private Expression expr;
+
+    public void add (Expression expr){
         this.expr = expr;
     }
 
@@ -11,4 +13,5 @@ public class UnaryUnitExpression extends UnitExpression{
     public String toString() {
         return "[-" + expr + "]";
     }
+
 }

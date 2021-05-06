@@ -26,8 +26,14 @@ public abstract class OperatorFactory {
         tokenToOperator.put(Token.TokenType.POWER, new PowerOperator());
     }
 
-    private static Operator createOperator (Token t){
+    public static Operator getOperator(Token t){
         return tokenToOperator.get(t.getTokenType());
+    }
+
+    public static Operator getAdditiveOperator(Token.TokenType t){
+        if (t == Token.TokenType.PLUS) return new PlusOperator();
+        if( t == Token.TokenType.MINUS) return new MinusOperator();
+        return null;
     }
 
 }

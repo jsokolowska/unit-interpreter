@@ -12,4 +12,12 @@ public class Arguments {
         arguments.add(expr);
     }
 
+    @Override
+    public String toString() {
+        var str = new StringBuilder();
+        for (Expression e: arguments){
+            str.append(e);
+        }
+        return str.toString();
+    }
 }

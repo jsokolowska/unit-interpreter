@@ -1,4 +1,6 @@
 package util.tree.value;
 
-public class Value {
+import util.tree.expression.Expression;
+
+public class Value extends Expression {
 }

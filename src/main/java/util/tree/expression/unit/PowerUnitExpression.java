@@ -1,12 +1,14 @@
 package util.tree.expression.unit;
 
+import util.tree.expression.Expression;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class PowerUnitExpression extends UnitExpression{
-    private final List<UnitExpression> expressions = new ArrayList<>();
+public class PowerUnitExpression extends Expression {
+    private final List<Expression> expressions = new ArrayList<>();
 
-    public void add(UnitExpression expr){
+    public void add(Expression expr){
         expressions.add(expr);
     }
 
@@ -22,5 +24,10 @@ public class PowerUnitExpression extends UnitExpression{
         }
         if (expressions.size() > 1) str.append(']');
         return str.toString();
+    }
+
+    @Override
+    public int size() {
+        return expressions.size();
     }
 }
