@@ -3,8 +3,8 @@ package util.tree.statement;
 import util.tree.expression.Expression;
 
 public class WhileStatement extends Statement{
-    private Statement body;
-    private Expression condition;
+    private final Statement body;
+    private final Expression condition;
 
     public WhileStatement (Statement body, Expression condition){
         this.body = body;

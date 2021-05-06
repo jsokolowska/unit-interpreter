@@ -123,7 +123,7 @@ class ScannerSpec extends Specification{
         def scanner = new Scanner(new StringSource(str))
 
         when:
-        scanner.getNextToken();
+        scanner.getNextToken()
 
         then:
         thrown(ScannerException)
@@ -146,7 +146,7 @@ class ScannerSpec extends Specification{
         def scanner = new Scanner(new StringSource(str))
 
         when:
-        scanner.getNextToken();
+        scanner.getNextToken()
 
         then:
         def ex = thrown(ScannerException)
@@ -168,7 +168,7 @@ class ScannerSpec extends Specification{
         assert token == new Token(TokenType.TYPE_INT, new Position(1,1))
         assert token.getStringValue() == "int"
 
-        token = scanner.getNextToken();
+        token = scanner.getNextToken()
         assert token == new Token(TokenType.IDENTIFIER, new Position(1,5))
         assert token.getStringValue() == "x"
 
@@ -213,7 +213,7 @@ class ScannerSpec extends Specification{
         def scanner = new Scanner(new StringSource(str))
 
         when:
-        scanner.getNextToken();
+        scanner.getNextToken()
 
         then:
         thrown(ScannerException)
@@ -228,7 +228,7 @@ class ScannerSpec extends Specification{
         def scanner = new Scanner(new StringSource(str))
 
         when:
-        scanner.getNextToken();
+        scanner.getNextToken()
 
         then:
         thrown(ScannerException)

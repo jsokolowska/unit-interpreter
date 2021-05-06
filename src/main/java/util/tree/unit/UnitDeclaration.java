@@ -3,8 +3,8 @@ package util.tree.unit;
 import util.tree.Node;
 
 public class UnitDeclaration implements Node {
-    private String name;
-    private CompoundExpr type;
+    private final String name;
+    private final CompoundExpr type;
 
     public UnitDeclaration(String name){
         this(name, null);

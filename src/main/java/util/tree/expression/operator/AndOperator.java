@@ -1,6 +1,6 @@
 package util.tree.expression.operator;
 
-public class AndOperator {
+public class AndOperator extends Operator{
 
     @Override
     public String toString() {

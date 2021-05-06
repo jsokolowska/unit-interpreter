@@ -1,7 +1,7 @@
 package util.tree.type;
 
 public class UnitType extends Type {
-    private String name;
+    private final String name;
     protected UnitType(String name){
         this.name = name;
     }

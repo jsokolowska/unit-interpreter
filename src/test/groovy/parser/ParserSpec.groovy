@@ -22,13 +22,13 @@ class ParserSpec extends Specification{
     def "Should parse different return statements"(){
         given: "Parser that uses string source"
         def parser = prepareParser(str)
-        def result;
+        def result
 
         when: "trying to parse Statement"
         result = parser.parseStatement()
 
         then: "A not null instance of ReturnStatement class is parsed"
-        result != null;
+        result != null
         result instanceof ReturnStatement
 
         where:
@@ -38,10 +38,10 @@ class ParserSpec extends Specification{
     def "Should parse break" (){
         given:
         def parser = prepareParser("break;")
-        def result;
+        def result
 
         when:
-        result = parser.parseStatement();
+        result = parser.parseStatement()
 
         then:
         result != null
@@ -51,10 +51,10 @@ class ParserSpec extends Specification{
     def "Should parse continue"(){
         given:
         def parser = prepareParser("continue;")
-        def result;
+        def result
 
         when:
-        result = parser.parseStatement();
+        result = parser.parseStatement()
 
         then:
         result != null
@@ -66,7 +66,7 @@ class ParserSpec extends Specification{
         def parser = prepareParser(str)
 
         when:
-        parser.parseStatement();
+        parser.parseStatement()
 
         then:
         thrown(ParserException)
@@ -79,10 +79,10 @@ class ParserSpec extends Specification{
     def "Should parse compound terms" (){
         given:
         def parser = prepareParser(str)
-        def res;
+        def res
 
         when:
-        res = parser.parseOneCompoundTerm();
+        res = parser.parseOneCompoundTerm()
 
         then:
         res.getUnitType().getName() == name
@@ -100,7 +100,7 @@ class ParserSpec extends Specification{
         def parser = prepareParser(str)
 
         when:
-        parser.parseOneCompoundTerm();
+        parser.parseOneCompoundTerm()
 
         then:
         thrown(ParserException)
@@ -112,10 +112,10 @@ class ParserSpec extends Specification{
     def "Should parse compound expressions" () {
         given:
         def parser = prepareParser(str)
-        def result;
+        def result
 
         when:
-        result = parser.parseCompoundExpression();
+        result = parser.parseCompoundExpression()
 
         then:
         parts.each{
@@ -136,11 +136,11 @@ class ParserSpec extends Specification{
     def "Should parse unit declarations "(){
         given:
         def parser = prepareParser(str)
-        def result;
-        def expr;
+        def result
+        def expr
 
         when:
-        result = parser.parseUnitDeclaration();
+        result = parser.parseUnitDeclaration()
         expr = result.getType()
 
         then:
@@ -162,10 +162,10 @@ class ParserSpec extends Specification{
     def "Should throw exception if parsing an improper unit declaration" (){
         given:
         def parser = prepareParser(str)
-        def result;
+        def result
 
         when:
-        result = parser.parseUnitDeclaration();
+        result = parser.parseUnitDeclaration()
 
         then:
         thrown(ParserException)
@@ -178,10 +178,10 @@ class ParserSpec extends Specification{
         given:
         def parser = prepareParser(str)
         def result
-        def len = types.size();
+        def len = types.size()
 
         when:
-        result = parser.parseParameters();
+        result = parser.parseParameters()
 
         then:
         for (int i=0; i<len; i++){

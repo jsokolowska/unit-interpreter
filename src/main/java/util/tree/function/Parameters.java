@@ -6,7 +6,7 @@ import util.tree.type.Type;
 import java.util.*;
 
 public class Parameters implements Node {
-    private SortedMap<String, Type> parameters = new TreeMap<>();
+    private final SortedMap<String, Type> parameters = new TreeMap<>();
 
     public void addParameter (String name, Type type){
         parameters.put(name, type);
