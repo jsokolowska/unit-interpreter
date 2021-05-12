@@ -26,10 +26,13 @@ class ExpressionToStringSpec extends Specification {
         def expr = new UnaryExpression();
 
         when:
-        expr.add(new Expression())
+        expr.add(new Expression(), op)
 
         then:
-        expr.toString() == "-[u]"
+        expr.toString() == "[" + op + "u]"
+
+        where:
+        op <<[new NotOperator(), new NegOperator()]
     }
 
     def "Check multiple UnaryExpressions" () {

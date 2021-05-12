@@ -11,7 +11,7 @@ public class UnaryUnitExpression extends Expression{
 
     @Override
     public String toString() {
-        return "-[" + expr + "]";
+        return "[-" + expr + "]";
     }
 
 }

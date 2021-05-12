@@ -5,7 +5,7 @@ import util.Token;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class OperatorFactory {
+public class OperatorFactory {
     private static final Map<Token.TokenType, Operator> tokenToOperator = new HashMap<>();
     static {
         initTokenToOperatorMap();
@@ -22,7 +22,7 @@ public abstract class OperatorFactory {
         tokenToOperator.put(Token.TokenType.NOT, new NotOperator());
         tokenToOperator.put(Token.TokenType.NOT_EQUAL, new NotEqOperator());
         tokenToOperator.put(Token.TokenType.OR, new OrOperator());
-        tokenToOperator.put(Token.TokenType.PLUS, new PlusOperator());
+        tokenToOperator.put(Token.TokenType.MINUS, new NegOperator());
         tokenToOperator.put(Token.TokenType.POWER, new PowerOperator());
     }
 
