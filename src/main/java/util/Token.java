@@ -2,8 +2,6 @@ package util;
 
 import util.position.Position;
 
-import java.math.BigDecimal;
-
 public class Token {
     public static int MAX_NUMBER = Integer.MAX_VALUE;
     public static int MAX_IDENTIFIER_LEN = 100;

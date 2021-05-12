@@ -1,24 +1,25 @@
 package parser;
 
 import exception.ParserException;
+import exception.ScannerException;
 import scanner.Scanner;
 import util.Token;
 import util.Token.TokenType;
 import util.tree.Program;
-import util.tree.Variable;
 import util.tree.expression.Expression;
+import util.tree.expression.math.*;
 import util.tree.expression.operator.Operator;
 import util.tree.expression.operator.OperatorFactory;
+import util.tree.expression.operator.PowerOperator;
 import util.tree.expression.unit.*;
-import util.tree.function.Arguments;
-import util.tree.function.Function;
-import util.tree.function.Parameters;
+import util.tree.function.*;
 import util.tree.statement.*;
 import util.tree.type.Type;
 import util.tree.type.TypeManager;
 import util.tree.type.UnitType;
 import util.tree.unit.*;
-import util.tree.value.Value;
+import util.tree.value.FunctionCall;
+import util.tree.value.VariableValue;
 import util.tree.value.literal.*;
 
 import java.io.IOException;
@@ -30,7 +31,7 @@ public class Parser {
 
     public Parser(Scanner scanner) throws IOException {
         this.scanner = scanner;
-        token = scanner.getNextToken();
+        token = scanner.getToken();
     }
 
     private static boolean matchesType(Token token) {
@@ -66,7 +67,7 @@ public class Parser {
         }
 
         if (!program.hasFunctions()) {
-            throw new ParserException("Progam needs to have at least one function");
+            throw new ParserException("Program needs to have at least one function");
         }
 
         return program;
@@ -75,23 +76,23 @@ public class Parser {
     private UnitDeclaration parseUnitDeclaration() throws IOException { //todo add simplification if unit expression is of type <a>
         if (!tokenHasType(TokenType.UNIT)) return null;
 
-        token = scanner.getNextToken();
+        token = scanner.getToken();
         if (token.getTokenType() == TokenType.IDENTIFIER) {
             String unitName = token.getStringValue();
             if (typeManager.exists(unitName)) {
                 throw new ParserException("Unit redefinition not allowed", token.getPosition());
             }
 
-            token = scanner.getNextToken();
+            token = scanner.getToken();
             CompoundExpr type = null;
 
             if (token.getTokenType() == TokenType.AS) {
-                token = scanner.getNextToken();
+                token = scanner.getToken();
                 type = parseCompoundExpression();
                 if (type == null) {
                     throw new ParserException(TokenType.LESS, token);
                 }
-                token = scanner.getNextToken();
+                token = scanner.getToken();
             }
             if (token.getTokenType() == TokenType.SEMICOLON) {
                 return new UnitDeclaration(unitName, type);
@@ -105,13 +106,13 @@ public class Parser {
     private CompoundExpr parseCompoundExpression() throws IOException {
         if (token.getTokenType() != TokenType.LESS) return null;
 
-        token = scanner.getNextToken();
+        token = scanner.getToken();
         CompoundExpr compoundExpr = new CompoundExpr();
         parseCompoundNumerator(compoundExpr); //never returns null
 
 
         if (token.getTokenType() == TokenType.DIVIDE) {
-            token = scanner.getNextToken();
+            token = scanner.getToken();
             parseCompoundDenominator(compoundExpr);
         }
 
@@ -136,14 +137,14 @@ public class Parser {
         CompoundTerm one = parseOneCompoundTerm();
         if (isDenominator) one.negate();
         expr.addPart(one);
-        token = scanner.getNextToken();
+        token = scanner.getToken();
 
         while (tokenHasType(TokenType.MULTIPLY)) {
-            token = scanner.getNextToken();
+            token = scanner.getToken();
             CompoundTerm term = parseOneCompoundTerm();
             if (isDenominator) term.negate();
             expr.addPart(term);
-            token = scanner.getNextToken();
+            token = scanner.getToken();
         }
 
     }
@@ -155,10 +156,10 @@ public class Parser {
         UnitType unit = typeManager.getUnitType(token);
         if(unit == null) throw new ParserException("Unit usage before definition", token.getPosition());
 
-        token = scanner.getNextToken();
+        token = scanner.getToken();
         if (!tokenHasType(TokenType.POWER)) return new CompoundTerm(unit, 1);
 
-        token = scanner.getNextToken();
+        token = scanner.getToken();
         if (!tokenHasType(TokenType.INT_LITERAL)) throw new ParserException(TokenType.INT_LITERAL, token);
 
         int exponent = token.getIntegerValue();
@@ -170,7 +171,7 @@ public class Parser {
     private Conversion parseUnitConversion() throws IOException {
         if(!tokenHasType(TokenType.LET)) return null;
 
-        token = scanner.getNextToken();
+        token = scanner.getToken();
         if(! matchesUnitType(token)){
             throw new ParserException("Expected unit type", token);
         }
@@ -178,24 +179,24 @@ public class Parser {
         if(unit == null) {
             throw new ParserException("Unit usage before definition", token.getPosition());
         }
-        token = scanner.getNextToken();
+        token = scanner.getToken();
 
         Parameters parameters = parseParameters();
         if (parameters == null){
             throw new ParserException(TokenType.OPEN_BRACKET, token);
         }else{
-            token = scanner.getNextToken();
+            token = scanner.getToken();
             if (!tokenHasType(TokenType.CURLY_OPEN)){
                 throw new ParserException(TokenType.CURLY_OPEN, token);
             }
-            token = scanner.getNextToken();
+            token = scanner.getToken();
 
             Expression conversionExpression = parseConversionExpression();
             if (conversionExpression == null){
                 throw new ParserException("Expected function body ", token);
             }
 
-            token = scanner.getNextToken();
+            token = scanner.getToken();
             if(! tokenHasType(TokenType.CURLY_CLOSE)){
                 throw new ParserException(TokenType.CURLY_CLOSE, token);
             }
@@ -207,17 +208,17 @@ public class Parser {
     private Parameters parseParameters () throws IOException {
         if(!tokenHasType(TokenType.OPEN_BRACKET)) return null;
 
-        token = scanner.getNextToken();
+        token = scanner.getToken();
         Parameters params = new Parameters();
         //if after open bracket there is immediately close bracket parameter list is empty
         if(tokenHasType(TokenType.CLOSE_BRACKET)) return params;
 
         parseParameter(params);
-        token = scanner.getNextToken();
+        token = scanner.getToken();
         while(tokenHasType(TokenType.COMMA)){
-            token = scanner.getNextToken();
+            token = scanner.getToken();
             parseParameter(params);
-            token = scanner.getNextToken();
+            token = scanner.getToken();
 
         }
         if(!tokenHasType(TokenType.CLOSE_BRACKET)){
@@ -234,7 +235,7 @@ public class Parser {
         if (type == null) {
             throw new ParserException("Type usage before definition", token.getPosition());
         }
-        token = scanner.getNextToken();
+        token = scanner.getToken();
         if (!tokenHasType(TokenType.IDENTIFIER)){
             throw new ParserException(TokenType.IDENTIFIER, token);
         }
@@ -246,13 +247,11 @@ public class Parser {
         if (expressionPart == null) return null;
 
         ConversionExpression expression = new ConversionExpression();
-        expression.add(expression);
-
-        token = scanner.getNextToken();
+        expression.add(expressionPart);
 
         while(tokenHasType(TokenType.PLUS) || tokenHasType(TokenType.MINUS) ){
             Operator op = OperatorFactory.getAdditiveOperator(token.getTokenType());
-            token = scanner.getNextToken();
+            token = scanner.getToken();
             expressionPart = parseMulUnitExpression();
             if (expressionPart == null){
                 throw new ParserException("Expected expression", token.getPosition());
@@ -271,13 +270,11 @@ public class Parser {
         if (expressionPart == null) return null;
 
         MulUnitExpression expression = new MulUnitExpression();
-        expression.add(expression);
-
-        token = scanner.getNextToken();
+        expression.add(expressionPart);
 
         while(tokenHasType(TokenType.DIVIDE) || tokenHasType(TokenType.MULTIPLY) ){
             Operator op = OperatorFactory.getOperator(token);
-            token = scanner.getNextToken();
+            token = scanner.getToken();
             expressionPart = parsePowerUnitExpression();
             if (expressionPart == null){
                 throw new ParserException("Expected expression", token.getPosition());
@@ -293,16 +290,13 @@ public class Parser {
 
     private Expression parsePowerUnitExpression () throws IOException {
         Expression expressionPart = parseUnaryUnitExpression();
-        if (expressionPart == null) return null;
-
         PowerUnitExpression expression = new PowerUnitExpression();
-        expression.add(expression);
+        expression.add(expressionPart);
 
-        token = scanner.getNextToken();
-
+        token = scanner.getToken();
         while(tokenHasType(TokenType.POWER) ){
             //Operator op = OperatorFactory.getOperator(token);
-            token = scanner.getNextToken();
+            token = scanner.getToken();
             expressionPart = parseUnaryUnitExpression();
             expression.add(expressionPart);
         }
@@ -314,7 +308,7 @@ public class Parser {
 
     private Expression parseUnaryUnitExpression () throws IOException {
         if(tokenHasType(TokenType.MINUS)){
-            token = scanner.getNextToken();
+            token = scanner.getToken();
             UnaryUnitExpression expr = new UnaryUnitExpression();
             Expression expressionPart = parseUnitExpression();
             if(expressionPart == null){
@@ -332,21 +326,20 @@ public class Parser {
 
     private Expression parseUnitExpression () throws IOException {
         if(tokenHasType(TokenType.OPEN_BRACKET)){
+            token = scanner.getToken();
             Expression expr = parseConversionExpression();
             if(expr == null){
                 throw new ParserException("Expected expression", token.getPosition());
             }
-            token = scanner.getNextToken();
-            if(tokenHasType(TokenType.CLOSE_BRACKET)){
+            if(!tokenHasType(TokenType.CLOSE_BRACKET)){
                 throw new ParserException(TokenType.CLOSE_BRACKET, token);
             }
             return expr;
         }
-        Expression value = parseNumberLiteral();
-        return value;
-
-
-        //unit
+        Expression value;
+        if((value = parseNumberLiteral()) != null) return value;
+        if((value = parseVariableValue()) != null) return value;
+        return null;
     }
 
     private Literal parseNumberLiteral (){
@@ -355,6 +348,11 @@ public class Parser {
             case FLOAT_LITERAL -> new FloatLiteral(token.getDoubleValue());
             default -> null;
         };
+    }
+
+    private VariableValue parseVariableValue (){
+        if(!tokenHasType(TokenType.IDENTIFIER)) return null;
+        return new VariableValue(token.getStringValue());
     }
 
     private Literal parseLiteral (){
@@ -367,21 +365,26 @@ public class Parser {
         };
     }
 
-    private boolean isLiteral (TokenType type){
-        return type == TokenType.STRING_LITERAL || type == TokenType.INT_LITERAL
-                || type == TokenType.FLOAT_LITERAL || type == TokenType.BOOL_LITERAL;
-    }
+    private Function parseFunction() throws IOException {
+        Type type = TypeManager.getUnitType(token);
+        if(type == null){
+            if((type = TypeManager.getType(token))==null){
+                if(tokenHasType(TokenType.IDENTIFIER)){
+                    throw new ParserException("Type usage before definition", token.getPosition());
+                }
+            }
+        }
+        token = scanner.getToken();
+        if(!tokenHasType(TokenType.IDENTIFIER)){
+            throw new ParserException(TokenType.IDENTIFIER, token);
+        }
+        String identifier = token.getStringValue();
+        token = scanner.getToken();
+        Parameters params = parseParameters();
+        BlockStatement statement = parseBlockStatement();
+        if(statement == null) throw new ParserException(TokenType.CURLY_OPEN, token);
 
-
-
-
-
-
-
-
-
-    private Function parseFunction() {
-        return new Function();
+        return new Function(identifier, statement, params, type);
     }
 
     private Statement parseStatement() throws IOException {
@@ -401,8 +404,26 @@ public class Parser {
         return null;
     }
 
-    private IfElseStatement parseIfElseStatement (){
-        return null;
+    private IfElseStatement parseIfElseStatement () throws IOException {
+        if(!tokenHasType(TokenType.IF)) return null;
+        token = scanner.getToken();
+        if(!tokenHasType(TokenType.OPEN_BRACKET)){
+            throw new ParserException(TokenType.OPEN_BRACKET, token);
+        }
+        token = scanner.getToken();
+        Expression ifCondition = parseExpression();
+        if(ifCondition == null) throw new ParserException("Expected condition");
+        if(!tokenHasType(TokenType.CLOSE_BRACKET)){
+            throw new ParserException(TokenType.CLOSE_BRACKET, token);
+        }
+        Statement ifBody = parseStatement();
+        if(ifBody == null){
+            throw new ParserException("Empty if body", token.getPosition());
+        }
+        if(tokenHasType(TokenType.ELSE)){
+            token = scanner.getToken();
+        }
+        return new IfElseStatement();
     }
 
     private CallStatement parseCallStatement (){
@@ -431,13 +452,13 @@ public class Parser {
 
     private BlockStatement parseBlockStatement() throws IOException {
         if(!tokenHasType(TokenType.CURLY_OPEN)) return null;
-        token = scanner.getNextToken();
+        token = scanner.getToken();
         BlockStatement block = new BlockStatement();
         Statement stmt;
         while(true){
             if((stmt = parseStatement()) != null){
                 block.add(stmt);
-                token = scanner.getNextToken();
+                token = scanner.getToken();
             }else{
                 break;
             }
@@ -450,17 +471,17 @@ public class Parser {
 
     private WhileStatement parseLoop() throws IOException {
         if (!tokenHasType(TokenType.WHILE)) return null;
-        token = scanner.getNextToken();
+        token = scanner.getToken();
 
         if(!tokenHasType(TokenType.OPEN_BRACKET)) {
             throw new ParserException(TokenType.OPEN_BRACKET, token);
         }
-        token = scanner.getNextToken();
-        Expression cond = parseExpression();
+        token = scanner.getToken();
+        Expression cond = parseOrExpression();
         if (cond == null){
             throw  new ParserException("Expected conditional expression", token.getPosition());
         }
-        token = scanner.getNextToken();
+        token = scanner.getToken();
         Statement body = parseStatement();
         if (body == null){
             throw new ParserException(TokenType.CURLY_OPEN, token);
@@ -471,12 +492,16 @@ public class Parser {
     private ReturnStatement parseReturn() throws IOException {
         if (!tokenHasType(TokenType.RETURN)) return null;
 
-        token = scanner.getNextToken();
-        Expression expr;
-        expr = parseExpression();
+        token = scanner.getToken();
         //build value if exists
         if (tokenHasType(TokenType.SEMICOLON)) {
-            return new ReturnStatement(expr);
+            return new ReturnStatement(null);
+        }else{
+            Expression expr;
+            expr = parseOrExpression();
+            if(tokenHasType(TokenType.SEMICOLON)){
+                return new ReturnStatement(expr);
+            }
         }
         throw new ParserException(TokenType.SEMICOLON, token);
     }
@@ -484,7 +509,7 @@ public class Parser {
     private BreakStatement parseBreak() throws IOException { //todo refactor maybe into one function?
         if (!tokenHasType(TokenType.BREAK)) return null;
 
-        token = scanner.getNextToken();
+        token = scanner.getToken();
         if (tokenHasType(TokenType.SEMICOLON)) {
             return new BreakStatement();
         }
@@ -494,19 +519,203 @@ public class Parser {
     private ContinueStatement parseContinue() throws IOException {
         if (!tokenHasType(TokenType.CONTINUE)) return null;
 
-        token = scanner.getNextToken();
+        token = scanner.getToken();
         if (tokenHasType(TokenType.SEMICOLON)) {
             return new ContinueStatement();
         }
         throw new ParserException(TokenType.SEMICOLON, token);
     }
 
-    private Expression parseExpression() throws IOException {
+    private Expression parseOrExpression() throws IOException {
+        OrExpression expression = new OrExpression();
+        Expression expressionComponent = parseAndExpression();
+        if (expressionComponent == null) return  null;
+        expression.add(expressionComponent);
+        //token = scanner.getToken();
+        while (tokenHasType(TokenType.OR)){
+            token = scanner.getToken();
+            expressionComponent = parseAndExpression();
+            expression.add(expressionComponent);
+        }
+        if(expression.size() == 1)  return expressionComponent;
+        return expression;
+    }
+
+    private Expression parseAndExpression() throws IOException {
+        AndExpression expression = new AndExpression();
+        Expression expressionComponent = parseComparisonExpression();
+        if(expressionComponent == null) return null;
+        expression.add(expressionComponent);
+
+        while(tokenHasType(TokenType.AND)){
+            token = scanner.getToken();
+            expressionComponent = parseComparisonExpression();
+            expression.add(expressionComponent);
+        }
+        if(expression.size()==1) return expressionComponent;
+        return expression;
+    }
+
+    private Expression parseComparisonExpression ()throws IOException {
+        Expression expressionPart = parseRelationalExpression();
+        if(expressionPart == null) return null;
+        ComparisonExpression expr = new ComparisonExpression();
+        expr.add(expressionPart);
+
+        while(tokenHasType(TokenType.EQUAL) || tokenHasType(TokenType.NOT_EQUAL)){
+            Operator op = OperatorFactory.getOperator(token);
+            token = scanner.getToken();
+            expressionPart  = parseRelationalExpression();
+            if (expressionPart == null){
+                throw new ParserException("Expected expression", token.getPosition());
+            }
+            expr.add(expressionPart, op);
+        }
+        if(expr.size()==1){
+            return expressionPart;
+        }
+        return expr;
+    }
+
+    private Expression parseRelationalExpression ()throws IOException {
+        Expression expressionPart = parseArithmeticExpression();
+        if(expressionPart == null) return null;
+        RelationalExpression expr = new RelationalExpression();
+        expr.add(expressionPart);
+
+        while(isRelOp(token)){
+            Operator op = OperatorFactory.getOperator(token);
+            token = scanner.getToken();
+            expressionPart  = parseArithmeticExpression();
+            if (expressionPart == null){
+                throw new ParserException("Expected expression", token.getPosition());
+            }
+            expr.add(expressionPart, op);
+        }
+        if(expr.size()==1){
+            return expressionPart;
+        }
+        return expr;
+    }
+
+    private static boolean isRelOp(Token token){
+        return token.getTokenType() == TokenType.GREATER || token.getTokenType() == TokenType.GREATER_EQUAL
+                || token.getTokenType() == TokenType.LESS || token.getTokenType() == TokenType.LESS_EQUAL;
+    }
+
+    private Expression parseArithmeticExpression ()throws IOException {
+        Expression expressionPart = parseMultiplyExpression();
+        if(expressionPart == null) return null;
+        ArithmeticExpression expr = new ArithmeticExpression();
+        expr.add(expressionPart);
+        while(tokenHasType(TokenType.PLUS) || tokenHasType(TokenType.MINUS)){
+            Operator op = OperatorFactory.getAdditiveOperator(token.getTokenType());
+            token = scanner.getToken();
+            expressionPart  = parseMultiplyExpression();
+            if (expressionPart == null){
+                throw new ParserException("Expected expression", token.getPosition());
+            }
+            expr.add(expressionPart, op);
+        }
+        if(expr.size()==1){
+            return expressionPart;
+        }
+        return expr;
+    }
+
+    private Expression parseMultiplyExpression ()throws IOException {
+        Expression expressionPart = parsePowerExpression();
+        if(expressionPart == null) return null;
+        MultiplyExpression expr = new MultiplyExpression();
+        expr.add(expressionPart);
+        while(tokenHasType(TokenType.MULTIPLY) || tokenHasType(TokenType.DIVIDE)){
+            Operator op = OperatorFactory.getOperator(token);
+            token = scanner.getToken();
+            expressionPart  = parsePowerExpression();
+            if (expressionPart == null){
+                throw new ParserException("Expected expression", token.getPosition());
+            }
+            expr.add(expressionPart, op);
+        }
+        if(expr.size()==1){
+            return expressionPart;
+        }
+        return expr;
+    }
+
+    private Expression parsePowerExpression () throws IOException {
+        Expression expressionPart = parseUnaryExpression();
+        PowerExpression expr = new PowerExpression();
+        expr.add(expressionPart);
+
+
+        token = scanner.getToken();
+
+        while(tokenHasType(TokenType.POWER)){
+            token = scanner.getToken();
+            expressionPart = parseUnaryExpression();
+            expr.add(expressionPart);
+            token = scanner.getToken();
+        }
+        if(expr.size()==1){
+            return expressionPart;
+        }
+        return expr;
+    }
+
+    private Expression parseUnaryExpression () throws IOException {
+        if(tokenHasType(TokenType.MINUS) || tokenHasType(TokenType.NOT)){
+            Operator op = OperatorFactory.getOperator(token);
+            token = scanner.getToken();
+            UnaryExpression expr = new UnaryExpression();
+            Expression expressionPart = parseExpression();
+            if(expressionPart == null){
+                throw new ParserException("Expected expression", token.getPosition());
+            }
+            expr.add(expressionPart, op);
+            return expr;
+        }
+        Expression expressionPart = parseExpression();
+        if (expressionPart == null) {
+            throw new ParserException("Expected expression", token.getPosition());
+        }
+        return expressionPart;
+    }
+
+    private Expression parseExpression () throws IOException {
+        if(tokenHasType(TokenType.OPEN_BRACKET)){
+            token = scanner.getToken();
+            Expression expr = parseOrExpression();
+            if(expr == null) throw new ParserException("Expected expression", token.getPosition());
+            if(tokenHasType(TokenType.CLOSE_BRACKET)) return expr;
+            throw new ParserException(TokenType.CLOSE_BRACKET, token);
+        }
+        Expression value;
+        if((value = parseLiteral()) != null) return value;
+        if((value = parseFunctionCall()) != null) return value;
+        if((value = parseVariableValue()) != null) return value;
         return null;
     }
 
-    private Arguments parseArgument() throws IOException {
-        return null;
+    private FunctionCall parseFunctionCall() throws IOException {
+        UnitType type = TypeManager.getUnitType(token);
+        String identifier;
+        if(type != null ){
+            identifier = type.getName();
+        }else if (tokenHasType(TokenType.IDENTIFIER)){
+            identifier = token.getStringValue();
+        }else{ return null; }
+        if(scanner.peek().getTokenType() == TokenType.OPEN_BRACKET){
+            token = scanner.getToken();
+            Arguments args = parseArguments();
+            return new FunctionCall(identifier, args);
+        }else{
+            return null;
+        }
+    }
+
+    private Arguments parseArguments () throws IOException {
+        return new Arguments();
     }
 
     private boolean tokenHasType(TokenType type) {

@@ -15,7 +15,7 @@ public class Arguments  implements Node {
 
     @Override
     public String toString() {
-        if (arguments.size() == 0) return "_";
+        if (arguments.size() == 0) return "none";
         var str = new StringBuilder();
         str.append(arguments.get(0));
         for (int i=1; i<arguments.size(); i++){

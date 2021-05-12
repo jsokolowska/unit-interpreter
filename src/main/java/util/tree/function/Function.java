@@ -10,8 +10,6 @@ public class Function implements Node {
     private Statement body;
     private Parameters params;
 
-    public Function(){}
-
     public Function(String identifier, Statement body, Parameters params, Type returnType){
         this.identifier = identifier;
         this.body = body;

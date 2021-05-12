@@ -3,10 +3,7 @@ package util
 import spock.lang.Specification
 import util.tree.expression.Expression
 import util.tree.expression.math.*
-
 import util.tree.expression.operator.*
-
-
 
 class ExpressionToStringSpec extends Specification {
     def "Check singular Expressions"(){

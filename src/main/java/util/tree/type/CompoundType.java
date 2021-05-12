@@ -2,8 +2,6 @@ package util.tree.type;
 
 import util.tree.unit.CompoundExpr;
 
-import java.util.Arrays;
-
 public class CompoundType extends UnitType {
     private CompoundExpr expr;
 
@@ -15,4 +13,8 @@ public class CompoundType extends UnitType {
         return expr;
     }
 
+    @Override
+    public String toString() {
+        return "compound";
+    }
 }

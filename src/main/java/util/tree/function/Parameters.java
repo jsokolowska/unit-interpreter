@@ -3,7 +3,8 @@ package util.tree.function;
 import util.tree.Node;
 import util.tree.type.Type;
 
-import java.util.*;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class Parameters implements Node {
     private final SortedMap<String, Type> parameters = new TreeMap<>();

@@ -34,4 +34,8 @@ public class MultiplyExpression extends Expression {
 
         return str.toString();
     }
+    @Override
+    public int size() {
+        return expressions.size();
+    }
 }

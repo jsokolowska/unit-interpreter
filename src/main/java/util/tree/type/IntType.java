@@ -1,7 +1,9 @@
 package util.tree.type;
 
-import java.util.Arrays;
-
 public class IntType extends Type {
 
+    @Override
+    public String toString() {
+        return "int";
+    }
 }

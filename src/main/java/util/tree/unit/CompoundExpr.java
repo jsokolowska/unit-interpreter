@@ -3,7 +3,8 @@ package util.tree.unit;
 import util.tree.Node;
 import util.tree.type.UnitType;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CompoundExpr implements Node {
     private final Map<UnitType, Integer> compoundParts = new HashMap<>();

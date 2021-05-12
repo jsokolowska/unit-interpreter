@@ -1,7 +1,6 @@
 package util.position;
 
 import source.Source;
-import util.position.Position;
 
 import java.io.IOException;
 

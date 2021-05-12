@@ -1,7 +1,9 @@
 package util.tree.type;
 
-import java.util.Arrays;
-
 public class FloatType extends Type {
 
+    @Override
+    public String toString() {
+        return "float";
+    }
 }

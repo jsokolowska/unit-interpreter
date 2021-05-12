@@ -37,8 +37,6 @@ public class ScannerMaps {
         keywords.put("kilogram", Token.TokenType.TYPE_KG);
         keywords.put("meter", Token.TokenType.TYPE_METER);
         keywords.put("second", Token.TokenType.TYPE_SEC);
-        keywords.put("true", Token.TokenType.BOOL_LITERAL);
-        keywords.put("false", Token.TokenType.BOOL_LITERAL);
     }
 
     private static void initSingleCharMap(){

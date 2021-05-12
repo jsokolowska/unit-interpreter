@@ -11,11 +11,11 @@ public class TypeManager {
     private static final Map<Token.TokenType, Type> baseTypes = new HashMap<>();   //for built in types and units
     private static final Map<String, UnitType> units = new HashMap<>();            //for custom units
 
-    public TypeManager (){
+    static {
         initBaseTypes();
     }
 
-    private void initBaseTypes(){
+    private static void initBaseTypes(){
         baseTypes.put(Token.TokenType.TYPE_INT, new IntType());
         baseTypes.put(Token.TokenType.TYPE_FLOAT, new FloatType());
         baseTypes.put(Token.TokenType.TYPE_BOOL, new BoolType());
@@ -26,7 +26,7 @@ public class TypeManager {
         baseTypes.put(Token.TokenType.TYPE_METER, new UnitType("meter"));
     }
 
-    public Type getType(Token typeToken) {
+    public static Type getType(Token typeToken) {
         Type type = baseTypes.get(typeToken.getTokenType());
         if(type != null) return type;
         if(typeToken.getTokenType() != Token.TokenType.IDENTIFIER) return null;
@@ -34,7 +34,7 @@ public class TypeManager {
     }
 
     /** @return UnitType if provided token matches unit type and has already been defined, null otherwise*/
-    public UnitType getUnitType(Token typeToken){
+    public static UnitType getUnitType(Token typeToken){
         Token.TokenType type = typeToken.getTokenType();
         if (type == Token.TokenType.IDENTIFIER){
             return  units.get(typeToken.getStringValue());
@@ -50,15 +50,15 @@ public class TypeManager {
 
     }
 
-    public void addUnit(CompoundType compound){
+    public static void addUnit(CompoundType compound){
         units.put(compound.getName(), compound);
     }
 
-    public boolean exists (String unitName){
+    public static boolean exists (String unitName){
         return units.containsKey(unitName);
     }
 
-    public boolean exists (Token unitToken){
+    public static boolean exists (Token unitToken){
         if (unitToken.getTokenType()!= Token.TokenType.IDENTIFIER) return false;
         return units.containsKey(unitToken.getStringValue());
     }

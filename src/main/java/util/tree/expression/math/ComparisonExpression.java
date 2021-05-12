@@ -6,7 +6,7 @@ import util.tree.expression.operator.Operator;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ComparisonExpression {
+public class ComparisonExpression extends Expression {
     private final List<Expression> expressions = new ArrayList<>();
     private final List<Operator> operators = new ArrayList<>();
 
@@ -32,5 +32,10 @@ public class ComparisonExpression {
         if (expressions.size() > 1) str.append(']');
 
         return str.toString();
+    }
+
+    @Override
+    public int size() {
+        return expressions.size();
     }
 }
