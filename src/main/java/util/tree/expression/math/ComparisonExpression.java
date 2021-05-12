@@ -6,19 +6,18 @@ import util.tree.expression.operator.Operator;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MultiplyExpression extends Expression {
+public class ComparisonExpression {
     private final List<Expression> expressions = new ArrayList<>();
     private final List<Operator> operators = new ArrayList<>();
 
-    public void add (Expression expr){
-        expressions.add(expr);
+    public void add (Expression e){
+        expressions.add(e);
     }
 
-    public void add (Expression expr, Operator op){
-        expressions.add(expr);
+    public void add (Expression e, Operator op) {
+        expressions.add(e);
         operators.add(op);
     }
-
 
     @Override
     public String toString() {

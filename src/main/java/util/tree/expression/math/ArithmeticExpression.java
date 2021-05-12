@@ -27,8 +27,8 @@ public class ArithmeticExpression extends Expression {
         if (expressions.size() > 1) str.append('[');
         str.append(expressions.get(0));
         for(int i=1; i < expressions.size(); i++){
-            str.append(expressions.get(i));
             str.append(operators.get(i-1));
+            str.append(expressions.get(i));
         }
         if (expressions.size() > 1) str.append(']');
 

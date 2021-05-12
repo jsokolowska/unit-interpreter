@@ -19,8 +19,8 @@ public class OrExpression extends Expression {
         str.append(expressions.get(0));
 
         for(int i=1; i < expressions.size(); i++){
-            str.append(expressions.get(i));
             str.append("||");
+            str.append(expressions.get(i));
         }
 
         return str.toString();
