@@ -1,4 +1,6 @@
 package util.tree.statement;
 
-public abstract class Statement {
+import util.tree.Node;
+
+public abstract class Statement implements Node {
 }

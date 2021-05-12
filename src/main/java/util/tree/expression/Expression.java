@@ -1,6 +1,8 @@
 package util.tree.expression;
 
-public class Expression {
+import util.tree.Node;
+
+public class Expression implements Node {
     @Override
     public String toString() {
         return "u";
@@ -9,4 +11,5 @@ public class Expression {
     public int size () {
         return  1;
     }
+
 }

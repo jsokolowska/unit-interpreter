@@ -1,5 +1,7 @@
 package util.tree.type;
 
+import java.util.Arrays;
+
 public class UnitType extends Type {
     private final String name;
     protected UnitType(String name){
@@ -17,4 +19,5 @@ public class UnitType extends Type {
         }
         return ((UnitType) obj).getName().equals(this.getName());
     }
+
 }

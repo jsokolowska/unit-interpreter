@@ -1,21 +1,26 @@
 package util.tree.function;
 
+import util.tree.Node;
 import util.tree.statement.Statement;
+import util.tree.type.Type;
 
-public class Function {
-    private String name;
+public class Function implements Node {
+    private String identifier;
+    private Type returnType;
     private Statement body;
     private Parameters params;
 
     public Function(){}
 
-    public Function(String name, Statement body, Parameters params){
-        this.name = name;
+    public Function(String identifier, Statement body, Parameters params, Type returnType){
+        this.identifier = identifier;
         this.body = body;
         this.params = params;
+        this.returnType = returnType;
     }
 
-    public String getName() {
-        return name;
+    public String getIdentifier() {
+        return identifier;
     }
+
 }

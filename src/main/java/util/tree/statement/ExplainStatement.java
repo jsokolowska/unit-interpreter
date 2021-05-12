@@ -1,7 +1,12 @@
 package util.tree.statement;
 
-import util.tree.type.CompoundType;
+import util.tree.type.UnitType;
 
 public class ExplainStatement extends Statement{
-    private CompoundType type;
+    private final UnitType type;
+
+    private ExplainStatement (UnitType type){
+        this.type = type;
+    }
+
 }

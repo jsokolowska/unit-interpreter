@@ -1,22 +1,20 @@
 package util.tree.statement;
 
-import util.tree.function.Arguments;
+import util.tree.value.FunctionCall;
 
 public class CallStatement extends Statement{
-    private final String identifier;
-    private final Arguments arguments;
+    private final FunctionCall funCall;
+    
 
-    public CallStatement(String id, Arguments arguments){
-        identifier = id;
-        this.arguments = arguments;
+    public CallStatement(FunctionCall call){
+        this.funCall = call;
     }
 
-    public String getIdentifier() {
-        return identifier;
-    }
+
 
     @Override
     public String toString() {
-        return identifier + "(" + arguments.toString() + ")";
+        return funCall.toString();
     }
+
 }

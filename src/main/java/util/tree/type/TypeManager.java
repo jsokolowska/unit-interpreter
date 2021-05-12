@@ -43,7 +43,6 @@ public class TypeManager {
         return null;
     }
 
-    /** @return false if unit already exists and true if new one was added to the map */
     public void addUnit(Token unitToken) throws TypeException {
         if(unitToken.getTokenType()!= Token.TokenType.IDENTIFIER) throw new TypeException();
         String name = unitToken.getStringValue();
@@ -51,7 +50,6 @@ public class TypeManager {
 
     }
 
-    /** @return false if unit already exists and true if new one was added to the map */
     public void addUnit(CompoundType compound){
         units.put(compound.getName(), compound);
     }

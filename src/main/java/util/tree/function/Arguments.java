@@ -1,22 +1,26 @@
 package util.tree.function;
 
+import util.tree.Node;
 import util.tree.expression.Expression;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Arguments {
+public class Arguments  implements Node {
     private final List<Expression> arguments = new ArrayList<>();
 
-    public void addArguments (Expression expr){
+    public void addArgument (Expression expr){
         arguments.add(expr);
     }
 
     @Override
     public String toString() {
+        if (arguments.size() == 0) return "_";
         var str = new StringBuilder();
-        for (Expression e: arguments){
-            str.append(e);
+        str.append(arguments.get(0));
+        for (int i=1; i<arguments.size(); i++){
+            str.append(", ");
+            str.append(arguments.get(i));
         }
         return str.toString();
     }

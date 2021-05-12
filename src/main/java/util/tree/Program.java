@@ -30,10 +30,11 @@ public class Program implements Node{
     }
 
     public void add (Function function){
-        functions.put(function.getName(), function);
+        functions.put(function.getIdentifier(), function);
     }
 
     public boolean hasFunctions (){
         return functions.size() > 0;
     }
+
 }

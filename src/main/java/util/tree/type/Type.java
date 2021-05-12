@@ -1,6 +1,8 @@
 package util.tree.type;
 
-public class Type {
+import util.tree.Node;
+
+public abstract class Type implements Node {
 
     @Override
     public boolean equals(Object obj) {
