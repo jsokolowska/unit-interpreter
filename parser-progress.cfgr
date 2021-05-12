@@ -13,19 +13,19 @@ stmt: block_stmt | return_stmt | while_stmt | call_stmt | if_else_stmt | print_s
 
 # flow control statements
 return_stmt : "return" expr ";";                            #p
-while_stmt : "while" "(" expr ")" stmt ;                    #
-call_stmt: call ";";                                        #
-args: [expr {"," expr}];                                    #
+while_stmt : "while" "(" expr ")" stmt ;                    #p
+call_stmt: call ";";                                        #p
+args: [expr {"," expr}];                                    #p
 if_else_stmt : "if" "(" expr ")" stmt ["else" stmt];        #p
 break_stmt : "break" ";";                                   #p
 continue_stmt : "continue" ";";                             #p
 
 # bulit-in statements
-print_stmt : "print" "(" args ")" ";";                      #
-explain_stmt : "explain" "(" unit_type ")";                 #
-type_check_stmt: "type" "(" identifier ")";                 #
+print_stmt : "print" "(" args ")" ";";                      #p
+explain_stmt : "explain" "(" unit_type ")";                 #p
+type_check_stmt: "type" "(" identifier ")";                 #p
 
-assign_stmt : identifier "=" expr ";";                      #
+assign_stmt : identifier "=" expr ";";                      #todo need to be done together
 var_dcl_stmt : type (identifier ";") | [assign_stmt] ;      #
 
 # defining custom units

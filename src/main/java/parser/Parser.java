@@ -23,6 +23,7 @@ import util.tree.value.VariableValue;
 import util.tree.value.literal.*;
 
 import java.io.IOException;
+import java.net.ProtocolException;
 
 public class Parser {
     private final Scanner scanner;
@@ -422,20 +423,61 @@ public class Parser {
         }
         if(tokenHasType(TokenType.ELSE)){
             token = scanner.getToken();
+            Statement elseBody = parseStatement();
+            if(elseBody == null){
+                throw new ParserException("Empty else body", token.getPosition());
+            }
+            return new IfElseStatement(ifCondition, ifBody, elseBody);
         }
-        return new IfElseStatement();
+        return new IfElseStatement(ifCondition, ifBody);
     }
 
-    private CallStatement parseCallStatement (){
-        return null;
+    private CallStatement parseCallStatement () throws IOException {
+        FunctionCall funCall = parseFunctionCall();
+        if(funCall == null) return null;
+        if(!tokenHasType(TokenType.SEMICOLON)){
+            throw new ParserException(TokenType.SEMICOLON, token);
+        }
+        return new CallStatement(funCall);
     }
 
-    private PrintStatement parsePrintStatement (){
-        return null;
+    private PrintStatement parsePrintStatement () throws IOException {
+        if(!tokenHasType(TokenType.PRINT)) return null;
+        token = scanner.getToken();
+        if(!tokenHasType(TokenType.OPEN_BRACKET)){
+            throw new ParserException(TokenType.OPEN_BRACKET, token);
+        }
+        token = scanner.getToken();
+        Arguments args = parseArguments();
+        if(!tokenHasType(TokenType.CLOSE_BRACKET)){
+            throw new ParserException(TokenType.CLOSE_BRACKET, token);
+        }
+        token = scanner.getToken();
+        if(!tokenHasType(TokenType.SEMICOLON)){
+            throw new ParserException(TokenType.SEMICOLON, token);
+        }
+        return new PrintStatement(args);
     }
 
-    private ExplainStatement parseExplainStatement (){
-        return null;
+    private ExplainStatement parseExplainStatement () throws IOException {
+        if(!tokenHasType(TokenType.EXPLAIN)) return null;
+        token = scanner.getToken();
+        if(!tokenHasType(TokenType.OPEN_BRACKET)){
+            throw new ParserException(TokenType.OPEN_BRACKET, token);
+        }
+        token = scanner.getToken();
+        UnitType type = TypeManager.getUnitType(token);
+        if(type == null) {
+            throw  new ParserException("Expected unit type", token);
+        }
+        if(!tokenHasType(TokenType.CLOSE_BRACKET)){
+            throw new ParserException(TokenType.CLOSE_BRACKET, token);
+        }
+        token = scanner.getToken();
+        if(!tokenHasType(TokenType.SEMICOLON)){
+            throw new ParserException(TokenType.SEMICOLON, token);
+        }
+        return new ExplainStatement(type);
     }
 
     private AssignStatement parseAssignStatement (){
@@ -446,8 +488,26 @@ public class Parser {
         return null;
     }
 
-    private TypeStatement parseTypeStatement (){
-        return null;
+    private TypeStatement parseTypeStatement () throws IOException {
+        if(!tokenHasType(TokenType.TYPE)) return null;
+        token = scanner.getToken();
+        if(!tokenHasType(TokenType.OPEN_BRACKET)){
+            throw new ParserException(TokenType.OPEN_BRACKET, token);
+        }
+        token = scanner.getToken();
+        if(!tokenHasType(TokenType.IDENTIFIER)){
+            throw new ParserException(TokenType.IDENTIFIER, token);
+        }
+        String identifier = token.getStringValue();
+        token = scanner.getToken();
+        if(!tokenHasType(TokenType.CLOSE_BRACKET)){
+            throw new ParserException(TokenType.CLOSE_BRACKET, token);
+        }
+        token = scanner.getToken();
+        if(!tokenHasType(TokenType.SEMICOLON)){
+            throw new ParserException(TokenType.SEMICOLON, token);
+        }
+        return new TypeStatement(identifier);
     }
 
     private BlockStatement parseBlockStatement() throws IOException {
@@ -506,7 +566,7 @@ public class Parser {
         throw new ParserException(TokenType.SEMICOLON, token);
     }
 
-    private BreakStatement parseBreak() throws IOException { //todo refactor maybe into one function?
+    private BreakStatement parseBreak() throws IOException {
         if (!tokenHasType(TokenType.BREAK)) return null;
 
         token = scanner.getToken();
@@ -715,7 +775,19 @@ public class Parser {
     }
 
     private Arguments parseArguments () throws IOException {
-        return new Arguments();
+        Arguments args = new Arguments();
+        Expression expression = parseOrExpression();
+        if(expression == null) return args;
+        args.addArgument(expression);
+        while(tokenHasType(TokenType.COMMA)){
+            token = scanner.getToken();
+            expression = parseOrExpression();
+            if(expression == null){
+                throw new ParserException("Expected argument", token.getPosition());
+            }
+            args.addArgument(expression);
+        }
+        return args;
     }
 
     private boolean tokenHasType(TokenType type) {
