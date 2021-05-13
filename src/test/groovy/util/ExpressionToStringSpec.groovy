@@ -20,7 +20,7 @@ class ExpressionToStringSpec extends Specification {
 
     def "Check singular UnaryExpression" (){
         given:
-        def expr = new UnaryExpression();
+        def expr = new UnaryExpression()
 
         when:
         expr.add(new Expression(), op)
@@ -51,7 +51,7 @@ class ExpressionToStringSpec extends Specification {
     def "Check multiple expressions with one operator type" (){
         when:
         for (int i= 0; i < 4; i++){
-            expr.add(new Expression());
+            expr.add(new Expression())
         }
 
         then:
@@ -66,9 +66,9 @@ class ExpressionToStringSpec extends Specification {
 
     def "Check multiple expressions with two operator types" (){
         when:
-        expr.add(new Expression());
-        expr.add(new Expression(), op1);
-        expr.add(new Expression(), op2);
+        expr.add(new Expression())
+        expr.add(new Expression(), op1)
+        expr.add(new Expression(), op2)
 
         then:
         expr.toString() == "[u" + op1 + "u" + op2 + "u]"

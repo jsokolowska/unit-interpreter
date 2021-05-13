@@ -1,7 +1,6 @@
 package parser;
 
 import exception.ParserException;
-import exception.ScannerException;
 import scanner.Scanner;
 import util.Token;
 import util.Token.TokenType;
@@ -25,7 +24,6 @@ import java.io.IOException;
 
 public class Parser {
     private final Scanner scanner;
-    private final TypeManager typeManager = new TypeManager();
     private Token token;
 
     public Parser(Scanner scanner) throws IOException {
@@ -53,20 +51,26 @@ public class Parser {
             if (unitDeclaration != null) {
                 parsed = true;
                 program.add(unitDeclaration);
+                token = scanner.getToken();
             } else if (conversion != null) {
                 parsed = true;
                 program.add(conversion);
+                token = scanner.getToken();
             }
         }
 
+        Function function = parseFunction();
         // try parsing functions until you get to the end of file
-        while (token.getTokenType() != TokenType.EOT) {
-            Function function = parseFunction();
+        while (function != null) {
             program.add(function);
+            function = parseFunction();
         }
 
         if (!program.hasFunctions()) {
             throw new ParserException("Program needs to have at least one function");
+        }
+        if(!tokenHasType(TokenType.EOT)){
+            throw new ParserException("Unexpected EOT");
         }
 
         return program;
@@ -98,7 +102,6 @@ public class Parser {
             }else{
                 TypeManager.addUnit(unitName, typeExpr);
             }
-
 
             if (token.getTokenType() == TokenType.SEMICOLON) {
                 return new UnitDeclaration(unitName, typeExpr);
@@ -164,7 +167,7 @@ public class Parser {
         if (!matchesUnitType(token)) {
             throw new ParserException("unit type", token);
         }
-        UnitType unit = typeManager.getUnitType(token);
+        UnitType unit = TypeManager.getUnitType(token);
         if(unit == null) throw new ParserException("Unit usage before definition", token.getPosition());
 
         token = scanner.getToken();
@@ -251,7 +254,7 @@ public class Parser {
         if (!matchesType(token)) {
             throw new ParserException("Expected type", token);
         }
-        Type type = typeManager.getType(token);
+        Type type = TypeManager.getType(token);
         if (type == null) {
             throw new ParserException("Type usage before definition", token.getPosition());
         }
@@ -382,6 +385,7 @@ public class Parser {
         String identifier = token.getStringValue();
         token = scanner.getToken();
         Parameters params = parseParameters();
+        token = scanner.getToken();
         BlockStatement statement = parseBlockStatement();
         if(statement == null) throw new ParserException(TokenType.CURLY_OPEN, token);
 
@@ -423,7 +427,6 @@ public class Parser {
         if(ifBody == null){
             throw new ParserException("Empty if body", token.getPosition());
         }
-        token = scanner.getToken();
         if(tokenHasType(TokenType.ELSE)){
             token = scanner.getToken();
             Statement elseBody = parseStatement();
@@ -443,6 +446,7 @@ public class Parser {
         if(!tokenHasType(TokenType.SEMICOLON)){
             throw new ParserException(TokenType.SEMICOLON, token);
         }
+        token = scanner.getToken();
         return new CallStatement(funCall);
     }
 
@@ -454,6 +458,7 @@ public class Parser {
         if(!tokenHasType(TokenType.SEMICOLON)){
             throw new ParserException(TokenType.SEMICOLON, token);
         }
+        token = scanner.getToken();
         return new PrintStatement(args);
     }
 
@@ -476,6 +481,7 @@ public class Parser {
         if(!tokenHasType(TokenType.SEMICOLON)){
             throw new ParserException(TokenType.SEMICOLON, token);
         }
+        token = scanner.getToken();
         return new ExplainStatement(type);
     }
 
@@ -490,7 +496,10 @@ public class Parser {
         if(expression == null){
             throw new ParserException("Empty assignment body", token.getPosition());
         }
-
+        if(!tokenHasType(TokenType.SEMICOLON)) {
+            throw new ParserException(TokenType.SEMICOLON, token);
+        }
+        token = scanner.getToken();
         return new AssignStatement(identifier, expression);
     }
 
@@ -511,6 +520,7 @@ public class Parser {
             if(!tokenHasType(TokenType.SEMICOLON)){
                 throw new ParserException(TokenType.SEMICOLON, token);
             }
+            token = scanner.getToken();
             return new VariableDeclarationStatement(type, id, null);
 
         }else{
@@ -537,6 +547,7 @@ public class Parser {
         if(!tokenHasType(TokenType.SEMICOLON)){
             throw new ParserException(TokenType.SEMICOLON, token);
         }
+        token = scanner.getToken();
         return new TypeStatement(identifier);
     }
 
@@ -548,7 +559,7 @@ public class Parser {
         while(true){
             if((stmt = parseStatement()) != null){
                 block.add(stmt);
-                token = scanner.getToken();
+
             }else{
                 break;
             }
@@ -556,6 +567,7 @@ public class Parser {
         if(!tokenHasType(TokenType.CURLY_CLOSE)){
             throw new ParserException(TokenType.CURLY_CLOSE, token);
         }
+        token = scanner.getToken();
         return block;
     }
 
@@ -588,11 +600,13 @@ public class Parser {
         token = scanner.getToken();
         //build value if exists
         if (tokenHasType(TokenType.SEMICOLON)) {
+            token = scanner.getToken();
             return new ReturnStatement(null);
         }else{
             Expression expr;
             expr = parseOrExpression();
             if(tokenHasType(TokenType.SEMICOLON)){
+                token = scanner.getToken();
                 return new ReturnStatement(expr);
             }
         }
@@ -604,6 +618,7 @@ public class Parser {
 
         token = scanner.getToken();
         if (tokenHasType(TokenType.SEMICOLON)) {
+            token = scanner.getToken();
             return new BreakStatement();
         }
         throw new ParserException(TokenType.SEMICOLON, token);
@@ -613,6 +628,7 @@ public class Parser {
         if (!tokenHasType(TokenType.CONTINUE)) return null;
         token = scanner.getToken();
         if (tokenHasType(TokenType.SEMICOLON)) {
+            token = scanner.getToken();
             return new ContinueStatement();
         }
         throw new ParserException(TokenType.SEMICOLON, token);

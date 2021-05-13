@@ -7,7 +7,6 @@ import spock.lang.Specification
 import util.tree.statement.BreakStatement
 import util.tree.statement.ContinueStatement
 import util.tree.statement.ReturnStatement
-import util.tree.type.IntType
 import util.tree.type.TypeManager
 import util.tree.type.UnitType
 import util.tree.unit.CompoundTerm
@@ -232,7 +231,7 @@ class ParserSpec extends Specification{
     def "Should parse base unit declarations" (){
         given:
         def parser = prepareParser("unit newton;")
-        def result;
+        def result
 
         when:
         result = parser.parseUnitDeclaration()
@@ -241,7 +240,7 @@ class ParserSpec extends Specification{
         result instanceof UnitDeclaration
         result.getName() == "newton"
         and:
-        TypeManager.exists("newton");
+        TypeManager.exists("newton")
 
         cleanup:
         TypeManager.dropDeclared()
@@ -320,7 +319,7 @@ class ParserSpec extends Specification{
     def "Should parse different values as unit expression"(){
         given:
         def parser = prepareParser(str)
-        def result;
+        def result
 
         when:
         result = parser.parseUnitExpression()
@@ -338,14 +337,14 @@ class ParserSpec extends Specification{
 
     def "Should parse simple UnaryUnitExpression" (){
         given:
-        def parser = prepareParser(str);
-        def result;
+        def parser = prepareParser(str)
+        def result
 
         when:
         result = parser.parseUnaryUnitExpression()
 
         then:
-        result != null;
+        result != null
         result.toString() == resStr
 
         where:
@@ -512,8 +511,8 @@ class ParserSpec extends Specification{
 
     def "Should parse simple UnaryExpression"(){
         given:
-        def parser = prepareParser(str);
-        def result;
+        def parser = prepareParser(str)
+        def result
 
         when:
         result = parser.parseUnaryExpression()
@@ -530,7 +529,7 @@ class ParserSpec extends Specification{
 
     def "Should parse PowerExpression" (){
         given:
-        def parser = prepareParser(str);
+        def parser = prepareParser(str)
         def result
 
         when:
@@ -550,7 +549,7 @@ class ParserSpec extends Specification{
 
     def "Should parse MultiplyExpression" (){
         given:
-        def parser = prepareParser(str);
+        def parser = prepareParser(str)
         def result
 
         when:
@@ -570,7 +569,7 @@ class ParserSpec extends Specification{
 
     def "Should parse ArithmeticExpression" (){
         given:
-        def parser = prepareParser(str);
+        def parser = prepareParser(str)
         def result
 
         when:
@@ -588,7 +587,7 @@ class ParserSpec extends Specification{
 
     def "Should parse Relational Expression"(){
         given:
-        def parser = prepareParser(str);
+        def parser = prepareParser(str)
         def result
 
         when:
@@ -609,7 +608,7 @@ class ParserSpec extends Specification{
 
     def "Should parse ComparisonExpression"(){
         given:
-        def parser = prepareParser(str);
+        def parser = prepareParser(str)
         def result
 
         when:
@@ -628,7 +627,7 @@ class ParserSpec extends Specification{
 
     def "Should parse AndExpression"(){
         given:
-        def parser = prepareParser(str);
+        def parser = prepareParser(str)
         def result
 
         when:
@@ -647,7 +646,7 @@ class ParserSpec extends Specification{
 
     def "Should parse OrExpression"(){
         given:
-        def parser = prepareParser(str);
+        def parser = prepareParser(str)
         def result
 
         when:
@@ -666,7 +665,7 @@ class ParserSpec extends Specification{
 
     def "Should parse complicated Expressions"(){
         given:
-        def parser = prepareParser(str);
+        def parser = prepareParser(str)
         def result
 
         when:
@@ -887,7 +886,6 @@ class ParserSpec extends Specification{
         "explain (meter"|| "CLOSE_BRACKET"
     }
 
-    //todo add error tests
     def "Should parse if else statement"(){
         given:
         def parser = prepareParser(str)
@@ -896,15 +894,45 @@ class ParserSpec extends Specification{
         def result = parser.parseStatement()
 
         then:
-        result.toString() == msg_str;
+        result.toString() == msg_str
 
         where:
         str                             || msg_str
         "if(2) return;"                 || "if(2)<return:null>\nelse<null>"
         "if(2) return 2; else continue;"|| "if(2)<return:2>\nelse<continue>"
     }
+    def "Should not parse improper if else statement"(){
+        given:
+        def parser = prepareParser(str)
 
-    //todo add error tests
+        when:
+        parser.parseStatement()
+
+        then:
+        thrown(ParserException)
+
+        where:
+        str <<["if(2)else", "if(2){}else;"]
+
+    }
+
+    def "Should throw Parser Exception when given improper assign statement"(){
+        given:
+        def parser = prepareParser(str)
+
+        when:
+        parser.parseAssignStatement()
+
+        then:
+        ParserException ex = thrown()
+        ex.message.contains(expected)
+
+        where:
+        str                 || expected
+        "k=2"               || "SEMICOLON"
+        "k=;"               || "literal, function call or variable reference"
+    }
+
     def "Should parse assign statement"(){
         given:
         def parser = prepareParser(str)
@@ -916,13 +944,12 @@ class ParserSpec extends Specification{
         result.toString() == res_str
 
         where:
-        str                 || res_str
-        "k=2;"              || "k=2"
-        "k= 7+128"          || "k=[7+128]"
-        "k= true&&false^2"  || "k=[true&&[false^2]]"
+        str                  || res_str
+        "k=2;"               || "k=2"
+        "k= 7+128;"          || "k=[7+128]"
+        "k= true&&false^2;"  || "k=[true&&[false^2]]"
     }
 
-    //todo add error tests
     def "Should parse var declaration statement"(){
         given:
         def parser = prepareParser(str)
@@ -937,9 +964,28 @@ class ParserSpec extends Specification{
         str                 || res_str
         "int k;"            || "int:k=null"
         "second s = 12^2;"  || "[u]second:s=[12^2]"
+        "k k = 2;"          || "null"
     }
 
-    //todo add error tests
+    def "Should throw ParserException for improper var declaration"(){
+        given:
+        def parser = prepareParser(source)
+
+        when:
+        parser.parseStatement()
+
+        then:
+        ParserException ex = thrown()
+        ex.message.contains(expected)
+
+        where:
+        source              || expected
+        "int k"             || "SEMICOLON"
+        "second s s"        || "SEMICOLON"
+        "second s =s+2"     || "SEMICOLON"
+        "second s =;"       || "literal, function call or variable reference"
+    }
+
     def "Should parse block statements"(){
         given:
         def parser = prepareParser(str)
@@ -951,26 +997,105 @@ class ParserSpec extends Specification{
         result.toString() == res_str
 
         where:
-        str                 || res_str
-        "{int k;}"            || "{int:k=null\n}"
-        "{second s = 12^2; int k;}"  || "{[u]second:s=[12^2]\nint:k=null\n}"
+        str                             || res_str
+        "{int k;}"                      || "{int:k=null\n}"
+        "{second s = 12^2; int k;}"     || "{[u]second:s=[12^2]\nint:k=null\n}"
+        "{return 3; break ; continue;}" || "{return:3\nbreak\ncontinue\n}"
+        "{{{}}}"                        || "{{{}\n}\n}"
+        "{type(k);return 0;}"           || "{type:k\nreturn:0\n}"
+        "{print(\"a\"); return 0;}"     || "{print(a)\nreturn:0\n}"
+        "{if(2)return; else return; return;}"   || "{if(2)<return:null>\nelse<return:null>\nreturn:null\n}"
     }
 
-    //todo fix & add error tests
-//    def "Should parse functions"(){
-//        given:
-//        def parser = prepareParser(str)
-//
-//        when:
-//        def result = parser.parse()
-//
-//        then:
-//        result != null
-//
-//        where:
-//        str             || res_str
-//        "int main(){}" || "a"
-//    }
+    def "Should throw Parser Exception for improper block statement"(){
+        given:
+        def parser = prepareParser("{ return;")
 
-    //todo add type validation for math expression?
+        when:
+        parser.parse()
+
+        then:
+        thrown(ParserException)
+    }
+    def "Should parse functions"(){
+        given:
+        def parser = prepareParser(str)
+
+        when:
+        def result = parser.parse()
+
+        then:
+        result != null
+
+        where:
+        str << ["int main(){}",
+                "float k(int i){return i;}",
+                "meter m2(string aa, int k){}"]
+    }
+
+    def "Should throw parser exception for improper function definition"(){
+        given:
+        def parser = prepareParser(str)
+
+        when:
+        parser.parse()
+
+        then:
+        ParserException ex = thrown()
+        ex.message.contains(msg_str)
+
+        where:
+        str                             || msg_str
+        "a kkkk(){}"                    || "Type usage before definition"
+        "int k({}"                      || "Expected type"
+        "int k(int)"                    || "IDENTIFIER"
+        "float a(int i){"               || "CURLY_CLOSE"
+        "float(){}"                     || "IDENTIFIER"
+    }
+
+    def "Should parse good Program strings"(){
+        given:
+        def parser = prepareParser(str)
+
+
+        expect:
+        parser.parse() != null
+
+        cleanup:
+        TypeManager.dropDeclared()
+
+        where:
+        str <<[ "int main (){}",
+                "unit k; int main (){}",
+                "unit a as <meter^2/kilogram^2>; int main(){}",
+                "unit a; unit b; let b as (a aaa){aaa+2}; a k(){}",
+                "int main(){} meter m(){}",
+                "int a(){} int b(){} int x(){}",
+                "int m(int k, float z){return true +2;}"
+
+        ]
+    }
+
+    def "Should not parse bad Program strings"(){
+        given:
+        def parser = prepareParser(str)
+
+        when:
+        parser.parse()
+
+        then:
+        thrown(ParserException)
+
+        cleanup:
+        TypeManager.dropDeclared()
+
+        where:
+        str <<[ "int main (){",
+                "unit k; unit k; int main (){}",
+                " ",
+                "unit a; unit b; k(){} let b as (a aaa){aaa+2};",
+                "int main(){} meter m(){} unit b;"
+
+        ]
+    }
 }

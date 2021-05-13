@@ -17,6 +17,6 @@ public class BlockStatement extends Statement{
             str.append(stmt);
             str.append("\n");
         }
-        return str.toString() + "}";
+        return str + "}";
     }
 }

@@ -5,10 +5,10 @@ import util.tree.statement.Statement;
 import util.tree.type.Type;
 
 public class Function implements Node {
-    private String identifier;
-    private Type returnType;
-    private Statement body;
-    private Parameters params;
+    private final String identifier;
+    private final Type returnType;
+    private final Statement body;
+    private final Parameters params;
 
     public Function(String identifier, Statement body, Parameters params, Type returnType){
         this.identifier = identifier;
