@@ -1,7 +1,7 @@
 package util.tree.type;
 
-import exception.TypeException;
 import util.Token;
+import util.tree.unit.CompoundExpr;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +9,7 @@ import java.util.Map;
 public class TypeManager {
 
     private static final Map<Token.TokenType, Type> baseTypes = new HashMap<>();   //for built in types and units
-    private static final Map<String, UnitType> units = new HashMap<>();            //for custom units
+    private static Map<String, UnitType> units = new HashMap<>();            //for custom units
 
     static {
         initBaseTypes();
@@ -43,15 +43,13 @@ public class TypeManager {
         return null;
     }
 
-    public void addUnit(Token unitToken) throws TypeException {
-        if(unitToken.getTokenType()!= Token.TokenType.IDENTIFIER) throw new TypeException();
-        String name = unitToken.getStringValue();
-        units.put(name, new UnitType(name));
+    public static void addUnit(String name, CompoundExpr expr){
 
+        units.put(name, new CompoundType(name, expr));
     }
+    public static void addUnit(String baseUnitName){
 
-    public static void addUnit(CompoundType compound){
-        units.put(compound.getName(), compound);
+        units.put(baseUnitName, new UnitType(baseUnitName));
     }
 
     public static boolean exists (String unitName){
@@ -61,6 +59,10 @@ public class TypeManager {
     public static boolean exists (Token unitToken){
         if (unitToken.getTokenType()!= Token.TokenType.IDENTIFIER) return false;
         return units.containsKey(unitToken.getStringValue());
+    }
+
+    private static void dropDeclared(){
+        units = new HashMap<>();
     }
 
 }

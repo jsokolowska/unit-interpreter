@@ -9,4 +9,8 @@ public class ExplainStatement extends Statement{
         this.type = type;
     }
 
+    @Override
+    public String toString() {
+        return "explain(" + type + ")";
+    }
 }

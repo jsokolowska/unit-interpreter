@@ -2,7 +2,7 @@ module grammar;
 # main part
 program : {unit_dcl | conversion_dcl} function_def {function_def};
 function_def : type identifier parameters block_stmt;
-parameters : "(" [type identifier {"," type identifier}] ")" ;           # parameters
+parameters : "(" [type identifier {"," type identifier}] ")" ;
 block_stmt : "{" [stmt  {stmt}] "}";
 stmt: block_stmt | return_stmt | loop_stmt | call_stmt | if_stmt | print_stmt | explain_stmt  | assign_stmt
 | var_dcl_stmt | break_stmt | continue_stmt | type_check_stmt;
@@ -29,11 +29,12 @@ unit_dcl : "unit" identifier ["as" compound_expr ] ";";
 # only one division is possible
 compound_expr: "<" compound_term ["/" compound_term] ">" ";";
 compound_term: compound_exp {"*" compound_exp};
-compound_exp: unit_type ["^" non_zero_number];
+compound_exp: unit_type ["^" exponent];
 unit_type: base_unit | identifier;
+exponent: ["-"] non_zero_number;
 
 # defining unit relationships
-conversion_dcl: "let" unit_type arg_list conv_fun;          # todo
+conversion_dcl: "let" unit_type arg_list conv_fun;
 # expressions limited to arithmetic operations
 conv_fun : "{" conv_unit_expr "}" ";";
 conv_unit_expr: multi_unit_expr {add_op multi_unit_expr};

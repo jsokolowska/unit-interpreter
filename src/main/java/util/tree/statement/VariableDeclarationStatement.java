@@ -18,4 +18,8 @@ public class VariableDeclarationStatement extends Statement{
         expression = expr;
     }
 
+    @Override
+    public String toString() {
+        return variable.toString() + "=" + expression;
+    }
 }

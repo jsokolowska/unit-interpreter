@@ -11,4 +11,16 @@ public class AssignStatement extends Statement {
         this.assignExpression = assignExpression;
     }
 
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public Expression getAssignExpression() {
+        return assignExpression;
+    }
+
+    @Override
+    public String toString() {
+        return identifier + "=" + assignExpression;
+    }
 }

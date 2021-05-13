@@ -9,4 +9,14 @@ public class BlockStatement extends Statement{
     public void add (Statement stmt){
         statements.add(stmt);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder str =  new StringBuilder("{");
+        for(Statement stmt: statements){
+            str.append(stmt);
+            str.append("\n");
+        }
+        return str.toString() + "}";
+    }
 }

@@ -16,4 +16,8 @@ public class IfElseStatement extends Statement{
         this(ifCondition, ifStatement, null);
     }
 
+    @Override
+    public String toString() {
+        return "if(" + ifCondition + ")<" + ifStatement + ">\nelse<" + elseStatement + ">";
+    }
 }

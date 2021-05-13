@@ -8,4 +8,8 @@ public class TypeStatement extends Statement{
         this.identifier = identifier;
     }
 
+    @Override
+    public String toString() {
+        return "type:" + identifier;
+    }
 }

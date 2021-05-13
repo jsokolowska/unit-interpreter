@@ -14,4 +14,8 @@ public class ReturnStatement extends Statement{
         this(null);
     }
 
+    @Override
+    public String toString() {
+        return "return:" + returnExpression;
+    }
 }

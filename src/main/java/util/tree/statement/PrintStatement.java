@@ -8,4 +8,9 @@ public class PrintStatement extends Statement{
     public PrintStatement(Arguments arguments){
         this.arguments = arguments;
     }
+
+    @Override
+    public String toString() {
+        return "print(" + arguments + ")";
+    }
 }

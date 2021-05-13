@@ -1,7 +1,7 @@
 package util.tree.type;
 
 public class UnitType extends Type {
-    private final String name;
+    protected final String name;
     protected UnitType(String name){
         this.name = name;
     }
@@ -20,6 +20,6 @@ public class UnitType extends Type {
 
     @Override
     public String toString() {
-        return "unit";
+        return "[u]" + name;
     }
 }

@@ -25,8 +25,8 @@ print_stmt : "print" "(" args ")" ";";                      #p
 explain_stmt : "explain" "(" unit_type ")";                 #p
 type_check_stmt: "type" "(" identifier ")";                 #p
 
-assign_stmt : identifier "=" expr ";";                      #todo need to be done together
-var_dcl_stmt : type (identifier ";") | [assign_stmt] ;      #
+assign_stmt : identifier "=" expr ";";                      # todo need to be done together
+var_dcl_stmt : type ( (identifier ";") | assign_stmt);      #
 
 # defining custom units
 unit_dcl : "unit" identifier ["as" compound_expr ] ";";         #p

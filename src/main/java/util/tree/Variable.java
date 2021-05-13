@@ -14,6 +14,6 @@ public class Variable extends Expression implements Node{
 
     @Override
     public String toString() {
-        return type.toString() + identifier;
+        return type.toString() +":" + identifier;
     }
 }

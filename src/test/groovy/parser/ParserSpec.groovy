@@ -8,6 +8,7 @@ import util.tree.statement.BreakStatement
 import util.tree.statement.ContinueStatement
 import util.tree.statement.ReturnStatement
 import util.tree.type.IntType
+import util.tree.type.TypeManager
 import util.tree.type.UnitType
 import util.tree.unit.CompoundTerm
 import util.tree.unit.UnitDeclaration
@@ -31,7 +32,24 @@ class ParserSpec extends Specification{
         result instanceof ReturnStatement
 
         where:
-        str << ["return ;"] //, "return 2;", "return _a;"] will not work until expresion parsing is done
+        str << ["return ;" , "return 2;", "return _a;", "return 2+2;"]
+    }
+
+    def "Should throw scanner exceptions for improper return statement"(){
+        given:
+        def parser = prepareParser(str)
+
+        when:
+        parser.parseStatement()
+
+        then:
+        ParserException p = thrown()
+        p.message.contains(msg_str)
+
+        where:
+        str         || msg_str
+        "return "   || "Expected literal, function call or variable reference"
+        "return 3"  || "SEMICOLON"
     }
 
     def "Should parse break" (){
@@ -60,7 +78,7 @@ class ParserSpec extends Specification{
         assert result instanceof ContinueStatement
     }
 
-    def "Should throw parsing exception for missing semicolons" (){
+    def "Should throw parsing exception for missing semicolons in break and continue statements" (){
         given:
         def parser = prepareParser(str)
 
@@ -71,7 +89,7 @@ class ParserSpec extends Specification{
         thrown(ParserException)
 
         where:
-        str << ["break", "continue", "return"]
+        str << ["break", "continue"]
 
     }
 
@@ -92,7 +110,7 @@ class ParserSpec extends Specification{
         "meter ^ 2" || "meter"      | 2
         "kilogram"  || "kilogram"   | 1
         "second"    || "second"     | 1
-
+        "second^-3" || "second"     | -3
     }
 
     def "Should throw exception for incorrect compound terms"(){
@@ -103,13 +121,19 @@ class ParserSpec extends Specification{
         parser.parseOneCompoundTerm()
 
         then:
-        thrown(ParserException)
+        ParserException ex = thrown()
+        ex.message.contains(msg_str)
 
         where:
-        str << ["second^0", "9^3", "meter^-9"]
+        str         || msg_str
+        "second^0"  || "cannot be 0"
+        "9^3"       || "unit type"
+        "a^2"       || "Unit usage before definition"
+        "second^a"  || "INT_LITERAL"
+        "meter^-b"  || "INT_LITERAL"
     }
 
-    def "Should parsecompound expressions" () {
+    def "Should parse compound expressions" () {
         given:
         def parser = prepareParser(str)
         def result
@@ -155,7 +179,25 @@ class ParserSpec extends Specification{
         !result.contains(wrong)
     }
 
-    def "Should parse unit declarations "(){
+    def "Should throw Parser exception for improper compound expressions"(){
+        given:
+        def parser = prepareParser(str)
+
+        when:
+        parser.parseCompoundExpression()
+
+        then:
+        ParserException ex = thrown()
+        ex.message.contains(msg_str)
+
+        where:
+        str                 || msg_str
+        "<meter^3"          || "GREATER"
+        "<>"                || "must contain at least one term"
+        "<meter^2/meter^2>" || "equivalent to empty"
+    }
+
+    def "Should parse compound unit declarations "(){
         given:
         def parser = prepareParser(str)
         def result
@@ -171,6 +213,11 @@ class ParserSpec extends Specification{
         parts.each{
             assert expr.contains(it)
         }
+        and:
+        TypeManager.exists(name)
+
+        cleanup:
+        TypeManager.dropDeclared()
 
         where:
         str                                                 || name     | parts
@@ -182,40 +229,92 @@ class ParserSpec extends Specification{
                                                                            new CompoundTerm(new UnitType("kilogram"), -4)]
     }
 
-    def "Should throw exception if parsing an improper unit declaration" (){
+    def "Should parse base unit declarations" (){
         given:
-        def parser = prepareParser(str)
-        def result
+        def parser = prepareParser("unit newton;")
+        def result;
 
         when:
         result = parser.parseUnitDeclaration()
 
         then:
-        thrown(ParserException)
+        result instanceof UnitDeclaration
+        result.getName() == "newton"
+        and:
+        TypeManager.exists("newton");
+
+        cleanup:
+        TypeManager.dropDeclared()
+    }
+
+    def "Should throw exception if parsing an improper unit declaration" (){
+        given:
+        def parser = prepareParser(str)
+
+        when:
+        parser.parseUnitDeclaration()
+
+        then:
+        ParserException ex = thrown()
+        ex.message.contains(msg_str)
 
         where:
-        str <<["unit as <a>", "unit k as i"]
+        str             || msg_str
+        "unit as <a>"   || "IDENTIFIER"
+        "unit k as i"   || "LESS"
+    }
+
+    def "Should throw exception when parsing improper parameter"(){
+        given:
+        def parser = prepareParser(str)
+
+        when:
+        parser.parseParameter()
+
+        then:
+        ParserException ex = thrown()
+        ex.message.contains(msg_str)
+
+        where:
+        str     || msg_str
+        "int 2" || "IDENTIFIER"
+        "2 k"   || "Expected type"
+        "k uui" || "Type usage before definition"
     }
 
     def "Should parse parameters"(){
         given:
         def parser = prepareParser(str)
         def result
-        def len = types.size()
 
         when:
         result = parser.parseParameters()
 
         then:
-        for (int i=0; i<len; i++){
-            result.contains(names[i], types[i])
-        }
+        result.toString() == param_str
 
         where:
-        str                         ||   types                                                  | names
-        "(int val)"                 || [new IntType()]                                          |["val"]
-        "(second s, meter k)"       || [new UnitType("second"), new UnitType("meter")]          |["s", "k"]
-        "(meter k, int a, int b)"   || [new UnitType("meter"), new IntType(), new IntType()]    |["k", "a", "b"]
+        str                         || param_str
+        "(int val)"                 || "(int:val)"
+        "(second s, meter k)"       || "([u]second:s,[u]meter:k)"
+        "(meter k, int a, int b)"   || "([u]meter:k,int:a,int:b)"
+        "()"                        || "(none)"
+    }
+
+    def "Should throw exception when parsing improper parameters"(){
+        given:
+        def parser = prepareParser(str)
+
+        when:
+        parser.parseParameters()
+
+        then:
+        ParserException ex = thrown()
+        ex.message.contains(msg_str)
+
+        where:
+        str                         ||   msg_str
+        "(int i"                    || "CLOSE_BRACKET"
     }
 
     def "Should parse different values as unit expression"(){
@@ -307,10 +406,68 @@ class ParserSpec extends Specification{
 
         where:
         str                   || resStr
+        "k^2-8"               || "[k^2]-8"
         "2 + 3*i/(-16*w)^2"   || "2+[3*i/[[[-16]*w]^2]]"
         "2+ 2 + 3*i^2"        || "2+2+[3*[i^2]]"
         "2 + 2"               || "2+2"
         "2-3/5^ke"            || "2-[3/[5^ke]]"
+    }
+
+    def "Should throw ParserException when provided with improper unit expressions"(){
+        given:
+        def parser = prepareParser(str)
+
+        when:
+        parser.parseConversionExpression()
+
+        then:
+        ParserException ex = thrown()
+        ex.message.contains(msg_str)
+
+        where:
+        str             || msg_str
+        "()"            || "Empty parenthesis"
+        "(-2"           || "CLOSE_BRACKET"
+        "\"str\""       || "number literal or variable"
+    }
+
+    def "Should parse unit conversion"(){
+        given:
+        def parser = prepareParser(str)
+        def result
+
+        when:
+        result = parser.parseUnitConversion()
+
+        then:
+        result.toString() == res_str
+
+        where:
+        str                                 || res_str
+        "let meter as (kilogram k){k^2-8};" || "meter:([u]kilogram:k)->{[k^2]-8}"
+    }
+
+    def "Should throw Parser Exception when provided with improper unit conversion"(){
+        given:
+        def parser = prepareParser(str)
+
+        when:
+        parser.parseUnitConversion()
+
+        then:
+        ParserException ex = thrown()
+        ex.message.contains(msg)
+
+        where:
+        str                                 || msg
+        "let 9"                             || "Expected unit type"
+        "let k"                             || "Unit usage before definition"
+        "let meter ("                       || "AS"
+        "let meter as k"                    || "OPEN_BRACKET"
+        "let meter as (kilogram k)k^2"      || "CURLY_OPEN"
+        "let meter as (kilogram k){k^2-8}"  || "SEMICOLON"
+        "let meter as (kilogram k){k^2-8;"  || "CURLY_CLOSE"
+
     }
 
     def "Should parse simple math expression values" (){
@@ -329,11 +486,28 @@ class ParserSpec extends Specification{
         str         || resStr
         "true"      || "true"
         "false"     || "false"
-        "a()"       || "a(none)"
         "a"         || "a"
         "\"s\""     || "s"
         "12"        || "12"
         "10.2"      || "10.2"
+        "(2)"       || "2"
+    }
+
+    def "Should throw ParserException on improper math expression values"(){
+        given:
+        def parser = prepareParser(str)
+
+        when:
+        parser.parseExpression()
+
+        then:
+        ParserException ex = thrown()
+        ex.message.contains(msg)
+
+        where:
+        str         || msg
+        "(i"        || "CLOSE_BRACKET"
+        "meter"     || "literal, function call or variable reference"
     }
 
     def "Should parse simple UnaryExpression"(){
@@ -490,7 +664,7 @@ class ParserSpec extends Specification{
         "2^4^-5||9"         ||"[2^4^[-5]]||9"
     }
 
-    def "Parse complicated Expressions"(){
+    def "Should parse complicated Expressions"(){
         given:
         def parser = prepareParser(str);
         def result
@@ -511,5 +685,292 @@ class ParserSpec extends Specification{
         "a*a+(a-a)"             ||"[[a*a]+[a-a]]"
     }
 
+    def "Should parse function call"(){
+        given:
+        def parser = prepareParser(str)
+        def result
 
+        when:
+        result = parser.parseFunctionCall()
+
+        then:
+        result.toString() == res_str
+
+        where:
+        str             || res_str
+        "aa(2)"         || "aa(2)"
+        "k()"           || "k(none)"
+        "k(8+12, 0, -5)"|| "k([8+12], 0, [-5])"
+        "meter(6)"      || "meter(6)"
+    }
+
+    def "Should throw ParserException error on improper function calls"() {
+        given:
+        def parser = prepareParser(str)
+
+        when:
+        parser.parseFunctionCall()
+
+        then:
+        ParserException ex = thrown()
+        ex.message.contains(msg_str)
+
+        where:
+        str     || msg_str
+        "k(9"   || "CLOSE_BRACKET"
+        "k(1 5" || "CLOSE_BRACKET"
+    }
+
+    def "Should parse Arguments"(){
+        given:
+        def parser = prepareParser(str)
+        def result
+
+        when:
+        result = parser.parseArguments()
+
+        then:
+        result.toString() == res_str
+
+        where:
+        str             || res_str
+        "(1,2)"         || "1, 2"
+        "(8^3, ko)"     || "[8^3], ko"
+        "(k(k(k())))"   || "k(k(k(none)))"
+        "(7, k())"      || "7, k(none)"
+        "()"            || "none"
+    }
+
+    def "Should parse loop"(){
+        given:
+        def parser = prepareParser(str)
+        def result
+
+        when:
+        result = parser.parseStatement()
+
+        then:
+        result.toString() == res_str
+
+        where:
+        str             || res_str
+        "while(true){}" ||"while(true):{}"
+        "while(2)return;"||"while(2):return:null"
+    }
+
+    def "Should throw ParserException when given improper loop"(){
+        given:
+        def parser = prepareParser(str)
+
+        when:
+        parser.parseStatement()
+
+        then:
+        ParserException ex = thrown()
+        ex.message.contains(msg_str)
+
+        where:
+        str             || msg_str
+        "while a"       || "OPEN_BRACKET"
+        "while(2) 12"   || "CURLY_OPEN"
+        "while(true i"  || "CLOSE_BRACKET"
+    }
+
+    def "Should parse Type Statement"(){
+        given:
+        def parser = prepareParser("type(k);" )
+        def result
+
+        when:
+        result = parser.parseStatement()
+
+        then:
+        result.toString() ==  "type:k"
+    }
+    def "Should throw ParserException when given improper type statement"(){
+        given:
+        def parser = prepareParser(str)
+
+        when:
+        parser.parseStatement()
+
+        then:
+        ParserException ex = thrown()
+        ex.message.contains(msg_str)
+
+        where:
+        str             || msg_str
+        "type(k)"       || "SEMICOLON"
+        "type 9"        || "OPEN_BRACKET"
+        "type(0"        || "IDENTIFIER"
+        "type(uu"       || "CLOSE_BRACKET"
+    }
+    def "Should parse function call statement"(){
+        given:
+        def parser = prepareParser(str)
+        def result
+
+        when:
+        result = parser.parseStatement()
+
+        then:
+        result.toString() == res_str
+
+        where:
+        str             || res_str
+        "aa(2);"         || "aa(2)"
+        "k();"           || "k(none)"
+        "k(8+12, 0, -5);"|| "k([8+12], 0, [-5])"
+        "meter(6);"      || "meter(6)"
+    }
+
+    def "Should throw parser exception for missing semicolon in select statements"(){
+        given:
+        def parser = prepareParser(str)
+
+        when:
+        parser.parseStatement()
+
+        then:
+        ParserException ex = thrown()
+        ex.message.contains("SEMICOLON")
+
+        where:
+        str <<["k()", "print()", "print(a)", "explain(second)"]
+    }
+
+    def "Should parse print statement"(){
+        given:
+        def parser = prepareParser(str)
+        def result
+
+        when:
+        result = parser.parseStatement()
+
+        then:
+        result.toString() == res_str
+
+        where:
+        str                 || res_str
+        "print();"          || "print(none)"
+        "print(\"aaa\");"   || "print(aaa)"
+        "print(2,14);"      || "print(2, 14)"
+    }
+
+    def "Should parse explain statement"(){
+        given:
+        def parser = prepareParser(str)
+
+        expect:
+        parser.parseStatement().toString() == res_str
+
+        where:
+        str                 || res_str
+        "explain(second);"  || "explain([u]second)"
+    }
+
+    def "Should throw parser error for wrong explain statement"(){
+        given:
+        def parser = prepareParser(str)
+
+        when:
+        parser.parseStatement()
+
+        then:
+        ParserException ex = thrown()
+        ex.message.contains(msg_str)
+
+        where:
+        str             || msg_str
+        "explain(kkk);" || "Expected unit type"
+        "explain k"     || "OPEN_BRACKET"
+        "explain (meter"|| "CLOSE_BRACKET"
+    }
+
+    //todo add error tests
+    def "Should parse if else statement"(){
+        given:
+        def parser = prepareParser(str)
+
+        when:
+        def result = parser.parseStatement()
+
+        then:
+        result.toString() == msg_str;
+
+        where:
+        str                             || msg_str
+        "if(2) return;"                 || "if(2)<return:null>\nelse<null>"
+        "if(2) return 2; else continue;"|| "if(2)<return:2>\nelse<continue>"
+    }
+
+    //todo add error tests
+    def "Should parse assign statement"(){
+        given:
+        def parser = prepareParser(str)
+
+        when:
+        def result = parser.parseStatement()
+
+        then:
+        result.toString() == res_str
+
+        where:
+        str                 || res_str
+        "k=2;"              || "k=2"
+        "k= 7+128"          || "k=[7+128]"
+        "k= true&&false^2"  || "k=[true&&[false^2]]"
+    }
+
+    //todo add error tests
+    def "Should parse var declaration statement"(){
+        given:
+        def parser = prepareParser(str)
+
+        when:
+        def result = parser.parseStatement()
+
+        then:
+        result.toString() == res_str
+
+        where:
+        str                 || res_str
+        "int k;"            || "int:k=null"
+        "second s = 12^2;"  || "[u]second:s=[12^2]"
+    }
+
+    //todo add error tests
+    def "Should parse block statements"(){
+        given:
+        def parser = prepareParser(str)
+
+        when:
+        def result = parser.parseStatement()
+
+        then:
+        result.toString() == res_str
+
+        where:
+        str                 || res_str
+        "{int k;}"            || "{int:k=null\n}"
+        "{second s = 12^2; int k;}"  || "{[u]second:s=[12^2]\nint:k=null\n}"
+    }
+
+    //todo fix & add error tests
+//    def "Should parse functions"(){
+//        given:
+//        def parser = prepareParser(str)
+//
+//        when:
+//        def result = parser.parse()
+//
+//        then:
+//        result != null
+//
+//        where:
+//        str             || res_str
+//        "int main(){}" || "a"
+//    }
+
+    //todo add type validation for math expression?
 }

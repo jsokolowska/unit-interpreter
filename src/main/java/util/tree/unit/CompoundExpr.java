@@ -49,4 +49,9 @@ public class CompoundExpr implements Node {
         }
         return null;    //code unreachable but necessary
     }
+
+    public int size(){
+        return compoundParts.size();
+    }
+
 }

@@ -15,4 +15,9 @@ public class Conversion implements Node {
         this.to = to;
         this.parameters = parameters;
     }
+
+    @Override
+    public String toString() {
+        return to.getName()+":"+parameters+"->{"+conversionExpression + "}";
+    }
 }

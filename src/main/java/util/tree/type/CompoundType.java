@@ -3,10 +3,11 @@ package util.tree.type;
 import util.tree.unit.CompoundExpr;
 
 public class CompoundType extends UnitType {
-    private CompoundExpr expr;
+    private final CompoundExpr expr;
 
-    public CompoundType(String name) {
+    public CompoundType(String name, CompoundExpr expr) {
         super(name);
+        this.expr = expr;
     }
 
     public CompoundExpr getExpr() {
@@ -15,6 +16,6 @@ public class CompoundType extends UnitType {
 
     @Override
     public String toString() {
-        return "compound";
+        return "[c]" + name;
     }
 }

@@ -10,4 +10,9 @@ public class WhileStatement extends Statement{
         this.body = body;
         this.condition = condition;
     }
+
+    @Override
+    public String toString() {
+        return "while(" + condition + "):" +body;
+    }
 }
