@@ -1094,8 +1094,8 @@ class ParserSpec extends Specification{
                 "unit k; unit k; int main (){}",
                 " ",
                 "unit a; unit b; k(){} let b as (a aaa){aaa+2};",
-                "int main(){} meter m(){} unit b;"
-
+                "int main(){} meter m(){} unit b;",
+                "int a(){} int a(){}"
         ]
     }
 }

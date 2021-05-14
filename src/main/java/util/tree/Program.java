@@ -14,13 +14,6 @@ public class Program implements Node{
     private final List<Conversion> conversions = new ArrayList<>();
     private final Map<String, Function> functions = new HashMap<>();
 
-    // Enable Id lookup for units
-    // private final Map<UnitType, UnitDeclaration> unitDeclarationMap = new HashMap<>();
-    // private final Map<UnitType, Conversion> conversionMap = new HashMap<>();
-
-
-
-
     public void add (UnitDeclaration unitDeclaration){
         unitDcls.add(unitDeclaration);
     }
@@ -36,5 +29,10 @@ public class Program implements Node{
     public boolean hasFunctions (){
         return functions.size() > 0;
     }
+
+    public boolean functionExists(String funName) {
+        return functions.containsKey(funName);
+    }
+
 
 }
