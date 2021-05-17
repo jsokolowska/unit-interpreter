@@ -27,7 +27,7 @@ public class StringSource implements Source{
         return temp;
     }
 
-    public void nextChar() {
+    private void nextChar() {
         currentPos += 1;
         if (currentPos < text.length()){
             currentChar = text.charAt(currentPos);

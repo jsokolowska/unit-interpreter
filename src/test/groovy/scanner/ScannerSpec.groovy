@@ -2,7 +2,7 @@ package scanner
 
 import exception.ScannerException
 import source.StringSource
-import spock.lang.*
+import spock.lang.Specification
 import util.Token
 import util.Token.TokenType
 import util.position.Position
@@ -139,11 +139,8 @@ class ScannerSpec extends Specification{
     }
 
     def "If second char of logical operator is missing Scanner should throw ScannerException"(){
-        given:
-        def source = new StringSource(str)
-
         when:
-        new Scanner(source)
+        new Scanner(new StringSource(str))
 
         then:
         def ex = thrown(ScannerException)
@@ -162,16 +159,21 @@ class ScannerSpec extends Specification{
         def scanner = new Scanner(new StringSource(str))
         def token = scanner.getToken()
 
-        assert token == new Token(TokenType.BASE_TYPE, new Position(1,1))
+        assert token == new Token(TokenType.TYPE_INT, new Position(1,1))
         assert token.getStringValue() == "int"
+
         token = scanner.getToken()
         assert token == new Token(TokenType.IDENTIFIER, new Position(1,5))
         assert token.getStringValue() == "x"
+
+
         token = scanner.getToken()
         assert token == new Token(TokenType.ASSIGN, new Position(1,6))
+
         token = scanner.getToken()
         assert token == new Token(TokenType.INT_LITERAL, new Position(1,7))
         assert token.getIntegerValue() == 3
+
         token = scanner.getToken()
         assert token == new Token(TokenType.EOT, new Position(1,8))
     }
@@ -212,11 +214,9 @@ class ScannerSpec extends Specification{
     }
 
     def "Should throw scanner exception when given invalid string literal"(){
-        given:
-        def str = "\"a"
-
         when:
-        new Scanner(new StringSource(str))
+        def str = "\"a"
+        def scanner = new Scanner(new StringSource(str))
 
         then:
         thrown(ScannerException)
@@ -243,14 +243,14 @@ class ScannerSpec extends Specification{
         "as"        || TokenType.AS
         "unit"      || TokenType.UNIT
         "let"       || TokenType.LET
-        "int"       || TokenType.BASE_TYPE
-        "float"     || TokenType.BASE_TYPE
-        "bool"      || TokenType.BASE_TYPE
-        "string"    || TokenType.BASE_TYPE
+        "int"       || TokenType.TYPE_INT
+        "float"     || TokenType.TYPE_FLOAT
+        "bool"      || TokenType.TYPE_BOOL
+        "string"    || TokenType.TYPE_STRING
         "compound"  || TokenType.COMPOUND
-        "kilogram"  || TokenType.BASE_UNIT
-        "meter"     || TokenType.BASE_UNIT
-        "second"    || TokenType.BASE_UNIT
+        "kilogram"  || TokenType.TYPE_KG
+        "meter"     || TokenType.TYPE_METER
+        "second"    || TokenType.TYPE_SEC
         "true"      || TokenType.BOOL_LITERAL
         "false"     || TokenType.BOOL_LITERAL
     }

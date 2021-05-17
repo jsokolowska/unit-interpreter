@@ -14,24 +14,23 @@ public class Scanner {
     private int currChar;
     private Position tokenPosition;
 
-    public Scanner (PositionWrapper positionWrapper) throws IOException, ScannerException {
+    public Scanner (PositionWrapper positionWrapper) throws IOException {
         this.source = positionWrapper;
         currentToken = new Token(Token.TokenType.UNKNOWN);
         currChar = source.get();
         nextToken();
     }
 
-    public Scanner (Source source) throws IOException, ScannerException {
+    public Scanner (Source source) throws IOException{
         this(new PositionWrapper(source));
     }
 
-    public Token getToken() throws IOException, ScannerException {
-        Token temp = currentToken;
-        nextToken();
-        return temp;
+    /** @return current token */
+    public Token peek() {
+        return currentToken;
     }
 
-    private void nextToken() throws IOException, ScannerException {
+    private void nextToken() throws IOException {
         ignoreWhitespaces();
         tokenPosition = source.getPosition();
         if (buildEOT()){
@@ -46,7 +45,13 @@ public class Scanner {
             return;
         }
         currentToken = new Token(Token.TokenType.UNKNOWN, (char) currChar, tokenPosition);
+    }
 
+    /** Moves to the next token and returns it*/
+    public Token getToken() throws IOException{
+        Token temp = this.currentToken;
+        nextToken();
+        return temp;
     }
 
     private void ignoreWhitespaces() throws IOException {
@@ -64,18 +69,18 @@ public class Scanner {
         return false;
     }
 
-    private boolean buildOperators() throws IOException, ScannerException {
-        Token.TokenType tempType = ScannerMaps.singleOperators.get((char)currChar);
-        if (tempType != null)
+    private boolean buildOperators() throws IOException {
+        Token.TokenType type = ScannerMaps.singleOperators.get((char)currChar);
+        if (type != null)
         {
-            currentToken = new Token(tempType, currChar, tokenPosition);
+            currentToken = new Token(type, currChar, tokenPosition);
             currChar = source.get();
             return true;
         }
         return buildDoubleOperators();
     }
 
-    private boolean buildDoubleOperators() throws IOException, ScannerException {
+    private boolean buildDoubleOperators() throws IOException {
         int firstChar = currChar;
         switch(firstChar){
             case '=':
@@ -121,7 +126,7 @@ public class Scanner {
         }
     }
 
-    private boolean buildStringLiteral () throws ScannerException, IOException {
+    private boolean buildStringLiteral () throws IOException {
         if(currChar !='"'){
             return false;
         }
@@ -270,7 +275,14 @@ public class Scanner {
             if(tempType!=null){
                 currentToken = new Token(tempType, identifier.toString(), tokenPosition);
                 return true;
+            }else if (identifier.toString().equals("true") ){
+                currentToken = new Token(Token.TokenType.BOOL_LITERAL,  true, tokenPosition);
+                return true;
+            }else if (identifier.toString().equals("false") ){
+                currentToken = new Token(Token.TokenType.BOOL_LITERAL,   false, tokenPosition);
+                return true;
             }
+
             return false;
         }
     }
