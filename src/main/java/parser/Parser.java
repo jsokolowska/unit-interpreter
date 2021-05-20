@@ -239,12 +239,40 @@ public class Parser {
 
     //todo
     private UnitParameters parseUnitParameters () throws IOException{
-        return new UnitParameters();
+        if(!tokenHasType(TokenType.OPEN_BRACKET)) return null;
+
+        nextToken();
+        UnitParameters params = new UnitParameters();
+        //if after open bracket there is immediately close bracket parameter list is empty
+        if(tokenHasType(TokenType.CLOSE_BRACKET)) return params;
+
+        parseUnitParameter(params);
+        nextToken();
+        while(tokenHasType(TokenType.COMMA)){
+            nextToken();
+            parseUnitParameter(params);
+            nextToken();
+        }
+        if(!tokenHasType(TokenType.CLOSE_BRACKET)){
+            throw new ParserException(TokenType.CLOSE_BRACKET, token);
+        }
+        return params;
     }
 
     //todo
-    private void parseUnitParameter(UnitParameters parameters){
-
+    private void parseUnitParameter(UnitParameters parameters) throws IOException {
+        if (!matchesUnitType(token)) {
+            throw new ParserException("Expected type", token);
+        }
+        UnitType type = typeManager.getUnitType(token);
+        if (type == null) {
+            throw new ParserException("Type usage before definition", token.getPosition());
+        }
+        nextToken();
+        if (!tokenHasType(TokenType.IDENTIFIER)){
+            throw new ParserException(TokenType.IDENTIFIER, token);
+        }
+        parameters.addParameter(token.getStringValue(), type);
     }
 
     private Parameters parseParameters () throws IOException {

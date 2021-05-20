@@ -9,4 +9,8 @@ public class UnitExpressionVariableValue extends UnitExpression {
         this.identifier = identifier;
     }
 
+    @Override
+    public String toString() {
+        return identifier;
+    }
 }

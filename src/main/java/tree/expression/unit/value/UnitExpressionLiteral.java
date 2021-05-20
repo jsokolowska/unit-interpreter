@@ -11,4 +11,9 @@ public class UnitExpressionLiteral <T> extends UnitExpression {
     public T getValue(){
         return value;
     }
+
+    @Override
+    public String toString() {
+        return value.toString();
+    }
 }
