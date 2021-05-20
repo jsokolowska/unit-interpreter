@@ -1,6 +1,8 @@
 package tree.statement;
 
 
+import interpreter.Visitor;
+
 public class TypeStatement extends Statement{
     private final String identifier;
 
@@ -11,5 +13,11 @@ public class TypeStatement extends Statement{
     @Override
     public String toString() {
         return "type:" + identifier;
+    }
+
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 }

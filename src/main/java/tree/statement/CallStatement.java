@@ -1,5 +1,6 @@
 package tree.statement;
 
+import interpreter.Visitor;
 import tree.value.FunctionCall;
 
 public class CallStatement extends Statement{
@@ -14,6 +15,11 @@ public class CallStatement extends Statement{
     @Override
     public String toString() {
         return funCall.toString();
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 
 }

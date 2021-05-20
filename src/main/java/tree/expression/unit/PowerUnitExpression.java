@@ -1,5 +1,7 @@
 package tree.expression.unit;
 
+import interpreter.Visitor;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,5 +29,10 @@ public class PowerUnitExpression extends UnitExpression {
     @Override
     public int size() {
         return expressions.size();
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 }

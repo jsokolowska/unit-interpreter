@@ -1,8 +1,9 @@
 package tree.expression;
 
-import tree.Node;
+import interpreter.Visitor;
+import tree.Visitable;
 
-public class Expression implements Node {
+public class Expression implements Visitable {
     @Override
     public String toString() {
         return "u";
@@ -10,6 +11,11 @@ public class Expression implements Node {
 
     public int size () {
         return  1;
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 
 }

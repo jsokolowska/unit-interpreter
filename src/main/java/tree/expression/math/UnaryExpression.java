@@ -1,5 +1,6 @@
 package tree.expression.math;
 
+import interpreter.Visitor;
 import tree.expression.Expression;
 import tree.expression.operator.Operator;
 
@@ -16,5 +17,10 @@ public class UnaryExpression extends Expression {
     public String toString() {
         if(expr == null) return "_";
         return "[" + op + expr + ']';
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 }

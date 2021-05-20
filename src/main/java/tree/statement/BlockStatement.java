@@ -1,5 +1,7 @@
 package tree.statement;
 
+import interpreter.Visitor;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,5 +20,10 @@ public class BlockStatement extends Statement{
             str.append("\n");
         }
         return str + "}";
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 }

@@ -1,5 +1,6 @@
 package tree.statement;
 
+import interpreter.Visitor;
 import tree.function.Arguments;
 
 public class PrintStatement extends Statement{
@@ -12,5 +13,10 @@ public class PrintStatement extends Statement{
     @Override
     public String toString() {
         return "print(" + arguments + ")";
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 }

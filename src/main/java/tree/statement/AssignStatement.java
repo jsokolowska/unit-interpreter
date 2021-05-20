@@ -1,5 +1,7 @@
 package tree.statement;
 
+import interpreter.Visitor;
+import tree.Visitable;
 import tree.expression.Expression;
 
 public class AssignStatement extends Statement {
@@ -22,5 +24,10 @@ public class AssignStatement extends Statement {
     @Override
     public String toString() {
         return identifier + "=" + assignExpression;
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 }

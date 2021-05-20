@@ -1,6 +1,9 @@
 package tree.expression.unit;
 
-public class UnitExpression {
+import interpreter.Visitor;
+import tree.Visitable;
+
+public class UnitExpression implements Visitable {
 
     @Override
     public String toString() {
@@ -9,5 +12,10 @@ public class UnitExpression {
 
     public int size(){
         return 1;
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 }

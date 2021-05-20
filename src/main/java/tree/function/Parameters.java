@@ -1,12 +1,13 @@
 package tree.function;
 
-import tree.Node;
+import interpreter.Visitor;
+import tree.Visitable;
 import tree.type.Type;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class Parameters implements Node {
+public class Parameters implements Visitable {
     private final Map<String, Type> parameters = new LinkedHashMap<>();
 
     public void addParameter (String identifier, Type type){
@@ -33,5 +34,10 @@ public class Parameters implements Node {
         }
         return str.substring(0, str.length()-1) + ")";
 
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 }

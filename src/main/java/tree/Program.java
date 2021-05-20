@@ -1,5 +1,6 @@
 package tree;
 
+import interpreter.Visitor;
 import tree.function.Function;
 import tree.unit.Conversion;
 import tree.unit.UnitDeclaration;
@@ -9,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Program implements Node{
+public class Program implements Visitable {
     private final List<UnitDeclaration> unitDcls = new ArrayList<>();
     private final List<Conversion> conversions = new ArrayList<>();
     private final Map<String, Function> functions = new HashMap<>();
@@ -34,5 +35,21 @@ public class Program implements Node{
         return functions.containsKey(funName);
     }
 
+    public List<UnitDeclaration> getUnitDcls(){
+        return unitDcls;
+    }
+
+    public List<Conversion> getConversions(){
+        return conversions;
+    }
+
+    public Map<String, Function> getFunctions(){
+        return functions;
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
+    }
 
 }

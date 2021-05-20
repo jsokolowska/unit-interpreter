@@ -1,6 +1,6 @@
 package tree.statement;
 
-import tree.Node;
+import tree.Visitable;
 
-public abstract class Statement implements Node {
+public abstract class Statement implements Visitable {
 }

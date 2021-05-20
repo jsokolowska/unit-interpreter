@@ -1,5 +1,6 @@
 package tree.expression.math;
 
+import interpreter.Visitor;
 import tree.expression.Expression;
 
 import java.util.ArrayList;
@@ -30,5 +31,10 @@ public class PowerExpression extends Expression {
     @Override
     public int size() {
         return expressions.size();
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 }

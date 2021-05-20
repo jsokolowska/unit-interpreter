@@ -1,5 +1,6 @@
 package tree.expression.unit;
 
+import interpreter.Visitor;
 import tree.expression.operator.UnitOperator;
 
 import java.util.ArrayList;
@@ -36,5 +37,10 @@ public class ConversionExpression extends UnitExpression {
     @Override
     public int size() {
         return expressions.size();
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 }

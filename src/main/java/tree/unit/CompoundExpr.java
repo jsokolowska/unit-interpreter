@@ -1,12 +1,13 @@
 package tree.unit;
 
-import tree.Node;
+import interpreter.Visitor;
+import tree.Visitable;
 import tree.type.UnitType;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class CompoundExpr implements Node {
+public class CompoundExpr implements Visitable {
     private final Map<UnitType, Integer> compoundParts = new HashMap<>();
 
 
@@ -52,6 +53,11 @@ public class CompoundExpr implements Node {
 
     public int size(){
         return compoundParts.size();
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 
 }

@@ -1,5 +1,6 @@
 package tree.statement;
 
+import interpreter.Visitor;
 import tree.Variable;
 import tree.expression.Expression;
 import tree.type.Type;
@@ -21,5 +22,10 @@ public class VariableDeclarationStatement extends Statement{
     @Override
     public String toString() {
         return variable.toString() + "=" + expression;
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 }

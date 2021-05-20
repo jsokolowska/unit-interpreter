@@ -1,5 +1,7 @@
 package tree.expression.unit;
 
+import interpreter.Visitor;
+
 public class UnaryUnitExpression extends UnitExpression{
     private UnitExpression expr;
 
@@ -10,6 +12,11 @@ public class UnaryUnitExpression extends UnitExpression{
     @Override
     public String toString() {
         return "[-" + expr + "]";
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 
 }

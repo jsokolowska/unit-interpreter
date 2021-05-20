@@ -1,10 +1,11 @@
 package tree.function;
 
-import tree.Node;
+import interpreter.Visitor;
+import tree.Visitable;
 import tree.statement.Statement;
 import tree.type.Type;
 
-public class Function implements Node {
+public class Function implements Visitable {
     private final String identifier;
     private final Type returnType;
     private final Statement body;
@@ -21,4 +22,12 @@ public class Function implements Node {
         return identifier;
     }
 
+    public Statement getBody() {
+        return body;
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
+    }
 }

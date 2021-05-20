@@ -1,5 +1,6 @@
 package tree.expression.math;
 
+import interpreter.Visitor;
 import tree.expression.Expression;
 import tree.expression.operator.Operator;
 
@@ -37,5 +38,10 @@ public class RelationalExpression extends Expression {
     @Override
     public int size() {
         return expressions.size();
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 }

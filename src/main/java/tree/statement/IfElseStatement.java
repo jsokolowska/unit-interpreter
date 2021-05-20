@@ -1,5 +1,6 @@
 package tree.statement;
 
+import interpreter.Visitor;
 import tree.expression.Expression;
 
 public class IfElseStatement extends Statement{
@@ -19,5 +20,10 @@ public class IfElseStatement extends Statement{
     @Override
     public String toString() {
         return "if(" + ifCondition + ")<" + ifStatement + ">\nelse<" + elseStatement + ">";
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 }

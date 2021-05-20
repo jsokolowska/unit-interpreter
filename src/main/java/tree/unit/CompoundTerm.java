@@ -1,9 +1,10 @@
 package tree.unit;
 
-import tree.Node;
+import interpreter.Visitor;
+import tree.Visitable;
 import tree.type.UnitType;
 
-public class CompoundTerm implements Comparable<CompoundTerm>, Node {
+public class CompoundTerm implements Comparable<CompoundTerm>, Visitable {
     private final UnitType unit;
     private int exponent;
 
@@ -36,5 +37,10 @@ public class CompoundTerm implements Comparable<CompoundTerm>, Node {
         CompoundTerm term = (CompoundTerm) obj;
         return term.getExponent() == this.getExponent() &&
                 term.getUnitType() == this.getUnitType();
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 }

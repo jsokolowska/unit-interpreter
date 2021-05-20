@@ -1,5 +1,6 @@
 package tree.statement;
 
+import interpreter.Visitor;
 import tree.type.UnitType;
 
 public class ExplainStatement extends Statement{
@@ -12,5 +13,10 @@ public class ExplainStatement extends Statement{
     @Override
     public String toString() {
         return "explain(" + type + ")";
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 }

@@ -1,6 +1,8 @@
 package tree.value;
 
-public class VariableValue extends Value{
+import tree.Visitable;
+
+public class VariableValue extends Value implements Visitable {
     protected final String identifier;
 
     public VariableValue(String identifier){

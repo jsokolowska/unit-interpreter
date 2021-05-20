@@ -1,12 +1,14 @@
 package tree.unit;
 
+import interpreter.Visitor;
+import tree.Visitable;
 import tree.type.Type;
 import tree.type.UnitType;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class UnitParameters {
+public class UnitParameters implements Visitable {
     private final Map<String, UnitType> parameters = new LinkedHashMap<>();
 
     public void addParameter (String identifier, UnitType type){
@@ -33,5 +35,9 @@ public class UnitParameters {
         }
         return str.substring(0, str.length()-1) + ")";
 
+    }
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 }
