@@ -1,21 +1,22 @@
 package parser
 
-import exception.ParserException
 import scanner.Scanner
 import source.StringSource
 import spock.lang.Specification
-import util.tree.statement.BreakStatement
-import util.tree.statement.ContinueStatement
-import util.tree.statement.ReturnStatement
-import util.tree.type.TypeManager
-import util.tree.type.UnitType
-import util.tree.unit.CompoundTerm
-import util.tree.unit.UnitDeclaration
+import tree.function.Parameters
+import tree.statement.BreakStatement
+import tree.statement.ContinueStatement
+import tree.statement.ReturnStatement
+import tree.type.TypeManager
+import tree.type.UnitType
+import tree.unit.CompoundTerm
+import tree.unit.UnitDeclaration
+import util.exception.ParserException
 
 class ParserSpec extends Specification{
 
-    static def prepareParser(str){
-        return new Parser (new Scanner(new StringSource(str)))
+    static def prepareParser(str, typeManager = new TypeManager()){
+       new Parser (new Scanner(new StringSource(str)), typeManager)
     }
 
     def "Should parse different return statements"(){
@@ -77,7 +78,7 @@ class ParserSpec extends Specification{
         assert result instanceof ContinueStatement
     }
 
-    def "Should throw parsing exception for missing semicolons in break and continue statements" (){
+    def "Should throw parsing util.exception for missing semicolons in break and continue statements" (){
         given:
         def parser = prepareParser(str)
 
@@ -112,7 +113,7 @@ class ParserSpec extends Specification{
         "second^-3" || "second"     | -3
     }
 
-    def "Should throw exception for incorrect compound terms"(){
+    def "Should throw util.exception for incorrect compound terms"(){
         given:
         def parser = prepareParser(str)
 
@@ -178,7 +179,7 @@ class ParserSpec extends Specification{
         !result.contains(wrong)
     }
 
-    def "Should throw Parser exception for improper compound expressions"(){
+    def "Should throw Parser util.exception for improper compound expressions"(){
         given:
         def parser = prepareParser(str)
 
@@ -198,7 +199,8 @@ class ParserSpec extends Specification{
 
     def "Should parse compound unit declarations "(){
         given:
-        def parser = prepareParser(str)
+        def manager = new TypeManager()
+        def parser = prepareParser(str, manager)
         def result
         def expr
 
@@ -213,10 +215,7 @@ class ParserSpec extends Specification{
             assert expr.contains(it)
         }
         and:
-        TypeManager.exists(name)
-
-        cleanup:
-        TypeManager.dropDeclared()
+        manager.exists(name)
 
         where:
         str                                                 || name     | parts
@@ -230,7 +229,8 @@ class ParserSpec extends Specification{
 
     def "Should parse base unit declarations" (){
         given:
-        def parser = prepareParser("unit newton;")
+        def manager = new TypeManager()
+        def parser = prepareParser("unit newton;", manager)
         def result
 
         when:
@@ -240,13 +240,10 @@ class ParserSpec extends Specification{
         result instanceof UnitDeclaration
         result.getName() == "newton"
         and:
-        TypeManager.exists("newton")
-
-        cleanup:
-        TypeManager.dropDeclared()
+        manager.exists("newton")
     }
 
-    def "Should throw exception if parsing an improper unit declaration" (){
+    def "Should throw util.exception if parsing an improper unit declaration" (){
         given:
         def parser = prepareParser(str)
 
@@ -263,12 +260,12 @@ class ParserSpec extends Specification{
         "unit k as i"   || "LESS"
     }
 
-    def "Should throw exception when parsing improper parameter"(){
+    def "Should throw util.exception when parsing improper parameter"(){
         given:
         def parser = prepareParser(str)
 
         when:
-        parser.parseParameter()
+        parser.parseParameter(new Parameters())
 
         then:
         ParserException ex = thrown()
@@ -300,7 +297,7 @@ class ParserSpec extends Specification{
         "()"                        || "(none)"
     }
 
-    def "Should throw exception when parsing improper parameters"(){
+    def "Should throw util.exception when parsing improper parameters"(){
         given:
         def parser = prepareParser(str)
 
@@ -823,7 +820,7 @@ class ParserSpec extends Specification{
         "meter(6);"      || "meter(6)"
     }
 
-    def "Should throw parser exception for missing semicolon in select statements"(){
+    def "Should throw parser util.exception for missing semicolon in select statements"(){
         given:
         def parser = prepareParser(str)
 
@@ -1033,7 +1030,7 @@ class ParserSpec extends Specification{
                 "meter m2(string aa, int k){}"]
     }
 
-    def "Should throw parser exception for improper function definition"(){
+    def "Should throw parser util.exception for improper function definition"(){
         given:
         def parser = prepareParser(str)
 
@@ -1061,8 +1058,6 @@ class ParserSpec extends Specification{
         expect:
         parser.parse() != null
 
-        cleanup:
-        TypeManager.dropDeclared()
 
         where:
         str <<[ "int main (){}",
@@ -1085,9 +1080,6 @@ class ParserSpec extends Specification{
 
         then:
         thrown(ParserException)
-
-        cleanup:
-        TypeManager.dropDeclared()
 
         where:
         str <<[ "int main (){",

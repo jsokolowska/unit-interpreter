@@ -1,10 +1,10 @@
 package scanner
 
-import exception.ScannerException
 import source.StringSource
 import spock.lang.Specification
 import util.Token
 import util.Token.TokenType
+import util.exception.ScannerException
 import util.position.Position
 import util.position.PositionWrapper
 
@@ -202,7 +202,7 @@ class ScannerSpec extends Specification{
         token == new Token(TokenType.UNKNOWN, new Position(1,1))
     }
 
-    def "Should throw scanner exception when given invalid identifier"(){
+    def "Should throw scanner util.exception when given invalid identifier"(){
         when:
         new Scanner(new StringSource(str))
 
@@ -213,7 +213,7 @@ class ScannerSpec extends Specification{
         str << ["__", "_#", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]
     }
 
-    def "Should throw scanner exception when given invalid string literal"(){
+    def "Should throw scanner util.exception when given invalid string literal"(){
         when:
         def str = "\"a"
         def scanner = new Scanner(new StringSource(str))
