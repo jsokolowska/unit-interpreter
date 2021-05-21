@@ -19,6 +19,8 @@ public class UnitType extends Type {
             return expr.equals(this);
         }else if(obj instanceof UnitType){
             return ((UnitType) obj).getName().equals(this.getName());
+        }else if(obj instanceof CompoundExpr expr){
+            return expr.equals(this);
         }
         return false;
     }

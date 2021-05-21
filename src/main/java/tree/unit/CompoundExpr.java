@@ -8,45 +8,33 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CompoundExpr implements Visitable {
-    private final Map<UnitType, Integer> compoundParts = new HashMap<>();
+    private final Map<String, Integer> compoundParts = new HashMap<>();
 
 
     public void addPart(CompoundTerm part){
-        Integer presVal = compoundParts.get(part.getUnitType());
+        Integer presVal = compoundParts.get(part.getUnitName());
         if(presVal != null){
             var newVar = presVal +  part.getExponent();
-            compoundParts.put(part.getUnitType(), newVar);
+            compoundParts.put(part.getUnitName(), newVar);
             return;
         }
-        compoundParts.put(part.getUnitType(), part.getExponent());
-    }
-
-    public boolean contains (CompoundTerm part){
-        if (part == null) return false;
-        UnitType type = part.getUnitType();
-        for (Map.Entry<UnitType, Integer> entry : compoundParts.entrySet()){
-            if(entry.getKey().equals(type)){
-                return entry.getValue() == part.getExponent();
-            }
-        }
-        return false;
+        compoundParts.put(part.getUnitName(), part.getExponent());
     }
 
     public boolean contains (UnitType part){
-        if (part == null) return false;
-        for (Map.Entry<UnitType, Integer> entry : compoundParts.entrySet()){
-            if(entry.getKey().equals(part)){
-                return entry.getValue() == 1;
-            }
-        }
-        return false;
+        return compoundParts.containsKey(part.getName());
     }
 
-    public boolean contains(Map.Entry<UnitType, Integer> entry){
-        if(entry == null) return false;
-        Integer val = compoundParts.get(entry.getKey());
+    public boolean contains(String key, Integer exp){
+        if(key == null || exp == null) return false;
+        Integer val = compoundParts.get(key);
         if(val == null) return false;
-        return val.equals(entry.getValue());
+        return val.equals(exp);
+    }
+
+    public boolean contains(CompoundTerm term){
+        if(term == null) return false;
+        return compoundParts.containsKey(term.getUnitName());
     }
 
     /** removes terms with exponents == 0*/
@@ -65,12 +53,9 @@ public class CompoundExpr implements Visitable {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof CompoundExpr){
-            CompoundExpr that = (CompoundExpr) obj;
+        if(obj instanceof CompoundExpr that){
             return equalToCompoundExpr(that);
-
-        }else if(obj instanceof UnitType){
-            UnitType unit = (UnitType) obj;
+        }else if(obj instanceof UnitType unit){
             return equalToBaseUnit(unit);
         }
         return false;
@@ -83,8 +68,8 @@ public class CompoundExpr implements Visitable {
         that.simplify();
         if(this.size() != that.size())return false;
 
-        for(Map.Entry<UnitType, Integer> entry: this.compoundParts.entrySet()){
-            if(!that.contains(entry)) return false;
+        for(Map.Entry<String, Integer> entry: this.compoundParts.entrySet()){
+            if(!that.contains(entry.getKey(), entry.getValue())) return false;
         }
         return true;
     }

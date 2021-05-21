@@ -102,7 +102,7 @@ class ParserSpec extends Specification{
         res = parser.parseOneCompoundTerm()
 
         then:
-        assert res.getUnitType().getName() == name
+        assert res.getUnitName() == name
         assert res.getExponent() == exponent
 
         where:

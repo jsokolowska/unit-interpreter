@@ -4,16 +4,17 @@ import interpreter.Visitor;
 import tree.Visitable;
 import tree.type.UnitType;
 
-public class CompoundTerm implements Comparable<CompoundTerm>, Visitable {
-    private final UnitType unit;
+public class CompoundTerm implements Visitable {
+    private final String unitName;
     private int exponent;
 
     public CompoundTerm (UnitType unit, int exponent){
-        this.unit = unit;
+        this.unitName = unit.getName();
         this.exponent = exponent;
     }
-    public UnitType getUnitType() {
-        return unit;
+
+    public String getUnitName() {
+        return unitName;
     }
 
     public int getExponent(){
@@ -25,18 +26,12 @@ public class CompoundTerm implements Comparable<CompoundTerm>, Visitable {
     }
 
     @Override
-    public int compareTo (CompoundTerm c){
-        return unit.getName().compareTo(c.getUnitType().getName());
-    }
-
-    @Override
     public boolean equals (Object obj){
-        if(obj.getClass() != this.getClass()){
+        if(! (obj instanceof CompoundTerm term)){
             return false;
         }
-        CompoundTerm term = (CompoundTerm) obj;
         return term.getExponent() == this.getExponent() &&
-                term.getUnitType() == this.getUnitType();
+                term.getUnitName().equals(this.getUnitName());
     }
 
     @Override
