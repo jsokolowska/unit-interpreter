@@ -18,4 +18,9 @@ public class CompoundType extends UnitType {
     public String toString() {
         return "[c]" + name;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this.getExpr().equals(obj);
+    }
 }

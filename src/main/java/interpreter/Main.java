@@ -1,5 +1,6 @@
 package interpreter;
 
+import interpreter.env.Environment;
 import parser.Parser;
 import scanner.Scanner;
 import source.Source;
@@ -14,7 +15,8 @@ public class Main {
         Scanner scanner = new Scanner(source);
         TypeManager typeManager = new TypeManager();
         Parser parser = new Parser(scanner, typeManager);
-        Interpreter interpreter = new Interpreter(parser, typeManager);
+        Environment env = new Environment();
+        Interpreter interpreter = new Interpreter(parser, typeManager, env);
         interpreter.execute();
     }
 }

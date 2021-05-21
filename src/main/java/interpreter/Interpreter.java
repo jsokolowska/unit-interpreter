@@ -1,5 +1,6 @@
 package interpreter;
 
+import interpreter.env.Environment;
 import parser.Parser;
 import tree.Program;
 import tree.Variable;
@@ -27,10 +28,12 @@ import java.util.Map;
 public class Interpreter implements Visitor{
     private Parser parser;
     private TypeManager typeManager;
+    private Environment env;
 
-    Interpreter(Parser parser, TypeManager typeManager){
+    Interpreter(Parser parser, TypeManager typeManager, Environment env){
         this.parser = parser;
         this.typeManager = typeManager;
+        this.env = env;
     }
 
     public void execute() throws IOException {
