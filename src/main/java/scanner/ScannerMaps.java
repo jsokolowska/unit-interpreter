@@ -11,6 +11,7 @@ public class ScannerMaps {
 
     //contains one char operators that share no common prefix with other operators and their token types
     protected static final Map<Character, Token.TokenType> singleOperators = new HashMap<>();
+
     static{
         initKeywordMap();
         initSingleCharMap();

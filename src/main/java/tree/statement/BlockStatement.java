@@ -12,6 +12,10 @@ public class BlockStatement extends Statement{
         statements.add(stmt);
     }
 
+    public List<Statement> getStatements(){
+        return statements;
+    }
+
     @Override
     public String toString() {
         StringBuilder str =  new StringBuilder("{");

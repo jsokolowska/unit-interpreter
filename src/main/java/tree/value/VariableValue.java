@@ -13,4 +13,8 @@ public class VariableValue extends Value implements Visitable {
     public String toString() {
         return identifier;
     }
+
+    public String getIdentifier(){
+        return identifier;
+    }
 }

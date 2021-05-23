@@ -30,4 +30,9 @@ public class UnitType extends Type {
         return "[u]" + name;
     }
 
+    @Override
+    public String prettyToString(){
+        return "Unit " + name;
+    }
+
 }

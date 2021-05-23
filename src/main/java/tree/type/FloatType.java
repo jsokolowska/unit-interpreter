@@ -6,4 +6,9 @@ public class FloatType extends Type {
     public String toString() {
         return "float";
     }
+
+    @Override
+    public String prettyToString(){
+        return "Float";
+    }
 }

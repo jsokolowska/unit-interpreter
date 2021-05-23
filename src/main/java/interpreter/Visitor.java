@@ -57,6 +57,4 @@ public interface Visitor {
     void visit(PowerExpression expression);
     void visit(RelationalExpression expression);
     void visit(UnaryExpression expression);
-
-    void accept(Variable variable);
 }

@@ -10,11 +10,14 @@ public class TypeStatement extends Statement{
         this.identifier = identifier;
     }
 
+    public String getIdentifier(){
+        return identifier;
+    }
+
     @Override
     public String toString() {
         return "type:" + identifier;
     }
-
 
     @Override
     public void accept(Visitor visitor) {

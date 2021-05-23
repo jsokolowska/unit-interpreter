@@ -445,21 +445,27 @@ public class Parser {
     }
 
     protected Statement parseStatement() throws IOException {
+        int line = token.getLine();
         Statement st ;
-        if ((st = parseBlockStatement() )!= null) return st;
-        if ((st = parseReturn() )!= null) return st;
-        if ((st = parseBreak())!= null) return st;
-        if ((st = parseContinue())!= null) return st;
-        if ((st = parseLoop() )!= null) return st;
-        if ((st = parseIfElseStatement() )!= null) return st;
-        if ((st = parsePrintStatement())!= null) return st;
-        if ((st = parseExplainStatement() )!= null) return st;
-        if ((st = parseTypeStatement() )!= null) return st;
+        if ((st = parseBlockStatement() )!= null) return addLine(st, line);
+        if ((st = parseReturn() )!= null) return addLine(st, line);
+        if ((st = parseBreak())!= null) return addLine(st, line);
+        if ((st = parseContinue())!= null) return addLine(st, line);
+        if ((st = parseLoop() )!= null) return addLine(st, line);
+        if ((st = parseIfElseStatement() )!= null) return addLine(st, line);
+        if ((st = parsePrintStatement())!= null) return addLine(st, line);
+        if ((st = parseExplainStatement() )!= null) return addLine(st, line);
+        if ((st = parseTypeStatement() )!= null) return addLine(st, line);
         /* these functions share common beginning*/
-        if ((st = parseAssignStatement() )!= null) return st;
-        if ((st = parseVariableDeclarationStatement() )!= null) return st;
-        if ((st = parseCallStatement() )!= null) return st;
+        if ((st = parseAssignStatement() )!= null) return addLine(st, line);
+        if ((st = parseVariableDeclarationStatement() )!= null) return addLine(st, line);
+        if ((st = parseCallStatement() )!= null) return addLine(st, line);
         return null;
+    }
+
+    private Statement addLine(Statement st, int line){
+        st.setLine(line);
+        return st;
     }
 
     private IfElseStatement parseIfElseStatement () throws IOException {

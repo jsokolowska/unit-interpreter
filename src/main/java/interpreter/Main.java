@@ -16,7 +16,7 @@ public class Main {
         TypeManager typeManager = new TypeManager();
         Parser parser = new Parser(scanner, typeManager);
         Environment env = new Environment();
-        Interpreter interpreter = new Interpreter(parser, typeManager, env);
+        Interpreter interpreter = new Interpreter(parser.parse(), typeManager, env);
         interpreter.execute();
     }
 }

@@ -35,6 +35,10 @@ public class Program implements Visitable {
         return functions.containsKey(funName);
     }
 
+    public Function getFunction(String funName){
+        return functions.get(funName);
+    }
+
     public List<UnitDeclaration> getUnitDcls(){
         return unitDcls;
     }

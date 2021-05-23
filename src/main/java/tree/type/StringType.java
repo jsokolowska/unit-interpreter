@@ -6,4 +6,9 @@ public class StringType extends Type {
     public String toString() {
         return "string";
     }
+
+    @Override
+    public String prettyToString(){
+        return "String";
+    }
 }

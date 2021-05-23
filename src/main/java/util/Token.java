@@ -101,6 +101,10 @@ public class Token {
 
     public Position getPosition() {return position;}
 
+    public int getLine(){
+        return position.getLine();
+    }
+
     public boolean isBaseUnit (){
         return type == TokenType.TYPE_METER
                 || type == TokenType.TYPE_SEC
