@@ -5,10 +5,14 @@ import parser.Parser
 import spock.lang.Specification
 import tree.Program
 import tree.Variable
+import tree.function.Parameters
 import tree.type.BoolType
+import tree.type.CompoundType
 import tree.type.FloatType
 import tree.type.IntType
 import tree.type.StringType
+import tree.type.UnitType
+import tree.unit.CompoundExpr
 import tree.value.Literal
 import util.exception.InterpretingException
 
@@ -76,6 +80,30 @@ class InterpreterSpec extends Specification{
         where:
         lit <<[ new Literal<>("str"), new Literal<>(2), new Literal<>(10.2), new Literal<>(true)]
         type <<[new StringType(), new IntType(), new FloatType(), new BoolType()]
+    }
+
+    def "Check visiting parameters"(){
+        given:
+        var env = prepEnv()
+        var interpreter = new Interpreter(new Program(), null, env)
+        var params = new Parameters()
+        params.addParameter(str, type)
+
+        when:
+        params.accept(interpreter)
+
+        then:
+        var variable = env.getVariable(str)
+        variable.getIdentifier() ==  str
+        variable.getType() == type
+
+        where:
+        str     | type
+        "a"     | new IntType()
+        "b"     | new BoolType()
+        "c"     | new FloatType()
+        "d"     | new UnitType("d")
+        "e"     | new CompoundType("a", new CompoundExpr())
     }
 
 }

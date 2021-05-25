@@ -1,15 +1,15 @@
 package tree.function;
 
 import interpreter.Visitor;
+import tree.AbstractFunction;
 import tree.Visitable;
 import tree.statement.Statement;
 import tree.type.Type;
 
-public class Function implements Visitable {
+public class Function extends AbstractFunction implements Visitable {
     private final String identifier;
     private final Type returnType;
     private final Statement body;
-    private final Parameters params;
 
     public Function(String identifier, Statement body, Parameters params, Type returnType){
         this.identifier = identifier;

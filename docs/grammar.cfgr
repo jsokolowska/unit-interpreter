@@ -25,7 +25,7 @@ var_dcl_stmt : type (identifier ";") | [assign_stmt] ;
 
 # defining custom units
 unit_dcl : "unit" identifier ["as" compound_expr ] ";";
-# conversion expression for compound unit definition
+# conversionFunction expression for compound unit definition
 # only one division is possible
 compound_expr: "<" compound_term ["/" compound_term] ">" ";";
 compound_term: compound_exp {"*" compound_exp};

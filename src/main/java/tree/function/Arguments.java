@@ -14,6 +14,10 @@ public class Arguments  implements Visitable {
         arguments.add(expr);
     }
 
+    public int size(){
+        return arguments.size();
+    }
+
     @Override
     public String toString() {
         if (arguments.size() == 0) return "none";

@@ -5,7 +5,11 @@ import tree.Variable;
 import java.util.Stack;
 
 public class CallScope {
-    private Stack<BlockScope> blockScopes = new Stack<>();
+    private final Stack<BlockScope> blockScopes = new Stack<>();
+
+    public CallScope(){
+        blockScopes.add(new BlockScope());
+    }
 
     public void addBlockScope(BlockScope scope){
         blockScopes.push(scope);

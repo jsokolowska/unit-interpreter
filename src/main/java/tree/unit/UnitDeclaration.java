@@ -20,7 +20,7 @@ public class UnitDeclaration implements Visitable {
         return type;
     }
 
-    public String getName() {
+    public String getUnitName() {
         return name;
     }
 

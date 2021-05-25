@@ -28,8 +28,8 @@ unit newton as <kilogram * meter / second^2>;
 /* addition: possible if both expressions have the same type */
 kelvin1 + kelvin2           //OK
 kelvin1 + celsius           //WRONG, but
-kelvin1 + kelvin(celsius)   //OK after conversion
-10 + celsius                //WRONG, implicit conversion supported only for assignment
+kelvin1 + kelvin(celsius)   //OK after conversionFunction
+10 + celsius                //WRONG, implicit conversionFunction supported only for assignment
 
 /* multiplication: supported for any numeric or unit types, might result in type change */
 kelvin * 10         //Type: kelvin

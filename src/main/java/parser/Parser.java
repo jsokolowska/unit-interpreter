@@ -51,12 +51,12 @@ public class Parser {
 
         while (true) {
             UnitDeclaration unitDeclaration;
-            Conversion conversion;
+            ConversionFunction conversionFunction;
             if ((unitDeclaration = parseUnitDeclaration())!= null) {
                 program.add(unitDeclaration);
                 nextToken();
-            } else if ((conversion = parseUnitConversion()) != null) {
-                program.add(conversion);
+            } else if ((conversionFunction = parseUnitConversion()) != null) {
+                program.add(conversionFunction);
                 nextToken();
             }else{
                 break;
@@ -197,7 +197,7 @@ public class Parser {
         return new CompoundTerm(unit, exponent);
     }
 
-    private Conversion parseUnitConversion() throws IOException {
+    private ConversionFunction parseUnitConversion() throws IOException {
         if(!tokenHasType(TokenType.LET)) return null;
 
         nextToken();
@@ -233,7 +233,7 @@ public class Parser {
             if(!tokenHasType(TokenType.SEMICOLON)){
                 throw new ParserException(TokenType.SEMICOLON, token);
             }
-            return new Conversion(unit, parameters, conversionExpression);
+            return new ConversionFunction(unit, parameters, conversionExpression);
         }
     }
 

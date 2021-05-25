@@ -4,11 +4,13 @@ import interpreter.Visitor;
 import tree.Visitable;
 import tree.type.Type;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Parameters implements Visitable {
-    private final Map<String, Type> parameters = new LinkedHashMap<>();
+    protected final Map<String, Type> parameters = new LinkedHashMap<>();
 
     public void addParameter (String identifier, Type type){
         parameters.put(identifier, type);
@@ -20,6 +22,14 @@ public class Parameters implements Visitable {
             return result == type;
         }
         return false;
+    }
+
+    public Map<String, Type> getParameters() {
+        return parameters;
+    }
+
+    public int size(){
+        return parameters.size();
     }
 
     @Override

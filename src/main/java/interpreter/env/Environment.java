@@ -19,6 +19,7 @@ public class Environment {
         this.values = new Stack<>();
         this.callScopes = new Stack<>();
     }
+
     public void pushNewCallScope(){
         this.callScopes.push( new CallScope());
     }

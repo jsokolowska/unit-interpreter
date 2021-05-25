@@ -1,6 +1,7 @@
 package interpreter;
 
 import interpreter.env.Environment;
+import tree.AbstractFunction;
 import tree.Program;
 import tree.Variable;
 import tree.Visitable;
@@ -12,6 +13,7 @@ import tree.function.Arguments;
 import tree.function.Function;
 import tree.function.Parameters;
 import tree.statement.*;
+import tree.type.Type;
 import tree.type.TypeManager;
 import tree.unit.*;
 import tree.value.FunctionCall;
@@ -20,6 +22,7 @@ import tree.value.VariableValue;
 import util.exception.InterpretingException;
 
 import java.io.IOException;
+import java.util.Map;
 
 public class Interpreter implements Visitor{
     private final Program program;
@@ -61,9 +64,46 @@ public class Interpreter implements Visitor{
         System.out.println("Variable");
     }
 
+    //todo test
     public void visit(FunctionCall functionCall){
-        System.out.println("FunctionCall");
+        env.pushNewCallScope();
+        String funName = functionCall.getIdentifier();
+
+        AbstractFunction function = program.getFunctionOrConversionFunction(funName);
+        if(function == null){
+            throw new InterpretingException("Unknown function or conversion identifier " + funName, line);
+        }
+
+        function.getParams().accept(this);
+        functionCall.getArgs().accept(this);
+
+        function.accept(this);
+
+        env.popCallScope();
     }
+
+    public void visit(Function function){
+        //todo execute statements within block context
+
+        System.out.println("Function");
+        Statement stmt = function.getBody();
+        stmt.accept(this);
+    }
+    public void visit(Arguments arguments){
+        //todo evaluate expressions, check types and set values for variables in block context
+        System.out.println("Arguments");
+    }
+
+    //todo tests
+    public void visit(Parameters parameters){
+        var paramMap = parameters.getParameters();
+        for (String key : paramMap.keySet()){
+            Variable var = new Variable(paramMap.get(key),key);
+            env.addVariable(var);
+        }
+    }
+
+
 
     public void visit(Literal<?> literal){
         env.pushValue(literal);
@@ -87,7 +127,7 @@ public class Interpreter implements Visitor{
         //todo
         System.out.println("CompoundTerm");
     }
-    public void visit(Conversion conversion){
+    public void visit(ConversionFunction conversionFunction){
         //todo
         System.out.println("Conv");
     }
@@ -167,22 +207,6 @@ public class Interpreter implements Visitor{
         line = statement.getLine();
         //todo
         System.out.println("While");
-    }
-
-    public void visit(Function function){
-        //todo
-
-        System.out.println("Function");
-        Statement stmt = function.getBody();
-        stmt.accept(this);
-    }
-    public void visit(Arguments arguments){
-        //todo
-        System.out.println("Arguments");
-    }
-    public void visit(Parameters parameters){
-        //todo
-        System.out.println("Parameters");
     }
 
     public void visit(ConversionExpression expression){

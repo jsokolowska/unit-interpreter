@@ -210,7 +210,7 @@ class ParserSpec extends Specification{
 
         then:
         result instanceof UnitDeclaration
-        result.getName() == name
+        result.getUnitName() == name
         parts.each{
             assert expr.contains(it)
         }
@@ -238,7 +238,7 @@ class ParserSpec extends Specification{
 
         then:
         result instanceof UnitDeclaration
-        result.getName() == "newton"
+        result.getUnitName() == "newton"
         and:
         manager.exists("newton")
     }

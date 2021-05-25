@@ -19,6 +19,14 @@ public class FunctionCall extends Value implements Visitable {
         return identifier + "(" + args+ ")";
     }
 
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public Arguments getArgs() {
+        return args;
+    }
+
     @Override
     public void accept(Visitor visitor) {
         visitor.visit(this);

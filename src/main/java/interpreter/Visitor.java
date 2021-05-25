@@ -25,7 +25,7 @@ public interface Visitor {
     void visit(VariableValue variableValue);
     void visit(CompoundExpr expr);
     void visit(CompoundTerm term);
-    void visit(Conversion conversion);
+    void visit(ConversionFunction conversionFunction);
     void visit(UnitDeclaration unitDeclaration);
     void visit(UnitParameters parameters);
 
