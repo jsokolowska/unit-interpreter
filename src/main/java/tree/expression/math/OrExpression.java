@@ -13,6 +13,10 @@ public class OrExpression extends Expression {
         expressions.add(e);
     }
 
+    public List<Expression> getExpressions() {
+        return expressions;
+    }
+
     @Override
     public String toString() {
         if(expressions.size() == 0) return "_";

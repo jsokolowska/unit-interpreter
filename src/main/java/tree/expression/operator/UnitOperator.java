@@ -1,5 +1,5 @@
 package tree.expression.operator;
 
-public class UnitOperator extends Operator{
+public abstract class UnitOperator extends Operator{
 
 }

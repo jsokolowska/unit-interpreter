@@ -1,5 +1,6 @@
 package interpreter.util;
 
+import tree.Variable;
 import tree.type.Type;
 import tree.value.Literal;
 
@@ -10,6 +11,11 @@ public class StackValue {
     public StackValue(Literal<?> value, Type type) {
         this.value = value;
         this.type = type;
+    }
+
+    public StackValue(Variable variable){
+        value = variable.getValue();
+        type = variable.getType();
     }
 
     public Literal<?> getValue() {

@@ -53,6 +53,14 @@ public class Environment {
         values.push(new StackValue(value, type));
     }
 
+    public void pushValue(StackValue val){
+        values.push(val);
+    }
+
+    public void pushValue(Literal<?> val, Type type){
+        values.push(new StackValue(val, type));
+    }
+
     public StackValue popValue(){
         return values.pop();
     }

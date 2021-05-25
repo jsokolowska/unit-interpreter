@@ -1,8 +1,16 @@
 package tree.expression.operator;
 
-public class EqOperator extends Operator{
+import interpreter.Visitor;
+import tree.Visitable;
+
+public class EqOperator extends Operator implements Visitable {
     @Override
     public String toString() {
         return "==";
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 }

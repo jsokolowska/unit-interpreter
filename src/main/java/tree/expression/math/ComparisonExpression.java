@@ -20,6 +20,14 @@ public class ComparisonExpression extends Expression {
         operators.add(op);
     }
 
+    public List<Expression> getExpressions() {
+        return expressions;
+    }
+
+    public List<Operator> getOperators() {
+        return operators;
+    }
+
     @Override
     public String toString() {
         if(expressions.size() == 0) return "_";

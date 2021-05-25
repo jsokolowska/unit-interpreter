@@ -22,4 +22,13 @@ public class Literal<T> extends Value implements Visitable {
     public void accept(Visitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public boolean equals(Object that){
+        if (that instanceof Literal<?> l){
+            return l.getLiteralValue().equals(value);
+        }
+        return false;
+    }
+
 }

@@ -4,6 +4,7 @@ import tree.Program;
 import tree.Variable;
 import tree.Visitable;
 import tree.expression.math.*;
+import tree.expression.operator.*;
 import tree.expression.unit.*;
 import tree.expression.unit.value.UnitExpressionLiteral;
 import tree.expression.unit.value.UnitExpressionVariableValue;
@@ -23,8 +24,6 @@ public interface Visitor {
 
 
     void visit(VariableValue variableValue);
-    void visit(CompoundExpr expr);
-    void visit(CompoundTerm term);
     void visit(ConversionFunction conversionFunction);
     void visit(UnitDeclaration unitDeclaration);
     void visit(UnitParameters parameters);
@@ -60,4 +59,21 @@ public interface Visitor {
     void visit(PowerExpression expression);
     void visit(RelationalExpression expression);
     void visit(UnaryExpression expression);
+
+    void visit(EqOperator operator);
+    void visit(GreaterOperator operator);
+    void visit(LessEqOperator operator);
+    void visit(LessOperator operator);
+    void visit(GreaterEqOperator operator);
+    void visit(NotEqOperator operator);
+
+    void visit(AndOperator operator);
+    void visit(DivOperator operator);
+    void visit(MinusOperator operator);
+    void visit(MulOperator operator);
+    void visit(NegOperator operator);
+    void visit(NotOperator operator);
+    void visit(OrOperator operator);
+    void visit(PlusOperator operator);
+    void visit(PowerOperator operator);
 }

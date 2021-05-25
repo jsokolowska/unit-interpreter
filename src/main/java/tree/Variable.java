@@ -24,6 +24,10 @@ public class Variable extends Expression implements Visitable {
         return type;
     }
 
+    public Literal<?> getValue(){
+        return value;
+    }
+
     public void setValue(Literal<?> value) {
         this.value = value;
     }
