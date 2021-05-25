@@ -720,7 +720,7 @@ public class Parser {
 
     private Expression parseComparisonExpression ()throws IOException {
         Expression expressionPart = parseRelationalExpression();
-        ComparisonExpression expr = new ComparisonExpression();
+        ExpressionWithOperators expr = new ExpressionWithOperators();
         expr.add(expressionPart);
 
         while(tokenHasType(TokenType.EQUAL) || tokenHasType(TokenType.NOT_EQUAL)){
@@ -737,7 +737,7 @@ public class Parser {
 
     private Expression parseRelationalExpression ()throws IOException {
         Expression expressionPart = parseArithmeticExpression();
-        RelationalExpression expr = new RelationalExpression();
+        ExpressionWithOperators expr = new ExpressionWithOperators();
         expr.add(expressionPart);
 
         while(isRelOp(token)){
@@ -762,7 +762,7 @@ public class Parser {
 
     private Expression parseArithmeticExpression ()throws IOException {
         Expression expressionPart = parseMultiplyExpression();
-        ArithmeticExpression expr = new ArithmeticExpression();
+        ExpressionWithOperators expr = new ExpressionWithOperators();
         expr.add(expressionPart);
         while(tokenHasType(TokenType.PLUS) || tokenHasType(TokenType.MINUS)){
             Operator op = OperatorFactory.getAdditiveOperator(token.getTokenType());
@@ -778,7 +778,7 @@ public class Parser {
 
     private Expression parseMultiplyExpression ()throws IOException {
         Expression expressionPart = parsePowerExpression();
-        MultiplyExpression expr = new MultiplyExpression();
+        ExpressionWithOperators expr = new ExpressionWithOperators();
         expr.add(expressionPart);
         while(tokenHasType(TokenType.MULTIPLY) || tokenHasType(TokenType.DIVIDE)){
             Operator op = OperatorFactory.getOperator(token);

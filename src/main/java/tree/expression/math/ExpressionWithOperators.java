@@ -7,17 +7,25 @@ import tree.expression.operator.Operator;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RelationalExpression extends Expression {
-    private final List<Expression> expressions = new ArrayList<>();
-    private final List<Operator> relOperators = new ArrayList<>();
+public class ExpressionWithOperators extends Expression {
+    protected final List<Expression> expressions = new ArrayList<>();
+    protected final List<Operator> operators = new ArrayList<>();
 
-    public void add(Expression expr){
+    public void add (Expression expr){
         expressions.add(expr);
     }
 
-    public void add(Expression expr, Operator relOp){
+    public void add (Expression expr, Operator op){
+        operators.add(op);
         expressions.add(expr);
-        relOperators.add(relOp);
+    }
+
+    public List<Expression> getExpressions() {
+        return expressions;
+    }
+
+    public List<Operator> getOperators() {
+        return operators;
     }
 
     @Override
@@ -27,7 +35,7 @@ public class RelationalExpression extends Expression {
         if (expressions.size() > 1) str.append('[');
         str.append(expressions.get(0));
         for(int i=1; i < expressions.size(); i++){
-            str.append(relOperators.get(i-1));
+            str.append(operators.get(i-1));
             str.append(expressions.get(i));
         }
         if (expressions.size() > 1) str.append(']');

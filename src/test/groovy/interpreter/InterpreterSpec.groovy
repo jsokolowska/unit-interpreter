@@ -1,12 +1,12 @@
 package interpreter
 
 import interpreter.env.Environment
-import parser.Parser
 import spock.lang.Specification
 import tree.Program
 import tree.Variable
 import tree.expression.math.AndExpression
-import tree.expression.math.ComparisonExpression
+
+import tree.expression.math.ExpressionWithOperators
 import tree.expression.math.OrExpression
 import tree.expression.operator.EqOperator
 import tree.expression.operator.GreaterEqOperator
@@ -163,7 +163,7 @@ class InterpreterSpec extends Specification{
         given:
         var env = prepEnv()
         var interpreter = new Interpreter(null, null, env)
-        var expr = new ComparisonExpression()
+        var expr = new ExpressionWithOperators()
         expr.add(new Literal<>(val1))
         expr.add(new Literal<>(val2), op)
 

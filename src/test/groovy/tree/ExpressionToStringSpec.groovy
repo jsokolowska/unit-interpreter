@@ -14,8 +14,7 @@ class ExpressionToStringSpec extends Specification {
         expr.toString() == "u"
 
         where:
-        expr <<[new AndExpression(), new MultiplyExpression(), new ArithmeticExpression(), new OrExpression(),
-                new PowerExpression(), new RelationalExpression()]
+        expr <<[new AndExpression(), new OrExpression(), new PowerExpression(), new ExpressionWithOperators()]
     }
 
     def "Check singular UnaryExpression" (){
@@ -66,6 +65,7 @@ class ExpressionToStringSpec extends Specification {
 
     def "Check multiple expressions with two operator types" (){
         when:
+        var expr = new ExpressionWithOperators()
         expr.add(new Expression())
         expr.add(new Expression(), op1)
         expr.add(new Expression(), op2)
@@ -74,15 +74,15 @@ class ExpressionToStringSpec extends Specification {
         expr.toString() == "[u" + op1 + "u" + op2 + "u]"
 
         where:
-        expr                        | op1                   | op2
-        new ArithmeticExpression()  | new PlusOperator()    | new MinusOperator()
-        new MultiplyExpression()    | new DivOperator()     | new MulOperator()
-        new ComparisonExpression()  | new EqOperator()      | new NotEqOperator()
+         op1                   | op2
+         new PlusOperator()    | new MinusOperator()
+         new DivOperator()     | new MulOperator()
+         new EqOperator()      | new NotEqOperator()
     }
 
     def "Check multiple Relational Expression"(){
         given:
-        def expr = new RelationalExpression()
+        def expr = new ExpressionWithOperators()
 
         when:
         expr.add(new Expression())

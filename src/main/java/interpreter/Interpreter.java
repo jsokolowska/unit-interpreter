@@ -255,23 +255,6 @@ public class Interpreter implements Visitor{
 
         env.pushValue(new Literal<>(value));
     }
-    public void visit(ArithmeticException expression){
-        //todo
-        System.out.println("ArithmeticExpr");
-    }
-
-    public void visit(ComparisonExpression expression){
-        List<Expression> expressions = expression.getExpressions();
-        List<Operator> operators = expression.getOperators();
-        expressions.get(0).accept(this);
-        for(int i=0; i< operators.size(); i++){
-            expressions.get(i+1).accept(this);
-            operators.get(i).accept(this);
-        }
-
-        boolean value = casting.castToBoolean(env.popValue());
-        env.pushValue(new Literal<>(value));
-    }
 
     public void visit(EqOperator operator){
         var rValue = env.popValue().getValue();
@@ -475,10 +458,14 @@ public class Interpreter implements Visitor{
         //todo
     }
 
-
-    public void visit(MultiplyExpression expression){
-        //todo
-        System.out.println("MultExpr");
+    public void visit(ExpressionWithOperators expression){
+        List<Expression> expressions = expression.getExpressions();
+        List<Operator> operators = expression.getOperators();
+        expressions.get(0).accept(this);
+        for(int i =0; i<operators.size(); i++){
+            expressions.get(i+1).accept(this);
+            operators.get(i).accept(this);
+        }
     }
 
     public void visit(OrExpression expression){
@@ -497,10 +484,7 @@ public class Interpreter implements Visitor{
         //todo
         System.out.println("PowerExpr");
     }
-    public void visit(RelationalExpression expression){
-        //todo
-        System.out.println("RelationalExpression");
-    }
+
     public void visit(UnaryExpression expression){
         //todo
         System.out.println("UnaryExpr");

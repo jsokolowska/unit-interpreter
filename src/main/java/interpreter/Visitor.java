@@ -52,13 +52,11 @@ public interface Visitor {
     void visit(UnitExpressionVariableValue variableValue);
 
     void visit(AndExpression expression);
-    void visit(ArithmeticException expression);
-    void visit(ComparisonExpression expression);
-    void visit(MultiplyExpression expression);
     void visit(OrExpression expression);
     void visit(PowerExpression expression);
-    void visit(RelationalExpression expression);
     void visit(UnaryExpression expression);
+
+    void visit(ExpressionWithOperators expression);
 
     void visit(EqOperator operator);
     void visit(GreaterOperator operator);
