@@ -5,6 +5,7 @@ import tree.Visitable;
 import tree.type.UnitType;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class CompoundExpr implements Visitable {
@@ -21,6 +22,16 @@ public class CompoundExpr implements Visitable {
         compoundParts.put(part.getUnitName(), part.getExponent());
     }
 
+    public void addPart(String name, Integer val){
+        Integer presVal = compoundParts.get(name);
+        if(presVal != null){
+            var newVar = presVal +  val;
+            compoundParts.put(name, newVar);
+            return;
+        }
+        compoundParts.put(name, val);
+    }
+
     public boolean contains (UnitType part){
         return compoundParts.containsKey(part.getName());
     }
@@ -35,6 +46,13 @@ public class CompoundExpr implements Visitable {
     public boolean contains(CompoundTerm term){
         if(term == null) return false;
         return compoundParts.containsKey(term.getUnitName());
+    }
+
+    public Map<String, Integer> getCompoundParts() {
+        return compoundParts;
+    }
+    public void reverse(){
+        compoundParts.replaceAll((k,v)-> -1 * v);
     }
 
     /** removes terms with exponents == 0*/

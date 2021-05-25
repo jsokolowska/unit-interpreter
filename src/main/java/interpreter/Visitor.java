@@ -43,7 +43,6 @@ public interface Visitor {
     void visit(WhileStatement statement);
 
     void visit(Function function);
-    void visit(Arguments arguments);
     void visit(Parameters parameters);
 
     void visit(ConversionExpression expression);

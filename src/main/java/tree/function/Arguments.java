@@ -7,11 +7,15 @@ import tree.expression.Expression;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Arguments  implements Visitable {
+public class Arguments  {
     private final List<Expression> arguments = new ArrayList<>();
 
     public void addArgument (Expression expr){
         arguments.add(expr);
+    }
+
+    public List<Expression> getArgList() {
+        return arguments;
     }
 
     public int size(){
@@ -28,10 +32,5 @@ public class Arguments  implements Visitable {
             str.append(arguments.get(i));
         }
         return str.toString();
-    }
-
-    @Override
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
     }
 }

@@ -5,6 +5,7 @@ import tree.AbstractFunction;
 import tree.Program;
 import tree.Variable;
 import tree.Visitable;
+import tree.expression.Expression;
 import tree.expression.math.*;
 import tree.expression.unit.*;
 import tree.expression.unit.value.UnitExpressionLiteral;
@@ -13,7 +14,6 @@ import tree.function.Arguments;
 import tree.function.Function;
 import tree.function.Parameters;
 import tree.statement.*;
-import tree.type.Type;
 import tree.type.TypeManager;
 import tree.unit.*;
 import tree.value.FunctionCall;
@@ -22,7 +22,7 @@ import tree.value.VariableValue;
 import util.exception.InterpretingException;
 
 import java.io.IOException;
-import java.util.Map;
+import java.util.List;
 
 public class Interpreter implements Visitor{
     private final Program program;
@@ -73,9 +73,12 @@ public class Interpreter implements Visitor{
         if(function == null){
             throw new InterpretingException("Unknown function or conversion identifier " + funName, line);
         }
+        Parameters params = function.getParams();
+        params.accept(this);
+        List<Expression> args = functionCall.getArgs().getArgList();
 
-        function.getParams().accept(this);
-        functionCall.getArgs().accept(this);
+        //todo evaluate expressions, check types and set values for variables in block context
+        //todo think it over
 
         function.accept(this);
 
@@ -88,10 +91,6 @@ public class Interpreter implements Visitor{
         System.out.println("Function");
         Statement stmt = function.getBody();
         stmt.accept(this);
-    }
-    public void visit(Arguments arguments){
-        //todo evaluate expressions, check types and set values for variables in block context
-        System.out.println("Arguments");
     }
 
     //todo tests
@@ -108,7 +107,6 @@ public class Interpreter implements Visitor{
     public void visit(Literal<?> literal){
         env.pushValue(literal);
     }
-
 
     public void visit(VariableValue variableValue){
         Variable variable = env.getVariable(variableValue.getIdentifier());
