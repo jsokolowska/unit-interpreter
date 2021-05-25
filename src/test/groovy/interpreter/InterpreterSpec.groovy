@@ -29,7 +29,7 @@ class InterpreterSpec extends Specification{
 
     def "Should throw exception when program does not have main function"(){
         given:
-        var interpreter = new Interpreter(new Program(), null, null);
+        var interpreter = new Interpreter(new Program(), null, null)
 
         when:
         interpreter.execute()
@@ -74,7 +74,7 @@ class InterpreterSpec extends Specification{
 
     def "Check pushing literals to stack"(){
         given:
-        var env = prepEnv();
+        var env = prepEnv()
         var interpreter = new Interpreter(new Program(), null, env)
 
         when:
@@ -119,13 +119,13 @@ class InterpreterSpec extends Specification{
         given:
         var env = prepEnv()
         var interpreter = new Interpreter(null, null, env)
-        AndExpression expr = new AndExpression();
+        AndExpression expr = new AndExpression()
         expr.add(new Literal<>(val1))
         expr.add(new Literal<>(val2))
 
         when:
         expr.accept(interpreter)
-        def val = env.popValue().getValue().getLiteralValue();
+        def val = env.popValue().getValue().getLiteralValue()
 
         then:
         val == res
@@ -141,13 +141,13 @@ class InterpreterSpec extends Specification{
         given:
         var env = prepEnv()
         var interpreter = new Interpreter(null, null, env)
-        var expr = new OrExpression();
+        var expr = new OrExpression()
         expr.add(new Literal<>(val1))
         expr.add(new Literal<>(val2))
 
         when:
         expr.accept(interpreter)
-        def val = env.popValue().getValue().getLiteralValue();
+        def val = env.popValue().getValue().getLiteralValue()
 
         then:
         val == res
@@ -165,11 +165,11 @@ class InterpreterSpec extends Specification{
         var interpreter = new Interpreter(null, null, env)
         var expr = new ComparisonExpression()
         expr.add(new Literal<>(val1))
-        expr.add(new Literal<>(val2), op);
+        expr.add(new Literal<>(val2), op)
 
         when:
         expr.accept(interpreter)
-        def val = env.popValue().getValue().getLiteralValue();
+        def val = env.popValue().getValue().getLiteralValue()
 
         then:
         val == res

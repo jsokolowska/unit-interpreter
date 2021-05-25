@@ -90,8 +90,8 @@ class UnitTypeSpec extends Specification {
 
     def "Should recognize UnitTypes and CompoundExpressions as equal"(){
         given:
-        def unitType = new UnitType("newton");
-        def expr = new CompoundExpr();
+        def unitType = new UnitType("newton")
+        def expr = new CompoundExpr()
 
         when:
         expr.addPart(new CompoundTerm(unitType, 1))
@@ -103,8 +103,8 @@ class UnitTypeSpec extends Specification {
 
     def "Should not recognize UnitTypes and CompoundExpressions as equal"(){
         given:
-        def unitType = new UnitType("newton");
-        def expr = new CompoundExpr();
+        def unitType = new UnitType("newton")
+        def expr = new CompoundExpr()
 
         when:
         expr.addPart(new CompoundTerm(new UnitType("k"), 1))
@@ -116,8 +116,8 @@ class UnitTypeSpec extends Specification {
 
     def "Should compare UnitTypes and CompoundExpressions when CompoundExpression needs simplyfying"(){
         given:
-        def unitType = new UnitType("newton");
-        def expr = new CompoundExpr();
+        def unitType = new UnitType("newton")
+        def expr = new CompoundExpr()
 
         when:
         expr.addPart(new CompoundTerm(new UnitType("kk"), -192))

@@ -33,7 +33,7 @@ public class Interpreter implements Visitor{
     private final TypeManager typeManager;
     private final Environment env;
     private Integer line;
-    private Casting casting;
+    private final Casting casting;
 
     public Interpreter(Program program, TypeManager typeManager, Environment env) throws IOException {
         this.program = program;
@@ -382,6 +382,7 @@ public class Interpreter implements Visitor{
         throw new InterpretingException("Cannot apply substraction to: " + lObj.getType()
                 + " and " + rObj.getType(), line);
     }
+
     public void visit(PlusOperator operator){
         var rObj = env.popValue();
         var lObj = env.popValue();

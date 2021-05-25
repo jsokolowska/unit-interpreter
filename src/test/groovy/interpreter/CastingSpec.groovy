@@ -16,7 +16,7 @@ import util.exception.InterpretingException
 
 class CastingSpec extends Specification{
 
-    Casting casting = new Casting(new Integer(2));
+    Casting casting = new Casting(new Integer(2))
 
     def "Cast to boolean"(){
         expect:
@@ -83,7 +83,7 @@ class CastingSpec extends Specification{
 
     def "Check multiply for base unit and compound"(){
         given:
-        def expr = new CompoundExpr();
+        def expr = new CompoundExpr()
         expr.addPart("a", 18)
         expr.addPart("b", -9)
         expr.addPart("k", 2)
@@ -101,7 +101,7 @@ class CastingSpec extends Specification{
 
     def "Check multiply for two compounds"(){
         given:
-        def expr1 = new CompoundExpr();
+        def expr1 = new CompoundExpr()
         expr1.addPart("a", 12)
         expr1.addPart("b", -2)
         def compound1 = new CompoundType("-", expr1)
@@ -123,7 +123,7 @@ class CastingSpec extends Specification{
 
     def "Calculate type for division with two compounds"(){
         given:
-        def expr1 = new CompoundExpr();
+        def expr1 = new CompoundExpr()
         expr1.addPart("a", 12)
         expr1.addPart("b", -2)
         def compound1 = new CompoundType("-", expr1)
