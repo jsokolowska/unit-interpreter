@@ -1,12 +1,19 @@
 package interpreter.env;
 
+import interpreter.Casting;
+import interpreter.util.StackValue;
 import tree.Variable;
+import tree.type.Type;
+import tree.value.Literal;
 
 import java.util.Stack;
 
 public class Environment {
     private final Stack<CallScope> callScopes;
-    private final Stack<PartialValue> values;
+    private final Stack<StackValue> values;
+    private boolean returned;
+    private boolean broken;
+    private boolean continued;
 
     public Environment(){
         this.values = new Stack<>();
@@ -38,5 +45,38 @@ public class Environment {
 
     public Variable getVariable(String id){
         return callScopes.peek().getVariable(id);
+    }
+
+    public void pushValue(Literal<?> value){
+        Type type = Casting.getMatchingType(value);
+        values.push(new StackValue(value, type));
+    }
+
+    public StackValue popValue(){
+        return values.pop();
+    }
+
+    public boolean hasBroken() {
+        return broken;
+    }
+
+    public boolean hasReturned() {
+        return returned;
+    }
+
+    public boolean hasContinued(){
+        return continued;
+    }
+
+    public void setReturn(boolean returned){
+        this.returned = returned;
+    }
+
+    public void setBroken(boolean broken) {
+        this.broken = broken;
+    }
+
+    public void setContinued(boolean continued) {
+        this.continued = continued;
     }
 }

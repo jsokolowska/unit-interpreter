@@ -5,10 +5,7 @@ import tree.Program;
 import tree.Variable;
 import tree.Visitable;
 import tree.expression.math.*;
-import tree.expression.unit.ConversionExpression;
-import tree.expression.unit.MulUnitExpression;
-import tree.expression.unit.PowerUnitExpression;
-import tree.expression.unit.UnaryUnitExpression;
+import tree.expression.unit.*;
 import tree.expression.unit.value.UnitExpressionLiteral;
 import tree.expression.unit.value.UnitExpressionVariableValue;
 import tree.function.Arguments;
@@ -25,24 +22,28 @@ import util.exception.InterpretingException;
 import java.io.IOException;
 
 public class Interpreter implements Visitor{
-    private Program program;
-    private TypeManager typeManager;
-    private Environment env;
-    private int line;
+    private final Program program;
+    private final TypeManager typeManager;
+    private final Environment env;
+    private Integer line;
 
-    Interpreter(Program program, TypeManager typeManager, Environment env) throws IOException {
+    public Interpreter(Program program, TypeManager typeManager, Environment env) throws IOException {
         this.program = program;
         this.typeManager = typeManager;
         this.env = env;
+        line = 0;
     }
 
     public void execute() throws IOException {
         program.accept(this);
     }
 
+    protected int getLine(){
+        return line;
+    }
+
     public void visit(Visitable visitable){
-        //todo
-        System.out.println("Visitable");
+        throw new RuntimeException("Unrecognized Visitable");
     }
     public void visit(Program program){
         Function main = program.getFunction("main");
@@ -65,10 +66,9 @@ public class Interpreter implements Visitor{
     }
 
     public void visit(Literal<?> literal){
-        //todo
-
-        System.out.println("Literal<?>");
+        env.pushValue(literal);
     }
+
 
     public void visit(VariableValue variableValue){
         Variable variable = env.getVariable(variableValue.getIdentifier());
@@ -101,10 +101,13 @@ public class Interpreter implements Visitor{
     }
 
     public void visit(AssignStatement statement){
+        line = statement.getLine();
         //todo
         System.out.println("Assign");
     }
     public void visit(BlockStatement statement){
+        //todo
+        line = statement.getLine();
         //create new block scope
         env.pushNewBlock();
         for (var stmt : statement.getStatements()){
@@ -114,44 +117,54 @@ public class Interpreter implements Visitor{
         env.popBlock();
     }
     public void visit(BreakStatement statement){
+        line = statement.getLine();
         //todo
         System.out.println("BREAK");
     }
     public void visit(CallStatement statement){
+        line = statement.getLine();
         //todo
         System.out.println("CallSTMT");
     }
     public void visit(ContinueStatement statement){
+        line = statement.getLine();
         //todo
         System.out.println("ContinueStmt");
     }
     public void visit(ExplainStatement statement){
+        line = statement.getLine();
         //todo
         System.out.println("ExplainStmt");
     }
     public void visit(IfElseStatement statement){
+        line = statement.getLine();
         //todo
         System.out.println("Ifelse");
     }
     public void visit(PrintStatement statement){
+        line = statement.getLine();
         //todo
         System.out.println("Print");
     }
     public void visit(ReturnStatement statement){
+        line = statement.getLine();
         //todo
         System.out.println("Return");
     }
     public void visit(TypeStatement statement){
+        line = statement.getLine();
         //todo
         String id = statement.getIdentifier();
 
         System.out.println();
     }
     public void visit(VariableDeclarationStatement statement){
+        line = statement.getLine();
         //todo
         System.out.println("Vardcl");
     }
     public void visit(WhileStatement statement){
+        line = statement.getLine();
         //todo
         System.out.println("While");
     }

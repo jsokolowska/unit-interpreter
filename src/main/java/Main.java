@@ -1,5 +1,4 @@
-package interpreter;
-
+import interpreter.Interpreter;
 import interpreter.env.Environment;
 import parser.Parser;
 import scanner.Scanner;

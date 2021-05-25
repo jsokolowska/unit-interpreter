@@ -9,6 +9,10 @@ public class Literal<T> extends Value implements Visitable {
         this.value = value;
     }
 
+    public T getLiteralValue(){
+        return value;
+    }
+
     @Override
     public String toString() {
         return value.toString();

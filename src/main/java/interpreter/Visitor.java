@@ -17,7 +17,11 @@ public interface Visitor {
     void visit(Program program);
     void visit(Variable var);
     void visit(FunctionCall functionCall);
+
     void visit(Literal<?> literal);
+
+
+
     void visit(VariableValue variableValue);
     void visit(CompoundExpr expr);
     void visit(CompoundTerm term);

@@ -1,10 +1,15 @@
 package interpreter
 
 import interpreter.env.Environment
+import parser.Parser
 import spock.lang.Specification
 import tree.Program
 import tree.Variable
+import tree.type.BoolType
+import tree.type.FloatType
 import tree.type.IntType
+import tree.type.StringType
+import tree.value.Literal
 import util.exception.InterpretingException
 
 class InterpreterSpec extends Specification{
@@ -20,7 +25,7 @@ class InterpreterSpec extends Specification{
         thrown(InterpretingException)
     }
 
-    def prepEnv(){
+    static def prepEnv(){
         var env = new Environment()
         env.pushNewCallScope()
         env.pushNewBlock()
@@ -52,6 +57,25 @@ class InterpreterSpec extends Specification{
 
         then:
         variable == env.getVariable("var")
+    }
+
+    def "Check pushing literals to stack"(){
+        given:
+        var env = prepEnv();
+        var interpreter = new Interpreter(new Program(), null, env)
+
+        when:
+        interpreter.visit(lit)
+        var stackValue = env.popValue()
+
+        then:
+        stackValue.getValue() == lit
+        stackValue.getType() == type
+
+
+        where:
+        lit <<[ new Literal<>("str"), new Literal<>(2), new Literal<>(10.2), new Literal<>(true)]
+        type <<[new StringType(), new IntType(), new FloatType(), new BoolType()]
     }
 
 }
