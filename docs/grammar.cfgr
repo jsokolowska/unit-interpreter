@@ -57,8 +57,6 @@ power_expr: {unary_expr "^"} unary_expr;
 unary_expr: {unary_op} not_unary_expr;
 not_unary_expr: "(" expr ")" | value;
 
-# eliminate left recursion in power operators
-
 # operators
 comp_op: "==" | "!=";
 rel_op: "<="|">="|"<"|">";

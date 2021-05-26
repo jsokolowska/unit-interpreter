@@ -1,6 +1,5 @@
 package tree.type;
 
-import tree.Visitable;
 
 public abstract class Type {
 

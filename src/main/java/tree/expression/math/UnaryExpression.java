@@ -13,6 +13,14 @@ public class UnaryExpression extends Expression {
         this.op = op;
     }
 
+    public Expression getExpr() {
+        return expr;
+    }
+
+    public Operator getOp() {
+        return op;
+    }
+
     @Override
     public String toString() {
         if(expr == null) return "_";

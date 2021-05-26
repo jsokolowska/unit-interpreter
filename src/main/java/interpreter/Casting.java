@@ -129,4 +129,19 @@ public class Casting {
         return new FloatType();
     }
 
+    public static Type calculateTypeForAdditiveOperation(Type first, Type second){
+        // cast unit to double or integer
+        if(first instanceof UnitType){
+            return second;
+        }
+        if(second instanceof UnitType){
+            return first;
+        }
+        //cast integer to double
+        if(second.equals(first)){
+            return first;
+        }
+        return new FloatType();
+    }
+
 }

@@ -24,8 +24,7 @@ public class Literal<T> extends Value implements Visitable {
     }
 
     @Override
-    public boolean equals(Object that){
-        if (that instanceof Literal<?> l){
+    public boolean equals(Object that){ if (that instanceof Literal<?> l){
             return l.getLiteralValue().equals(value);
         }
         return false;

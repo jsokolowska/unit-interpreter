@@ -37,4 +37,8 @@ public class PowerExpression extends Expression {
     public void accept(Visitor visitor) {
         visitor.visit(this);
     }
+
+    public List<Expression> getExpressions() {
+        return expressions;
+    }
 }

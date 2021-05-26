@@ -5,10 +5,6 @@ import util.position.Position;
 
 public class ParserException extends RuntimeException{
 
-    public ParserException (Token.TokenType expected, Token.TokenType found, Position tokenPosition){
-        super("ParserException in: " + tokenPosition + "- expected " + expected + " found " + found);
-    }
-
     public ParserException (Token.TokenType expected, Token token){
         super("ParserException in: " + token.getPosition() + "- expected " + expected
                 + " found " + token.getTokenType());

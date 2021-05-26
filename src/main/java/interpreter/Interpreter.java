@@ -15,9 +15,7 @@ import tree.expression.unit.value.UnitExpressionVariableValue;
 import tree.function.Function;
 import tree.function.Parameters;
 import tree.statement.*;
-import tree.type.BoolType;
-import tree.type.Type;
-import tree.type.TypeManager;
+import tree.type.*;
 import tree.unit.*;
 import tree.value.FunctionCall;
 import tree.value.Literal;
@@ -324,7 +322,11 @@ public class Interpreter implements Visitor{
             }
             Number resultVal;
             if(rVal instanceof Integer rInt && lVal instanceof  Integer lInt){
-                resultVal = lInt/rInt;
+                if(lInt % rInt == 0){
+                    resultVal = lInt/rInt;
+                }else{
+                    resultVal = Double.valueOf(lInt)/Double.valueOf(rInt);
+                }
             }else if(rVal instanceof Integer rInt && lVal instanceof  Double lDb){
                 resultVal = lDb/rInt;
             }else if(rVal instanceof Double rDb && lVal instanceof  Double lDb){
@@ -346,24 +348,34 @@ public class Interpreter implements Visitor{
         var lObj = env.popValue();
         var rVal = rObj.getValue().getLiteralValue();
         var lVal = lObj.getValue().getLiteralValue();
-        if(rObj.getType() != lObj.getType()){
-            throw new InterpretingException("Cannot apply substraction to: " + lObj.getType()
-                                            + " and " + rObj.getType(), line);
-        }
 
-        if( lVal instanceof Number lNum){
-            if(rObj.getType() == lObj.getType()){
-                if(rVal instanceof Integer iNum){
-                    Number resultVal = doAddition(lNum, -iNum);
-                    env.pushValue(new Literal<>(resultVal), rObj.getType());
-                }else if(rVal instanceof Double dNum){
-                    Number resultVal = doAddition(lNum, -dNum);
-                    env.pushValue(new Literal<>(resultVal), rObj.getType());
+        if(lVal instanceof Number && rVal instanceof Number){
+            Type resultType = Casting.calculateTypeForAdditiveOperation(rObj.getType(), lObj.getType());
+            if(rObj.getType() instanceof IntType || rObj.getType() instanceof FloatType){
+                //simple numeric
+                Number lNum = (Number) lVal;
+                Number resultVal = 0;
+                if(rVal instanceof Integer rInt){
+                    resultVal = doAddition(lNum, -rInt);
+                }else if(rVal instanceof Double rDb){
+                    resultVal = doAddition(lNum, -rDb);
                 }
+                env.pushValue(new Literal<>(resultVal), resultType);
+            }else if(rObj.getType().equals(lObj.getType())){
+                //unit numeric
+                Number lNum = (Number) lVal;
+                Number resultVal = 0;
+                if(rVal instanceof Integer rInt){
+                    resultVal = doAddition(lNum, -rInt);
+                }else if(rVal instanceof Double rDb){
+                    resultVal = doAddition(lNum, -rDb);
+                }
+                env.pushValue(new Literal<>(resultVal), resultType);
             }
+        }else{
+            throw new InterpretingException("Cannot apply addition to: " + lObj.getType()
+                    + " and " + rObj.getType(), line);
         }
-        throw new InterpretingException("Cannot apply substraction to: " + lObj.getType()
-                + " and " + rObj.getType(), line);
     }
 
     public void visit(PlusOperator operator){
@@ -371,24 +383,26 @@ public class Interpreter implements Visitor{
         var lObj = env.popValue();
         var rVal = rObj.getValue().getLiteralValue();
         var lVal = lObj.getValue().getLiteralValue();
-        if(rObj.getType() != lObj.getType()){
+
+        if(lVal instanceof Number && rVal instanceof Number){
+            Type resultType = Casting.calculateTypeForAdditiveOperation(rObj.getType(), lObj.getType());
+            if(rObj.getType() instanceof IntType || rObj.getType() instanceof FloatType){
+                //simple numeric
+                Number lNum = (Number) lVal;
+                Number rNum = (Number) rVal;
+                Number resultVal = doAddition(lNum, rNum);
+                env.pushValue(new Literal<>(resultVal), resultType);
+            }else if(rObj.getType().equals(lObj.getType())){
+                //unit numeric
+                Number lNum = (Number) lVal;
+                Number rNum = (Number) rVal;
+                Number resultVal = doAddition(lNum, rNum);
+                env.pushValue(new Literal<>(resultVal), resultType);
+            }
+        }else{
             throw new InterpretingException("Cannot apply substraction to: " + lObj.getType()
                     + " and " + rObj.getType(), line);
         }
-
-        if( lVal instanceof Number lNum){
-            if(rObj.getType() == lObj.getType()){
-                if(rVal instanceof Integer iNum){
-                    Number resultVal = doAddition(lNum, iNum);
-                    env.pushValue(new Literal<>(resultVal), rObj.getType());
-                }else if(rVal instanceof Double dNum){
-                    Number resultVal = doAddition(lNum, dNum);
-                    env.pushValue(new Literal<>(resultVal), rObj.getType());
-                }
-            }
-        }
-        throw new InterpretingException("Cannot apply substraction to: " + lObj.getType()
-                + " and " + rObj.getType(), line);
     }
 
     private Number doAddition(Number one, Number two){
@@ -437,8 +451,10 @@ public class Interpreter implements Visitor{
     public void visit(NegOperator operator){
         var obj = env.popValue();
         var value = obj.getValue().getLiteralValue();
-        if(value instanceof Number number){
-            env.pushValue(new Literal<>(number), obj.getType());
+        if(value instanceof Integer intVal){
+            env.pushValue(new Literal<>(-intVal), obj.getType());
+        }else if(value instanceof Double dVal){
+            env.pushValue(new Literal<>(-dVal), obj.getType());
         }else{
             throw new InterpretingException("Cannot negate " + obj.getType().prettyToString(), line);
         }
@@ -455,8 +471,21 @@ public class Interpreter implements Visitor{
     }
 
     public void visit(PowerOperator operator){
-        //todo
+        var rObj = env.popValue();
+        var lObj = env.popValue();
+        var rValue = rObj.getValue().getLiteralValue();
+        var lValue = lObj.getValue().getLiteralValue();
+        if(rValue instanceof Integer rInt && rObj.getType() instanceof IntType){
+            if(lValue instanceof Integer lInt){
+                env.pushValue( new Literal<>(Math.pow(lInt, rInt)), lObj.getType());
+            }else if(lValue instanceof Double lDb){
+                env.pushValue(new Literal<>(Math.pow(lDb, rInt)), lObj.getType());
+            }
+        }else{
+            throw new InterpretingException("Exponent is not an integer but " + rObj.getType().prettyToString(), line);
+        }
     }
+
 
     public void visit(ExpressionWithOperators expression){
         List<Expression> expressions = expression.getExpressions();
@@ -476,17 +505,25 @@ public class Interpreter implements Visitor{
             boolean temp = casting.castToBoolean(env.popValue());
             value = value || temp;
         }
-
         env.pushValue(new Literal<>(value));
     }
 
     public void visit(PowerExpression expression){
-        //todo
-        System.out.println("PowerExpr");
+        List<Expression> expressions = expression.getExpressions();
+        int size = expression.size();
+        for(Expression expr : expressions){
+            expr.accept(this);
+        }
+        PowerOperator powerOperator = new PowerOperator();
+        for(int i=0; i<size-1; i++){
+            powerOperator.accept(this);
+        }
     }
 
     public void visit(UnaryExpression expression){
-        //todo
-        System.out.println("UnaryExpr");
+        Expression part = expression.getExpr();
+        Operator op = expression.getOp();
+        part.accept(this);
+        op.accept(this);
     }
 }
