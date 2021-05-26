@@ -15,4 +15,8 @@ public class BlockScope {
     public Variable getVariable(String id){
         return variables.get(id);
     }
+
+    public boolean variableExists(String id) {
+        return variables.containsKey(id);
+    }
 }

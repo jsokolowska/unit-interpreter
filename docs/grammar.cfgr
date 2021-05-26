@@ -18,7 +18,6 @@ continue_stmt : "continue" ";";
 
 # bulit-in statements
 print_stmt : "print" "(" args ")" ";";
-explain_stmt : "explain" "(" unit_type ")";
 type_check_stmt: "type" "(" identifier ")";
 assign_stmt : identifier "=" expr ";";
 var_dcl_stmt : type (identifier ";") | [assign_stmt] ;

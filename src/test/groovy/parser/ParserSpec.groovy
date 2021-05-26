@@ -832,7 +832,7 @@ class ParserSpec extends Specification{
         ex.message.contains("SEMICOLON")
 
         where:
-        str <<["k()", "print()", "print(a)", "explain(second)"]
+        str <<["k()", "print()", "print(a)"]
     }
 
     def "Should parse print statement"(){
@@ -851,36 +851,6 @@ class ParserSpec extends Specification{
         "print();"          || "print(none)"
         "print(\"aaa\");"   || "print(aaa)"
         "print(2,14);"      || "print(2, 14)"
-    }
-
-    def "Should parse explain statement"(){
-        given:
-        def parser = prepareParser(str)
-
-        expect:
-        parser.parseStatement().toString() == res_str
-
-        where:
-        str                 || res_str
-        "explain(second);"  || "explain([u]second)"
-    }
-
-    def "Should throw parser error for wrong explain statement"(){
-        given:
-        def parser = prepareParser(str)
-
-        when:
-        parser.parseStatement()
-
-        then:
-        ParserException ex = thrown()
-        ex.message.contains(msg_str)
-
-        where:
-        str             || msg_str
-        "explain(kkk);" || "Expected unit type"
-        "explain k"     || "OPEN_BRACKET"
-        "explain (meter"|| "CLOSE_BRACKET"
     }
 
     def "Should parse if else statement"(){

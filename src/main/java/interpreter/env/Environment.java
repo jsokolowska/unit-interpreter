@@ -1,6 +1,6 @@
 package interpreter.env;
 
-import interpreter.Casting;
+import interpreter.util.Casting;
 import interpreter.util.StackValue;
 import tree.Variable;
 import tree.type.Type;
@@ -44,6 +44,14 @@ public class Environment {
         callScopes.peek().addVariable(var);
     }
 
+    public boolean variableExistsInBlock(String id){
+        return callScopes.peek().variableExistsInBlock(id);
+    }
+
+    public boolean variableExistsInCallScope(String id){
+        return this.callScopes.peek().variableExistsInCallScope(id);
+    }
+
     public Variable getVariable(String id){
         return callScopes.peek().getVariable(id);
     }
@@ -77,7 +85,7 @@ public class Environment {
         return continued;
     }
 
-    public void setReturn(boolean returned){
+    public void setReturned(boolean returned){
         this.returned = returned;
     }
 

@@ -33,7 +33,6 @@ public interface Visitor {
     void visit(BreakStatement statement);
     void visit(CallStatement statement);
     void visit(ContinueStatement statement);
-    void visit(ExplainStatement statement);
     void visit(IfElseStatement statement);
     void visit(PrintStatement statement);
     void visit(ReturnStatement statement);

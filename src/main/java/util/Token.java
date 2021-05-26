@@ -42,7 +42,6 @@ public class Token {
         BREAK,              // break
         CONTINUE,           // continue
         PRINT,              // print
-        EXPLAIN,            // explain
         TYPE,               // type
         UNIT,               // unit
         AS,                 // as

@@ -1,6 +1,5 @@
-package interpreter;
+package interpreter.util;
 
-import interpreter.util.StackValue;
 import tree.type.*;
 import tree.unit.CompoundExpr;
 import tree.unit.CompoundTerm;
@@ -18,7 +17,7 @@ public class Casting {
     }
 
     public  boolean castToBoolean (StackValue stackValue){
-        var val = stackValue.getValue().getLiteralValue();
+        var val = stackValue.getValue();
         if(val instanceof Boolean b){
             return b;
         }else if(val instanceof Integer i){
@@ -32,7 +31,7 @@ public class Casting {
     }
 
     public int castToInt (StackValue stackValue){
-        var val = stackValue.getValue().getLiteralValue();
+        var val = stackValue.getValue();
         if(val instanceof Integer i){
             return i;
         }
@@ -40,9 +39,11 @@ public class Casting {
     }
 
     public double castToDouble(StackValue stackValue){
-        var val = stackValue.getValue().getLiteralValue();
-        if(val instanceof Float f){
-            return f;
+        var val = stackValue.getValue();
+        if(val instanceof Double d){
+            return d;
+        }else if(val instanceof Integer i){
+            return Double.valueOf(i);
         }
         throw new CastingException(line, stackValue.getType().toString(), "double");
     }
@@ -84,7 +85,7 @@ public class Casting {
     }
 
     private boolean isNumberType(Type t){
-        return t instanceof IntType || t instanceof FloatType || t instanceof UnitType;
+        return t instanceof NumericType || t instanceof UnitType;
     }
 
     public Type calculateTypeForDivision (Type numerator, Type denominator){

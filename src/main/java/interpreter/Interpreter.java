@@ -1,6 +1,8 @@
 package interpreter;
 
+import com.sun.jdi.DoubleType;
 import interpreter.env.Environment;
+import interpreter.util.Casting;
 import interpreter.util.StackValue;
 import tree.AbstractFunction;
 import tree.Program;
@@ -32,6 +34,7 @@ public class Interpreter implements Visitor{
     private final Environment env;
     private Integer line;
     private final Casting casting;
+    private double EPSILON = 0.00001d;
 
     public Interpreter(Program program, TypeManager typeManager, Environment env) throws IOException {
         this.program = program;
@@ -65,7 +68,6 @@ public class Interpreter implements Visitor{
             throw new InterpretingException("Variable redefinition " + var.getIdentifier(), line);
 
         env.addVariable(var);
-        System.out.println("Variable");
     }
 
     //todo test
@@ -90,13 +92,11 @@ public class Interpreter implements Visitor{
     }
 
     public void visit(Function function){
-        //todo execute statements within block context
         System.out.println("Function");
         Statement stmt = function.getBody();
         stmt.accept(this);
     }
 
-    //todo tests
     public void visit(Parameters parameters){
         var paramMap = parameters.getParameters();
         for (String key : paramMap.keySet()){
@@ -109,7 +109,6 @@ public class Interpreter implements Visitor{
         env.pushValue(literal);
     }
 
-    //todo tests
     public void visit(VariableValue variableValue){
         Variable variable = env.getVariable(variableValue.getIdentifier());
         if(variable == null){
@@ -134,63 +133,94 @@ public class Interpreter implements Visitor{
     public void visit(AssignStatement statement){
         if(env.hasBroken() || env.hasContinued() || env.hasReturned()) return;
         line = statement.getLine();
-        //todo
-        System.out.println("Assign");
+        String id = statement.getIdentifier();
+        Variable var = env.getVariable(id);
+        if(var == null){
+            throw new InterpretingException("Variable does not exist " + id, line);
+        }
+        statement.getAssignExpression().accept(this);
+        StackValue val = env.popValue();
+
+        //check type compatibility and assign
+        if(val.getType().equals(var.getType())){
+            var.setValue(val.getValueAsLiteral());
+        }else if(var.getType() instanceof UnitType && val.getType() instanceof NumericType){
+            var.setValue(val.getValueAsLiteral());
+        }else if(var.getType() instanceof BoolType){
+            boolean newValue = casting.castToBoolean(val);
+            var.setValue(new Literal<>(newValue));
+        }else if(var.getType() instanceof DoubleType){
+            Double d = casting.castToDouble(val);
+            var.setValue(new Literal<>(d));
+        }else if(var.getType() instanceof IntType){
+            int i = casting.castToInt(val);
+            var.setValue(new Literal<>(i));
+        }else{
+            throw new CastingException(line, val.getType().prettyToString(), var.getType().prettyToString());
+        }
     }
+
     public void visit(BlockStatement statement){
         if(env.hasBroken() || env.hasContinued() || env.hasReturned()) return;
-        //todo tests
         line = statement.getLine();
-        //create new block scope
         env.pushNewBlock();
         for (var stmt : statement.getStatements()){
             stmt.accept(this);
         }
-        //delete scope
         env.popBlock();
     }
+
     public void visit(BreakStatement statement){
         if(env.hasBroken() || env.hasContinued() || env.hasReturned()) return;
-        line = statement.getLine();
         env.setBroken(true);
     }
+
     public void visit(CallStatement statement){
         if(env.hasBroken() || env.hasContinued() || env.hasReturned()) return;
-        line = statement.getLine();
-        //todo
-        System.out.println("CallSTMT");
+
+        statement.getFunCall().accept(this);
+
     }
     public void visit(ContinueStatement statement){
         if(env.hasBroken() || env.hasContinued() || env.hasReturned()) return;
-        line = statement.getLine();
         env.setContinued(true);
-        //todo
-        System.out.println("ContinueStmt");
     }
-    public void visit(ExplainStatement statement){
-        if(env.hasBroken() || env.hasContinued() || env.hasReturned()) return;
-        line = statement.getLine();
-        //todo
-        System.out.println("ExplainStmt");
-    }
+
     public void visit(IfElseStatement statement){
         if(env.hasBroken() || env.hasContinued() || env.hasReturned()) return;
         line = statement.getLine();
-        //todo
-        System.out.println("Ifelse");
+
+        statement.getIfCondition().accept(this);
+        boolean conditionValue = casting.castToBoolean(env.popValue());
+        if(conditionValue){
+            statement.getIfStatement().accept(this);
+        }else{
+            Statement elseStatement = statement.getElseStatement();
+            if(elseStatement != null){
+                elseStatement.accept(this);
+            }
+        }
     }
+
     public void visit(PrintStatement statement){
         if(env.hasBroken() || env.hasContinued() || env.hasReturned()) return;
         line = statement.getLine();
         //todo
         System.out.println("Print");
     }
+
     public void visit(ReturnStatement statement){
         if(env.hasBroken() || env.hasContinued() || env.hasReturned()) return;
         line = statement.getLine();
-        //todo
-        System.out.println("Return");
+
+        Expression retExpr = statement.getReturnExpression();
+        if(retExpr!=null){
+            retExpr.accept(this);
+        }
+
+        env.setReturned(true);
     }
+
     public void visit(TypeStatement statement){
         if(env.hasBroken() || env.hasContinued() || env.hasReturned()) return;
         line = statement.getLine();
@@ -199,21 +229,34 @@ public class Interpreter implements Visitor{
 
         System.out.println();
     }
+
     public void visit(VariableDeclarationStatement statement){
         if(env.hasBroken() || env.hasContinued() || env.hasReturned()) return;
         line = statement.getLine();
-        //todo
-        System.out.println("Vardcl");
+
+        statement.getVariable().accept(this);
+        AssignStatement stmt = statement.getAssignStatement();
+        if(stmt!=null){
+            stmt.accept(this);
+        }
     }
+
     public void visit(WhileStatement statement){
         if(env.hasReturned()) return;
         env.setBroken(false);
         env.setContinued(false);
         line = statement.getLine();
 
-        //todo
-        System.out.println("While");
+        Expression condition = statement.getCondition();
+        Statement body = statement.getBody();
+
+        condition.accept(this);
+        boolean conditionValue = casting.castToBoolean(env.popValue());
+        while(conditionValue && !env.hasBroken()){
+            body.accept(this);
+        }
     }
+
 
     public void visit(ConversionExpression expression){
         //todo
@@ -250,7 +293,6 @@ public class Interpreter implements Visitor{
             boolean temp = casting.castToBoolean(env.popValue());
             value = value && temp;
         }
-
         env.pushValue(new Literal<>(value));
     }
 
@@ -267,8 +309,8 @@ public class Interpreter implements Visitor{
     }
 
     private int compareToWithCast(StackValue left, StackValue right){
-        var rValue = right.getValue().getLiteralValue();
-        var lValue = left.getValue().getLiteralValue();
+        var rValue = right.getValue();
+        var lValue = left.getValue();
         if(rValue instanceof Integer rNum && lValue instanceof Integer lNum){
             return lNum.compareTo(rNum);
         }else if(rValue instanceof Double rDouble && lValue instanceof Double lDouble){
@@ -278,7 +320,7 @@ public class Interpreter implements Visitor{
         }else if(rValue instanceof Integer rNum && lValue instanceof Double lNum) {
             return lNum.compareTo(Double.valueOf(rNum));
         }else {
-            throw new InterpretingException("Cannot compare " + left.getType() + " and " + right.getType(), line );
+            throw new InterpretingException("Cannot compare " + left.getType() + " and " + right.getType(), line);
         }
     }
 
@@ -313,11 +355,11 @@ public class Interpreter implements Visitor{
     public void visit(DivOperator operator){
         var rObj = env.popValue();
         var lObj = env.popValue();
-        var rVal = rObj.getValue().getLiteralValue();
-        var lVal = lObj.getValue().getLiteralValue();
+        var rVal = rObj.getValue();
+        var lVal = lObj.getValue();
         Type resultType = casting.calculateTypeForDivision(lObj.getType(), rObj.getType());
         if(rVal instanceof Number rNum && lVal instanceof Number lNum){
-            if (rNum.equals(0)){
+            if (isZero(rNum)){
                 throw new InterpretingException("Division by zero", line);
             }
             Number resultVal;
@@ -343,11 +385,20 @@ public class Interpreter implements Visitor{
         }
     }
 
+    public boolean isZero(Number num){
+        if(num instanceof Integer iNum){
+            return iNum == 0;
+        }else if (num instanceof Double dNum){
+            return Math.abs(dNum) < EPSILON;
+        }
+        return false;
+    }
+
     public void visit(MinusOperator operator){
         var rObj = env.popValue();
         var lObj = env.popValue();
-        var rVal = rObj.getValue().getLiteralValue();
-        var lVal = lObj.getValue().getLiteralValue();
+        var rVal = rObj.getValue();
+        var lVal = lObj.getValue();
 
         if(lVal instanceof Number && rVal instanceof Number){
             Type resultType = Casting.calculateTypeForAdditiveOperation(rObj.getType(), lObj.getType());
@@ -381,8 +432,8 @@ public class Interpreter implements Visitor{
     public void visit(PlusOperator operator){
         var rObj = env.popValue();
         var lObj = env.popValue();
-        var rVal = rObj.getValue().getLiteralValue();
-        var lVal = lObj.getValue().getLiteralValue();
+        var rVal = rObj.getValue();
+        var lVal = lObj.getValue();
 
         if(lVal instanceof Number && rVal instanceof Number){
             Type resultType = Casting.calculateTypeForAdditiveOperation(rObj.getType(), lObj.getType());
@@ -422,8 +473,8 @@ public class Interpreter implements Visitor{
     public void visit(MulOperator operator){
         var rObj = env.popValue();
         var lObj = env.popValue();
-        var rVal = rObj.getValue().getLiteralValue();
-        var lVal = lObj.getValue().getLiteralValue();
+        var rVal = rObj.getValue();
+        var lVal = lObj.getValue();
         Type resultType = casting.calculateTypeForDivision(lObj.getType(), rObj.getType());
         if(rVal instanceof Number rNum && lVal instanceof Number){
             if (rNum.equals(0)){
@@ -450,7 +501,7 @@ public class Interpreter implements Visitor{
 
     public void visit(NegOperator operator){
         var obj = env.popValue();
-        var value = obj.getValue().getLiteralValue();
+        var value = obj.getValue();
         if(value instanceof Integer intVal){
             env.pushValue(new Literal<>(-intVal), obj.getType());
         }else if(value instanceof Double dVal){
@@ -473,14 +524,22 @@ public class Interpreter implements Visitor{
     public void visit(PowerOperator operator){
         var rObj = env.popValue();
         var lObj = env.popValue();
-        var rValue = rObj.getValue().getLiteralValue();
-        var lValue = lObj.getValue().getLiteralValue();
+        var rValue = rObj.getValue();
+        var lValue = lObj.getValue();
         if(rValue instanceof Integer rInt && rObj.getType() instanceof IntType){
+            Number res;
             if(lValue instanceof Integer lInt){
-                env.pushValue( new Literal<>(Math.pow(lInt, rInt)), lObj.getType());
+                if(rInt < 0){
+                    res = Math.pow(lInt, rInt);
+                }else{
+                    res = (int) Math.pow(lInt, rInt);
+                }
             }else if(lValue instanceof Double lDb){
-                env.pushValue(new Literal<>(Math.pow(lDb, rInt)), lObj.getType());
+                res = Math.pow(lDb, rInt);
+            }else{
+                throw new InterpretingException("Cannot exponentiate " + lObj.getType().prettyToString());
             }
+            env.pushValue( new Literal<>(res), lObj.getType());
         }else{
             throw new InterpretingException("Exponent is not an integer but " + rObj.getType().prettyToString(), line);
         }

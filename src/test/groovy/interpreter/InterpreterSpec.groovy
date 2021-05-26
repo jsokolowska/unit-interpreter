@@ -8,6 +8,7 @@ import tree.expression.math.AndExpression
 
 import tree.expression.math.ExpressionWithOperators
 import tree.expression.math.OrExpression
+import tree.expression.math.PowerExpression
 import tree.expression.math.UnaryExpression
 import tree.expression.operator.DivOperator
 import tree.expression.operator.EqOperator
@@ -90,7 +91,7 @@ class InterpreterSpec extends Specification{
         var stackValue = env.popValue()
 
         then:
-        stackValue.getValue() == lit
+        stackValue.getValueAsLiteral() == lit
         stackValue.getType() == type
 
 
@@ -133,7 +134,7 @@ class InterpreterSpec extends Specification{
 
         when:
         expr.accept(interpreter)
-        def val = env.popValue().getValue().getLiteralValue()
+        def val = env.popValue().getValue()
 
         then:
         val == res
@@ -155,7 +156,7 @@ class InterpreterSpec extends Specification{
 
         when:
         expr.accept(interpreter)
-        def val = env.popValue().getValue().getLiteralValue()
+        def val = env.popValue().getValue()
 
         then:
         val == res
@@ -177,7 +178,7 @@ class InterpreterSpec extends Specification{
 
         when:
         expr.accept(interpreter)
-        def val = env.popValue().getValue().getLiteralValue()
+        def val = env.popValue().getValue()
 
         then:
         val == res
@@ -208,7 +209,7 @@ class InterpreterSpec extends Specification{
 
         when:
         expr.accept(interpreter)
-        def val = env.popValue().getValue().getLiteralValue()
+        def val = env.popValue().getValue()
 
         then:
         val - res <= 0.0000001 && val-res >= -0.0000001
@@ -230,9 +231,6 @@ class InterpreterSpec extends Specification{
         0                   | -9                    | new DivOperator()         || val1 / val2
         new Double(-1.2)    | new Double(0.3)       | new DivOperator()         || val1 / val2
         new Double(-3.02)   | -9                    | new DivOperator()         || val1 / val2
-        //power expression
-        2                   | -4                    | new PowerOperator()       || Math.pow(val1, val2)
-        new Double(-2.3)    | 0                     | new PowerOperator()       || Math.pow(val1, val2)
     }
 
     def "Check negative unary expression"(){
@@ -244,7 +242,7 @@ class InterpreterSpec extends Specification{
 
         when:
         expr.accept(interpreter)
-        def stackVal = env.popValue().getValue().getLiteralValue()
+        def stackVal = env.popValue().getValue()
 
         then:
         stackVal + val <= 0.0000001 && stackVal + val >= -0.0000001
@@ -265,7 +263,7 @@ class InterpreterSpec extends Specification{
 
         when:
         expr.accept(interpreter)
-        def stackVal = env.popValue().getValue().getLiteralValue()
+        def stackVal = env.popValue().getValue()
 
         then:
         stackVal == res
@@ -281,4 +279,93 @@ class InterpreterSpec extends Specification{
         new Double(12)  || false
     }
 
+    def "Check division errors"(){
+        given:
+        var env = prepEnv();
+        var interpreter = new Interpreter(null, null, env)
+        var expr = new ExpressionWithOperators();
+        expr.add(new Literal(val1))
+        expr.add(new Literal(val2), new DivOperator())
+
+        when:
+        expr.accept(interpreter);
+
+        then:
+        thrown(InterpretingException)
+
+        where:
+        val1    | val2
+        22      | 0
+        12      | new Double(0)
+        "a"     | 12
+        5.2     | "ll"
+    }
+    def "Check expression with operators exceptions"(){
+        given:
+        var env = prepEnv()
+        var interpreter = new Interpreter(null, null, env)
+        var expr = new ExpressionWithOperators()
+        expr.add(new Literal<>(val1))
+        expr.add(new Literal<>(val2), op)
+
+        when:
+        expr.accept(interpreter)
+
+        then:
+        thrown(InterpretingException)
+
+        where:
+        val1   | val2       | op
+        12     | "-"        | new PlusOperator()
+        "k"    | 6          | new MinusOperator()
+        "w"    | "r"        | new DivOperator()
+        -9     | "k"        | new PowerOperator()
+        2      | "l"        | new MulOperator()
+    }
+
+    def "Check power expression"(){
+        given:
+        var env = prepEnv()
+        var interpreter = new Interpreter(null, null, env)
+        var expr = new PowerExpression()
+        expr.add(new Literal<>(val1))
+        expr.add(new Literal<>(val2))
+
+        when:
+        expr.accept(interpreter)
+        def stackVal = env.popValue().getValue()
+
+        then:
+        stackVal - Math.pow(val1, val2) <= 0.0000001 && stackVal - Math.pow(val1, val2) >= -0.0000001
+
+        where:
+        val1            | val2
+        1               | 3
+        new Double(2.1) | 0
+        12              | -1
+    }
+
+    def "Check power expression for multiple expressions"(){
+        given:
+        var env = prepEnv()
+        var interpreter = new Interpreter(null, null, env)
+        var expr = new PowerExpression()
+        expr.add(new Literal<>(val1))
+        expr.add(new Literal<>(val2))
+        expr.add(new Literal<>(val3))
+        var expected = Math.pow(val1, Math.pow(val2, val3))
+
+        when:
+        expr.accept(interpreter)
+        def stackVal = env.popValue().getValue()
+
+        then:
+        stackVal - expected <= 0.0000001 && stackVal - expected >= -0.0000001
+
+        where:
+        val1            | val2  | val3
+        1               | 2     | 3
+        new Double(2.1) | 0     | 1
+        12              | -1    | 0
+    }
 }

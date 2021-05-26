@@ -6,7 +6,6 @@ import tree.function.Arguments
 import tree.statement.AssignStatement
 import tree.statement.BreakStatement
 import tree.statement.ContinueStatement
-import tree.statement.ExplainStatement
 import tree.statement.PrintStatement
 import tree.statement.ReturnStatement
 import tree.statement.TypeStatement
@@ -36,12 +35,11 @@ class OtherToStringSpec extends Specification{
         expr                                        || str
         new BreakStatement()                        || "break"
         new ContinueStatement()                     || "continue"
-        new ExplainStatement(new UnitType("a"))     || "explain([u]a)"
         new PrintStatement(new Arguments())         || "print(" + new Arguments().toString() + ")"
         new ReturnStatement()                       || "return:null"
         new ReturnStatement(new Expression())       || "return:" + new Expression().toString()
         new TypeStatement("id")                     || "type:id"
-        new VariableDeclarationStatement(new IntType(), "id", new Expression()) || "int:id=u"
+        new VariableDeclarationStatement(new Variable(new IntType(), "id"), new AssignStatement("id", new Expression())) || "int:id=u"
     }
 
     def "Check block statement toString"(){

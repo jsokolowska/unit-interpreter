@@ -1,7 +1,9 @@
 package interpreter.env;
 
 import tree.Variable;
+import tree.value.Literal;
 
+import java.util.ListIterator;
 import java.util.Stack;
 
 public class CallScope {
@@ -28,7 +30,26 @@ public class CallScope {
     }
 
     public Variable getVariable(String id){
-        return blockScopes.peek().getVariable(id);
+        ListIterator<BlockScope> listIterator = blockScopes.listIterator(blockScopes.size());
+        while(listIterator.hasPrevious()){
+            Variable value = listIterator.previous().getVariable(id);
+            if(value != null){
+                return value;
+            }
+        }
+        return null;
     }
 
+    public boolean variableExistsInBlock(String id){
+        return blockScopes.peek().variableExists(id);
+    }
+
+    public boolean variableExistsInCallScope(String id){
+        ListIterator<BlockScope> listIterator = blockScopes.listIterator(blockScopes.size());
+        boolean exists = false;
+        while(listIterator.hasPrevious()){
+             exists = exists || listIterator.previous().variableExists(id);
+        }
+        return exists;
+    }
 }

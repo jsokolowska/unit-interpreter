@@ -25,7 +25,6 @@ public class ScannerMaps {
         keywords.put("break", Token.TokenType.BREAK);
         keywords.put("continue", Token.TokenType.CONTINUE);
         keywords.put("print", Token.TokenType.PRINT);
-        keywords.put("explain", Token.TokenType.EXPLAIN);
         keywords.put("type", Token.TokenType.TYPE);
         keywords.put("unit", Token.TokenType.UNIT);
         keywords.put("as", Token.TokenType.AS);

@@ -5,12 +5,14 @@ import tree.value.FunctionCall;
 
 public class CallStatement extends Statement{
     private final FunctionCall funCall;
-    
 
     public CallStatement(FunctionCall call){
         this.funCall = call;
     }
 
+    public FunctionCall getFunCall() {
+        return funCall;
+    }
 
     @Override
     public String toString() {

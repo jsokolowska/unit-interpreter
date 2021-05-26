@@ -1,6 +1,6 @@
 package tree.type;
 
-public class IntType extends Type {
+public class IntType extends NumericType {
 
     @Override
     public String toString() {

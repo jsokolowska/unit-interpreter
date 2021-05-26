@@ -7,21 +7,32 @@ import tree.type.Type;
 
 public class VariableDeclarationStatement extends Statement{
     private final Variable variable;
-    private final Expression expression;
+    private final AssignStatement statement;
 
-    public VariableDeclarationStatement(Variable var, Expression expr){
+    public VariableDeclarationStatement(Variable var, AssignStatement assignStatement){
         variable = var;
-        expression = expr;
+        statement = assignStatement;
     }
 
-    public VariableDeclarationStatement(Type type, String identifier, Expression expr){
+    public VariableDeclarationStatement(Type type, String identifier){
         variable = new Variable(type, identifier);
-        expression = expr;
+        statement = null;
+    }
+
+    public Variable getVariable() {
+        return variable;
+    }
+
+    public AssignStatement getAssignStatement() {
+        return statement;
     }
 
     @Override
     public String toString() {
-        return variable.toString() + "=" + expression;
+       if(statement!= null){
+           return variable.toString() + "=" + statement.getAssignExpression().toString();
+       }
+        return variable.toString() + "=null";
     }
 
     @Override

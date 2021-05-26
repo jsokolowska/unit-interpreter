@@ -1,5 +1,6 @@
 package interpreter
 
+import interpreter.util.Casting
 import interpreter.util.StackValue
 import spock.lang.Specification
 import tree.type.BoolType
@@ -9,7 +10,6 @@ import tree.type.IntType
 import tree.type.StringType
 import tree.type.UnitType
 import tree.unit.CompoundExpr
-import tree.unit.CompoundTerm
 import tree.value.Literal
 import util.exception.CastingException
 import util.exception.InterpretingException
@@ -62,13 +62,13 @@ class CastingSpec extends Specification{
 
     def "Cast to double"(){
         when:
-        casting.castToDouble(new StackValue(lit, new FloatType()))
+        casting.castToDouble(new StackValue(lit, null))
 
         then:
         noExceptionThrown()
 
         where:
-        lit <<[new Literal<>(new Float(12.9))]
+        lit <<[new Literal<>(new Double(12.9))]
     }
 
     def "Check multiply for base units"(){

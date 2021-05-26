@@ -2,6 +2,7 @@ package parser;
 
 import scanner.Scanner;
 import tree.Program;
+import tree.Variable;
 import tree.expression.Expression;
 import tree.expression.math.*;
 import tree.expression.operator.Operator;
@@ -454,7 +455,6 @@ public class Parser {
         if ((st = parseLoop() )!= null) return addLine(st, line);
         if ((st = parseIfElseStatement() )!= null) return addLine(st, line);
         if ((st = parsePrintStatement())!= null) return addLine(st, line);
-        if ((st = parseExplainStatement() )!= null) return addLine(st, line);
         if ((st = parseTypeStatement() )!= null) return addLine(st, line);
         /* these functions share common beginning*/
         if ((st = parseAssignStatement() )!= null) return addLine(st, line);
@@ -520,29 +520,6 @@ public class Parser {
         return new PrintStatement(args);
     }
 
-    private ExplainStatement parseExplainStatement () throws IOException {
-        if(!tokenHasType(TokenType.EXPLAIN)) return null;
-        nextToken();
-        if(!tokenHasType(TokenType.OPEN_BRACKET)){
-            throw new ParserException(TokenType.OPEN_BRACKET, token);
-        }
-        nextToken();
-        UnitType type = typeManager.getUnitType(token);
-        if(type == null) {
-            throw  new ParserException("Expected unit type", token);
-        }
-        nextToken();
-        if(!tokenHasType(TokenType.CLOSE_BRACKET)){
-            throw new ParserException(TokenType.CLOSE_BRACKET, token);
-        }
-        nextToken();
-        if(!tokenHasType(TokenType.SEMICOLON)){
-            throw new ParserException(TokenType.SEMICOLON, token);
-        }
-        nextToken();
-        return new ExplainStatement(type);
-    }
-
     //must be called before variable declaration parsing
     private AssignStatement parseAssignStatement () throws IOException {
         if(!tokenHasType(TokenType.IDENTIFIER)) return null;
@@ -578,10 +555,10 @@ public class Parser {
                 throw new ParserException(TokenType.SEMICOLON, token);
             }
             nextToken();
-            return new VariableDeclarationStatement(type, id, null);
+            return new VariableDeclarationStatement(type, id);
 
         }else{
-            return new VariableDeclarationStatement(type, assign.getIdentifier(), assign.getAssignExpression());
+            return new VariableDeclarationStatement( new Variable(type, assign.getIdentifier()), assign);
         }
     }
 

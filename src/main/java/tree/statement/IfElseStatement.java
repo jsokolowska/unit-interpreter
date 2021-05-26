@@ -13,8 +13,21 @@ public class IfElseStatement extends Statement{
         this.ifStatement = ifStatement;
         this.elseStatement = elseStatement;
     }
+
     public IfElseStatement(Expression ifCondition, Statement ifStatement){
         this(ifCondition, ifStatement, null);
+    }
+
+    public Expression getIfCondition() {
+        return ifCondition;
+    }
+
+    public Statement getIfStatement() {
+        return ifStatement;
+    }
+
+    public Statement getElseStatement() {
+        return elseStatement;
     }
 
     @Override

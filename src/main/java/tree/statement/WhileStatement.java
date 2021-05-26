@@ -12,6 +12,14 @@ public class WhileStatement extends Statement{
         this.condition = condition;
     }
 
+    public Statement getBody() {
+        return body;
+    }
+
+    public Expression getCondition() {
+        return condition;
+    }
+
     @Override
     public String toString() {
         return "while(" + condition + "):" +body;

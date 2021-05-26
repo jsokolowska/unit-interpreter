@@ -238,7 +238,6 @@ class ScannerSpec extends Specification{
         "break"     || TokenType.BREAK
         "continue"  || TokenType.CONTINUE
         "print"     || TokenType.PRINT
-        "explain"   || TokenType.EXPLAIN
         "type"      || TokenType.TYPE
         "as"        || TokenType.AS
         "unit"      || TokenType.UNIT

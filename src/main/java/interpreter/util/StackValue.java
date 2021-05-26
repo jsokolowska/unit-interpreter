@@ -18,8 +18,12 @@ public class StackValue {
         type = variable.getType();
     }
 
-    public Literal<?> getValue() {
+    public Literal<?> getValueAsLiteral(){
         return value;
+    }
+    
+    public Object getValue() {
+        return value.getLiteralValue();
     }
 
     public Type getType() {
