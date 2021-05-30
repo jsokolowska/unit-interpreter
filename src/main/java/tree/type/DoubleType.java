@@ -1,6 +1,6 @@
 package tree.type;
 
-public class FloatType extends NumericType {
+public class DoubleType extends NumericType {
 
     @Override
     public String toString() {

@@ -26,7 +26,7 @@ import tree.expression.operator.PowerOperator
 import tree.function.Parameters
 import tree.type.BoolType
 import tree.type.CompoundType
-import tree.type.FloatType
+import tree.type.DoubleType
 import tree.type.IntType
 import tree.type.StringType
 import tree.type.UnitType
@@ -97,7 +97,7 @@ class InterpreterSpec extends Specification{
 
         where:
         lit <<[ new Literal<>("str"), new Literal<>(2), new Literal<>(10.2), new Literal<>(true)]
-        type <<[new StringType(), new IntType(), new FloatType(), new BoolType()]
+        type <<[new StringType(), new IntType(), new DoubleType(), new BoolType()]
     }
 
     def "Check visiting parameters"(){
@@ -119,7 +119,7 @@ class InterpreterSpec extends Specification{
         str     | type
         "a"     | new IntType()
         "b"     | new BoolType()
-        "c"     | new FloatType()
+        "c"     | new DoubleType()
         "d"     | new UnitType("d")
         "e"     | new CompoundType("a", new CompoundExpr())
     }

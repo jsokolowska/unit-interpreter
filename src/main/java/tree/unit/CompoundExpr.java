@@ -2,6 +2,7 @@ package tree.unit;
 
 import interpreter.Visitor;
 import tree.Visitable;
+import tree.type.CompoundType;
 import tree.type.UnitType;
 
 import java.util.HashMap;
@@ -73,6 +74,8 @@ public class CompoundExpr implements Visitable {
     public boolean equals(Object obj) {
         if(obj instanceof CompoundExpr that){
             return equalToCompoundExpr(that);
+        }else if(obj instanceof CompoundType cType){
+            return equalToCompoundExpr(cType.getExpr());
         }else if(obj instanceof UnitType unit){
             return equalToBaseUnit(unit);
         }

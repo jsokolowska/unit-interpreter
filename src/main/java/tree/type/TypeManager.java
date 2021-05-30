@@ -17,7 +17,7 @@ public class TypeManager {
 
     private static void initBaseTypes(){
         baseTypes.put(Token.TokenType.TYPE_INT, new IntType());
-        baseTypes.put(Token.TokenType.TYPE_FLOAT, new FloatType());
+        baseTypes.put(Token.TokenType.TYPE_FLOAT, new DoubleType());
         baseTypes.put(Token.TokenType.TYPE_BOOL, new BoolType());
         baseTypes.put(Token.TokenType.TYPE_STRING, new StringType());
         baseTypes.put(Token.TokenType.TYPE_SEC, new UnitType("second"));

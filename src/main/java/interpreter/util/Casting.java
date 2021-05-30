@@ -1,6 +1,5 @@
 package interpreter.util;
 
-import com.sun.jdi.DoubleType;
 import tree.type.*;
 import tree.unit.CompoundExpr;
 import tree.unit.CompoundTerm;
@@ -12,7 +11,7 @@ import java.util.Map;
 
 public class Casting {
     private final Integer line;
-    private static final double EPSILON = 0.00001d;
+    public static final double EPSILON = 0.00001d;
 
     public Casting(Integer line){
         this.line = line;
@@ -20,16 +19,20 @@ public class Casting {
 
     public Type calculateTypeForMultiplication(Type first, Type second){
         if(!isNumberType(first) || !isNumberType(second)){
-            throw new InterpretingException("Cannot add " + first + " and " + second, line);
+            throw new InterpretingException("Cannot multiplicate " + first.prettyToString() + " and " + second.prettyToString(), line);
         }
-        if(first instanceof IntType || first instanceof FloatType){
-            return second;
-        }else if(second instanceof IntType || second instanceof FloatType){
+        if(first instanceof UnitType u1 && second instanceof UnitType u2){
+            return multiplyUnitTypes(u1, u2);
+        }else if(first instanceof UnitType){
             return first;
+        }else if(second instanceof UnitType){
+            return second;
+        }else if(first instanceof IntType && second instanceof IntType){
+            return first;
+        }else if(second instanceof DoubleType || first instanceof DoubleType){
+            return new DoubleType();
         }
-        UnitType u1 = (UnitType) first;
-        UnitType u2 = (UnitType) second;
-        return multiplyUnitTypes(u1, u2);
+        throw new InterpretingException("Cannot multiplicate " + first + " and " + second, line);
     }
 
     private Type multiplyUnitTypes(UnitType first, UnitType second){
@@ -72,8 +75,8 @@ public class Casting {
         if(denominator instanceof UnitType unitType){
             return reverse(unitType);
         }
-        if(denominator instanceof FloatType || numerator instanceof FloatType){
-            return new FloatType();
+        if(denominator instanceof DoubleType || numerator instanceof DoubleType){
+            return new DoubleType();
         }
         return new IntType();
     }
@@ -97,7 +100,7 @@ public class Casting {
         }else if(value instanceof Integer){
             return new IntType();
         }
-        return new FloatType();
+        return new DoubleType();
     }
 
     public StackValue cast (StackValue variable, Type to){
@@ -115,7 +118,7 @@ public class Casting {
         if(to instanceof IntType){
             return castToInt(val_obj, from);
         }
-        if(to instanceof FloatType){
+        if(to instanceof DoubleType){
             return castToDouble(val_obj, from);
         }
         if(to instanceof BoolType){
@@ -155,10 +158,10 @@ public class Casting {
 
     private StackValue castToDouble(Object value, Type from){
         if(value instanceof Integer iVal){
-            return new StackValue(new Literal<>(Double.valueOf(iVal)), new FloatType());
+            return new StackValue(new Literal<>(Double.valueOf(iVal)), new DoubleType());
         }
         if(value instanceof Double dVal){
-            return new StackValue(new Literal<>(dVal), new FloatType());
+            return new StackValue(new Literal<>(dVal), new DoubleType());
         }
         throw new CastingException(line, from.prettyToString(), "float");
     }
@@ -271,7 +274,7 @@ public class Casting {
             if(baseType instanceof UnitType){
                 return baseType;
             }
-            return new FloatType();
+            return new DoubleType();
         }
     }
 
