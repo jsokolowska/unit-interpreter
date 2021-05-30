@@ -16,6 +16,14 @@ public class ConversionFunction extends AbstractFunction implements Visitable {
         this.params = parameters;
     }
 
+    public UnitExpression getConversionExpression() {
+        return conversionExpression;
+    }
+
+    public UnitType getResultType() {
+        return to;
+    }
+
     public UnitParameters getParameters() {
         return (UnitParameters) params;
     }

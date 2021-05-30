@@ -22,11 +22,8 @@ public interface Visitor {
     void visit(Literal<?> literal);
 
 
-
     void visit(VariableValue variableValue);
     void visit(ConversionFunction conversionFunction);
-    void visit(UnitDeclaration unitDeclaration);
-    void visit(UnitParameters parameters);
 
     void visit(AssignStatement statement);
     void visit(BlockStatement statement);

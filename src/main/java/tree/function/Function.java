@@ -26,6 +26,10 @@ public class Function extends AbstractFunction implements Visitable {
         return body;
     }
 
+    public Type getReturnType() {
+        return returnType;
+    }
+
     @Override
     public void accept(Visitor visitor) {
         visitor.visit(this);

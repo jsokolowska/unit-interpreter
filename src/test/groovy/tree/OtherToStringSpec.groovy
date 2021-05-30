@@ -11,7 +11,6 @@ import tree.statement.ReturnStatement
 import tree.statement.TypeStatement
 import tree.statement.VariableDeclarationStatement
 import tree.type.IntType
-import tree.type.UnitType
 import tree.value.FunctionCall
 
 class OtherToStringSpec extends Specification{
@@ -39,7 +38,8 @@ class OtherToStringSpec extends Specification{
         new ReturnStatement()                       || "return:null"
         new ReturnStatement(new Expression())       || "return:" + new Expression().toString()
         new TypeStatement("id")                     || "type:id"
-        new VariableDeclarationStatement(new Variable(new IntType(), "id"), new AssignStatement("id", new Expression())) || "int:id=u"
+        new VariableDeclarationStatement(new Variable(new IntType(), "id"),
+                new AssignStatement("id", new Expression())) || "int:id=u"
     }
 
     def "Check block statement toString"(){
@@ -64,7 +64,6 @@ class OtherToStringSpec extends Specification{
 
         then:
         arg.toString() == "u, u"
-
     }
 
     def "Check empty arguments to string"(){

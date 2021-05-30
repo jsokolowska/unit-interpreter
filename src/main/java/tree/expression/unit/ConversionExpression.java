@@ -21,6 +21,14 @@ public class ConversionExpression extends UnitExpression {
         expressions.add(expr);
     }
 
+    public List<UnitExpression> getExpressions() {
+        return expressions;
+    }
+
+    public List<UnitOperator> getOperators() {
+        return operators;
+    }
+
     @Override
     public String toString() {
         if(expressions.size() == 0) return "_";

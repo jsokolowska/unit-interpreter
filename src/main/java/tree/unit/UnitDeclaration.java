@@ -1,9 +1,6 @@
 package tree.unit;
 
-import interpreter.Visitor;
-import tree.Visitable;
-
-public class UnitDeclaration implements Visitable {
+public class UnitDeclaration {
     private final String name;
     private final CompoundExpr type;
 
@@ -24,8 +21,4 @@ public class UnitDeclaration implements Visitable {
         return name;
     }
 
-    @Override
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
-    }
 }

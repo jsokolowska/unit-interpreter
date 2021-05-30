@@ -1,5 +1,6 @@
 package interpreter.util;
 
+import com.sun.jdi.DoubleType;
 import tree.type.*;
 import tree.unit.CompoundExpr;
 import tree.unit.CompoundTerm;
@@ -11,6 +12,7 @@ import java.util.Map;
 
 public class Casting {
     private final Integer line;
+    private static final double EPSILON = 0.00001d;
 
     public Casting(Integer line){
         this.line = line;
@@ -130,19 +132,152 @@ public class Casting {
         return new FloatType();
     }
 
-    public static Type calculateTypeForAdditiveOperation(Type first, Type second){
-        // cast unit to double or integer
-        if(first instanceof UnitType){
-            return second;
+    public StackValue cast (StackValue variable, Type to){
+        Type from = variable.getType();
+
+        if(from.equals(to)) {
+            //no cast needed
+            return variable;
         }
-        if(second instanceof UnitType){
-            return first;
+
+        var val_obj = variable.getValue();
+        if(to instanceof UnitType utype){
+            return castToUnit(val_obj, from, utype);
         }
-        //cast integer to double
-        if(second.equals(first)){
-            return first;
+        if(to instanceof IntType){
+            return castToInt(val_obj, from);
         }
-        return new FloatType();
+        if(to instanceof DoubleType){
+            return castToDouble(val_obj, from);
+        }
+        if(to instanceof BoolType){
+            return castToBoolean(val_obj, from);
+        }
+        throw new CastingException(line, from.prettyToString(), to.prettyToString());
+    }
+
+    private StackValue castToUnit(Object value, Type from, UnitType to){
+        if (from instanceof NumericType){
+            return new StackValue(new Literal<>(value), to);
+        }
+        throw new CastingException(line, from.prettyToString(), to.prettyToString());
+    }
+
+    private StackValue castToInt(Object value, Type from){
+        if(value instanceof Integer){
+            return new StackValue(new Literal<>(value), new IntType());
+        }
+        if(value instanceof Double dVal){
+            Integer iVal = Math.toIntExact(Math.round(dVal));
+            return new StackValue(new Literal<>(iVal), new IntType());
+        }
+        throw new CastingException(line, from.prettyToString(), "integer");
+    }
+
+    private StackValue castToDouble(Object value, Type from){
+        if(value instanceof Integer iVal){
+            return new StackValue(new Literal<>(Double.valueOf(iVal)), new FloatType());
+        }
+        if(value instanceof Double dVal){
+            return new StackValue(new Literal<>(dVal), new FloatType());
+        }
+        throw new CastingException(line, from.prettyToString(), "float");
+    }
+
+    private StackValue castToBoolean(Object value, Type from){
+        if(value instanceof Integer i){
+            return new StackValue(new Literal<>(i>0), new BoolType());
+        }
+        if(value instanceof Double d){
+            return new StackValue(new Literal<>(d>0), new BoolType());
+        }
+        throw new CastingException(line, from.prettyToString(), "boolean");
+    }
+
+    public int compareToWithBooleanCast(StackValue left, StackValue right){
+        var rValue = right.getValue();
+        var lValue = left.getValue();
+        if(rValue instanceof Integer rNum && lValue instanceof Integer lNum){
+            return lNum.compareTo(rNum);
+        }else if(rValue instanceof Double rDouble && lValue instanceof Double lDouble){
+            return lDouble.compareTo(rDouble);
+        }else if(rValue instanceof Double rNum && lValue instanceof Integer lNum) {
+            return - rNum.compareTo(Double.valueOf(lNum));
+        }else if(rValue instanceof Integer rNum && lValue instanceof Double lNum) {
+            return lNum.compareTo(Double.valueOf(rNum));
+        }else {
+            throw new InterpretingException("Cannot compare " + left.getType() + " and " + right.getType(), line);
+        }
+    }
+
+    public Literal<?> subtractWithValueCast(Number lValue, Number rValue){
+        Number resultVal = null;
+        if(rValue instanceof Double rDouble){
+            resultVal = doAddition(lValue, -rDouble);
+        }else if(lValue instanceof Integer rInteger){
+            resultVal = doAddition(lValue, -rInteger);
+        }
+        return new Literal<>(resultVal);
+    }
+
+    public Number doAddition(Number one, Number two){
+        if(one instanceof Integer rInt && two instanceof  Integer lInt){
+            return lInt + rInt;
+        }else if(one instanceof Integer rInt && two instanceof  Double lDb){
+            return lDb + rInt;
+        }else if(one instanceof Double rDb && two instanceof  Double lDb){
+            return lDb + rDb;
+        }else if(one instanceof Double rDb && two instanceof  Integer lInt){
+            return lInt + rDb;
+        }
+        throw new InterpretingException("Unrecognized value", line);
+    }
+
+    public Number divideWithValueCast(Number lValue, Number rValue){
+        if (isZero(rValue)){
+            throw new InterpretingException("Division by zero", line);
+        }
+
+        if(rValue instanceof Integer rInt && lValue instanceof  Integer lInt){
+            if(lInt % rInt == 0){
+                return lInt/rInt;
+            }else{
+                return Double.valueOf(lInt)/Double.valueOf(rInt);
+            }
+        }else if(rValue instanceof Integer rInt && lValue instanceof  Double lDb){
+            return lDb/rInt;
+        }else if(rValue instanceof Double rDb && lValue instanceof  Double lDb){
+            return lDb/rDb;
+        }else if(rValue instanceof Double rDb && lValue instanceof  Integer lInt){
+            return lInt/rDb;
+        }else{
+            throw new InterpretingException("Unrecognized numeric value", line);
+        }
+    }
+    
+    public static boolean isZero(Number num){
+        if(num instanceof Integer iNum){
+            return iNum == 0;
+        }else if (num instanceof Double dNum){
+            return Math.abs(dNum) < EPSILON;
+        }
+        return false;
+    }
+
+    public Number multiplyWithValueCast(Number lValue, Number rValue){
+        if (Casting.isZero(lValue) || Casting.isZero(rValue)){
+            return 0;
+        }else if(rValue instanceof Integer rInt && lValue instanceof  Integer lInt){
+            return lInt * rInt;
+        }else if(rValue instanceof Integer rInt && lValue instanceof  Double lDb){
+            return lDb * rInt;
+        }else if(rValue instanceof Double rDb && lValue instanceof  Double lDb){
+            return lDb * rDb;
+        }else if(rValue instanceof Double rDb && lValue instanceof  Integer lInt){
+            return lInt * rDb;
+        }else{
+            throw new InterpretingException("Unrecognized value", line);
+        }
     }
 
 }
