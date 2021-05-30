@@ -3,7 +3,7 @@ package tree.expression.operator;
 import interpreter.Interpreter;
 import interpreter.Visitor;
 
-public class MinusOperator extends UnitOperator{
+public class MinusOperator extends Operator{
 
     @Override
     public String toString() {

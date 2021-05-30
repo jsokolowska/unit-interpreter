@@ -9,6 +9,10 @@ public class UnaryUnitExpression extends UnitExpression{
         this.expr = expr;
     }
 
+    public UnitExpression getExpr() {
+        return expr;
+    }
+
     @Override
     public String toString() {
         return "[-" + expr + "]";

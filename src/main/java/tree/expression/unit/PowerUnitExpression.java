@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PowerUnitExpression extends UnitExpression {
-    private final List<UnitExpression> expressions = new ArrayList<>();
 
     public void add(UnitExpression expr){
         expressions.add(expr);

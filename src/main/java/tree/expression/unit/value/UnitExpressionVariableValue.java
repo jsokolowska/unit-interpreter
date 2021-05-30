@@ -9,6 +9,10 @@ public class UnitExpressionVariableValue extends UnitExpression {
         this.identifier = identifier;
     }
 
+    public String getIdentifier() {
+        return identifier;
+    }
+
     @Override
     public String toString() {
         return identifier;

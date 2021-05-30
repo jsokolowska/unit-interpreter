@@ -20,7 +20,7 @@ class CastingSpec extends Specification{
 
     def "Cast to boolean"(){
         expect:
-        casting.castToBoolean(stackVal) ==  val
+        casting.cast(stackVal, new BoolType()).getValue() ==  val
 
         where:
         stackVal                                                            || val

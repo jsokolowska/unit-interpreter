@@ -2,7 +2,7 @@ package tree.expression.operator;
 
 import interpreter.Visitor;
 
-public class PowerOperator extends UnitOperator{
+public class PowerOperator extends Operator{
     @Override
     public String toString() {
         return "^";

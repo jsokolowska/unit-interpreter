@@ -1,11 +1,7 @@
 package tree.expression.operator;
 
-import interpreter.Interpreter;
-import interpreter.Visitor;
 import tree.Visitable;
 
-public abstract class Operator{
+public abstract class Operator implements Visitable{
     protected Operator(){}
-
-    public abstract void accept(Visitor visitor);
 }

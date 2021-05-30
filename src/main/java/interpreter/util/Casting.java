@@ -18,38 +18,6 @@ public class Casting {
         this.line = line;
     }
 
-    public  boolean castToBoolean (StackValue stackValue){
-        var val = stackValue.getValue();
-        if(val instanceof Boolean b){
-            return b;
-        }else if(val instanceof Integer i){
-            return i>0;
-        }else if(val instanceof Double d){
-            return d>0;
-        }else if(val instanceof Float f){
-            return f>0;
-        }
-        throw new CastingException(line,stackValue.getType().toString(), "bool");
-    }
-
-    public int castToInt (StackValue stackValue){
-        var val = stackValue.getValue();
-        if(val instanceof Integer i){
-            return i;
-        }
-        throw new CastingException(line, stackValue.getType().toString(), "integer");
-    }
-
-    public double castToDouble(StackValue stackValue){
-        var val = stackValue.getValue();
-        if(val instanceof Double d){
-            return d;
-        }else if(val instanceof Integer i){
-            return Double.valueOf(i);
-        }
-        throw new CastingException(line, stackValue.getType().toString(), "double");
-    }
-
     public Type calculateTypeForMultiplication(Type first, Type second){
         if(!isNumberType(first) || !isNumberType(second)){
             throw new InterpretingException("Cannot add " + first + " and " + second, line);
@@ -147,13 +115,24 @@ public class Casting {
         if(to instanceof IntType){
             return castToInt(val_obj, from);
         }
-        if(to instanceof DoubleType){
+        if(to instanceof FloatType){
             return castToDouble(val_obj, from);
         }
         if(to instanceof BoolType){
             return castToBoolean(val_obj, from);
         }
+        if(to instanceof StringType){
+            return castToString(val_obj, from);
+        }
         throw new CastingException(line, from.prettyToString(), to.prettyToString());
+    }
+
+    private StackValue castToString(Object value, Type from){
+        String val = String.valueOf(value);
+        if(from instanceof UnitType u){
+            return new StackValue(new Literal<>(val + u.prettyToString()), new StringType());
+        }
+        return new StackValue(new Literal<>(val), new StringType());
     }
 
     private StackValue castToUnit(Object value, Type from, UnitType to){
@@ -210,17 +189,17 @@ public class Casting {
         }
     }
 
-    public Literal<?> subtractWithValueCast(Number lValue, Number rValue){
+    public Literal<?> subtractionWithValueCast(Number lValue, Number rValue){
         Number resultVal = null;
         if(rValue instanceof Double rDouble){
-            resultVal = doAddition(lValue, -rDouble);
+            resultVal = additionWithValueCast(lValue, -rDouble);
         }else if(lValue instanceof Integer rInteger){
-            resultVal = doAddition(lValue, -rInteger);
+            resultVal = additionWithValueCast(lValue, -rInteger);
         }
         return new Literal<>(resultVal);
     }
 
-    public Number doAddition(Number one, Number two){
+    public Number additionWithValueCast(Number one, Number two){
         if(one instanceof Integer rInt && two instanceof  Integer lInt){
             return lInt + rInt;
         }else if(one instanceof Integer rInt && two instanceof  Double lDb){
@@ -278,6 +257,39 @@ public class Casting {
         }else{
             throw new InterpretingException("Unrecognized value", line);
         }
+    }
+
+    public Type calculateTypeForExponentiation(StackValue base, StackValue exponent){
+        Type baseType = base.getType();
+        Type expType = base.getType();
+        if(!isNumberType(expType) || !isNumberType(baseType)) {
+            throw new InterpretingException("Cannot exponentiate" + baseType.prettyToString() + expType.prettyToString());
+        }else{
+            if(baseType instanceof IntType && exponent.getValue() instanceof Integer){
+                return new IntType();
+            }
+            if(baseType instanceof UnitType){
+                return baseType;
+            }
+            return new FloatType();
+        }
+    }
+
+    public Number exponentiateWithValueCast(Number lValue, Number rValue){
+        if(lValue instanceof Integer lInt){
+            if(rValue instanceof Integer rInt){
+                return (int) Math.pow(lInt, rInt);
+            }else if(rValue instanceof Double rDouble){
+                return Math.pow(lInt, rDouble);
+            }
+        }else if(lValue instanceof Double lDouble){
+            if(rValue instanceof Integer rInt){
+                return (int) Math.pow(lDouble, rInt);
+            }else if(rValue instanceof Double rDouble){
+                return Math.pow(lDouble, rDouble);
+            }
+        }
+        throw new InterpretingException("Unrecognized value", line);
     }
 
 }

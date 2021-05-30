@@ -1,9 +1,8 @@
 package tree.expression.operator;
 
-import interpreter.Interpreter;
 import interpreter.Visitor;
 
-public class MulOperator extends UnitOperator{
+public class MulOperator extends Operator{
 
     @Override
     public String toString() {

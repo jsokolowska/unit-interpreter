@@ -10,6 +10,7 @@ import tree.Visitable;
 import tree.expression.Expression;
 import tree.expression.math.*;
 import tree.expression.operator.*;
+import tree.expression.operator.unit.*;
 import tree.expression.unit.*;
 import tree.expression.unit.value.UnitExpressionLiteral;
 import tree.expression.unit.value.UnitExpressionVariableValue;
@@ -183,6 +184,7 @@ public class Interpreter implements Visitor{
         statement.getFunCall().accept(this);
 
     }
+
     public void visit(ContinueStatement statement){
         if(env.hasBroken() || env.hasContinued() || env.hasReturned()) return;
         env.setContinued(true);
@@ -203,12 +205,20 @@ public class Interpreter implements Visitor{
             }
         }
     }
-
+    //todo handle operators with string
     public void visit(PrintStatement statement){
         if(env.hasBroken() || env.hasContinued() || env.hasReturned()) return;
         line = statement.getLine();
-        //todo
-        System.out.println("Print");
+        var arg_list = statement.getArguments().getArgList();
+        StringBuilder str = new StringBuilder();
+
+        for(var a : arg_list){
+            a.accept(this);
+            String val = (String) casting.cast(env.popValue(), new StringType()).getValue();
+            str.append(val).append("\n");
+        }
+
+        System.out.println(str);
     }
 
     public void visit(ReturnStatement statement){
@@ -226,10 +236,9 @@ public class Interpreter implements Visitor{
     public void visit(TypeStatement statement){
         if(env.hasBroken() || env.hasContinued() || env.hasReturned()) return;
         line = statement.getLine();
-        //todo
         String id = statement.getIdentifier();
-
-        System.out.println();
+        Type t = env.getVariable(id).getType();
+        System.out.println(t.prettyToString());
     }
 
     public void visit(VariableDeclarationStatement statement){
@@ -259,7 +268,6 @@ public class Interpreter implements Visitor{
         }
     }
 
-
     public void visit(ConversionExpression expression){
         var expressions = expression.getExpressions();
         var operators = expression.getOperators();
@@ -271,28 +279,106 @@ public class Interpreter implements Visitor{
         }
     }
 
+    //todo refactor to UnitExpressionWithOperators
     public void visit(MulUnitExpression expression){
-        //todo
-        System.out.println("MulUnitExpr");
+        var expressions = expression.getExpressions();
+        var operators = expression.getOperators();
+        int size = expression.size()-1;
+        expressions.get(0).accept(this);
+
+        for (int i=0; i<size; i++){
+            expressions.get(i+1).accept(this);
+            operators.get(i).accept(this);
+        }
     }
+
     public void visit(PowerUnitExpression expression){
-        //todo
-        System.out.println("PowerUnitExpr");
+        var expressions = expression.getExpressions();
+        int size = expression.size();
+        for(var e: expressions){
+            e.accept(this);
+        }
+        for (int i=0; i< size-1; i++){
+            new UnitPowerOperator().accept(this);
+        }
     }
+
     public void visit(UnaryUnitExpression expression){
-        //todo
-        System.out.println("UnaryUnitExpr");
+        expression.getExpr().accept(this);
+        new UnitNegOperator().accept(this);
     }
+
     public void visit(UnitExpressionLiteral<?> literal){
-        //todo
-        System.out.println("UnitLiteral");
+        env.pushValue(new Literal<>(literal.getValue()));
     }
     public void visit(UnitExpressionVariableValue variableValue){
-        //todo
-        System.out.println("UnitVarVal");
+        Variable known = env.getVariable(variableValue.getIdentifier());
+        if(known == null){
+            throw new InterpretingException("Unknown identifier", line);
+        }
+        env.pushValue(new StackValue(known));
     }
 
+    public void visit(UnitDivOperator operator){
+        var rObj = env.popValue();
+        var lObj = env.popValue();
+        if(lObj.getValue() instanceof Number lNum && rObj.getValue() instanceof Number rNum){
+            var res = casting.multiplyWithValueCast(lNum, rNum);
+            env.pushValue(new Literal<>(res));
+        }else{
+            throw new InterpretingException("Cannot multiply " + lObj.getType().prettyToString() + " and "
+                    + rObj.getType().prettyToString());
+        }
+    }
 
+    public void visit(UnitMinusOperator operator){
+        var rObj = env.popValue();
+        var lObj = env.popValue();
+        if(lObj.getValue() instanceof Number lNum && rObj.getValue() instanceof Number rNum){
+            var res = casting.subtractionWithValueCast(lNum, rNum);
+            env.pushValue(new Literal<>(res));
+        }else{
+            throw new InterpretingException("Cannot multiply " + lObj.getType().prettyToString() + " and "
+                    + rObj.getType().prettyToString());
+        }
+    }
+
+    public void visit(UnitMulOperator operator){
+        var rObj = env.popValue();
+        var lObj = env.popValue();
+        if(lObj.getValue() instanceof Number lNum && rObj.getValue() instanceof Number rNum){
+            var res = casting.divideWithValueCast(lNum, rNum);
+            env.pushValue(new Literal<>(res));
+        }else{
+            throw new InterpretingException("Cannot multiply " + lObj.getType().prettyToString() + " and "
+                    + rObj.getType().prettyToString());
+        }
+    }
+
+    public void visit(UnitPlusOperator operator){
+        var rObj = env.popValue();
+        var lObj = env.popValue();
+        if(lObj.getValue() instanceof Number lNum && rObj.getValue() instanceof Number rNum){
+            var res = casting.additionWithValueCast(lNum, rNum);
+            env.pushValue(new Literal<>(res));
+        }else{
+            throw new InterpretingException("Cannot multiply " + lObj.getType().prettyToString() + " and "
+                    + rObj.getType().prettyToString());
+        }
+    }
+
+    public void visit(UnitPowerOperator operator){
+        var rObj = env.popValue();
+        var lObj = env.popValue();
+
+        if(lObj.getValue() instanceof Number lNum && rObj.getValue() instanceof Number rNum){
+            var resultValue = casting.exponentiateWithValueCast(lNum, rNum);
+            env.pushValue(new Literal<>(resultValue));
+        }else{
+            throw new InterpretingException("Expected numericValue, got" + rObj.getType().prettyToString() +" and "
+                    + lObj.getType().prettyToString());
+        }
+    }
 
     public void visit(AndExpression expression){
         List<Expression> expressions = expression.getExpressions();
@@ -316,7 +402,6 @@ public class Interpreter implements Visitor{
         var lObj = env.popValue();
         env.pushValue(new Literal<>(casting.compareToWithBooleanCast(lObj, rObj) > 0), new BoolType());
     }
-
 
     public void visit(LessEqOperator operator){
         var rObj = env.popValue();
@@ -370,16 +455,16 @@ public class Interpreter implements Visitor{
         if(lType instanceof UnitType){
             var right = casting.cast(rObj, lType);
             var rVal = (Number) right.getValue();
-            env.pushValue(casting.subtractWithValueCast((Number) lVal, rVal), lType);
+            env.pushValue(casting.subtractionWithValueCast((Number) lVal, rVal), lType);
         }else if(rType instanceof UnitType){
             var left = casting.cast(lObj, rType);
             var lValue = (Number) left.getValue();
             var rValue = (Number) rObj.getValue();
-            env.pushValue(casting.subtractWithValueCast(lValue, rValue), rType);
+            env.pushValue(casting.subtractionWithValueCast(lValue, rValue), rType);
         }else if(lVal instanceof Number lNum){
             var right = casting.cast(rObj, lObj.getType());
             var rVal = (Number) right.getValue();
-            env.pushValue(casting.subtractWithValueCast(lNum, rVal), lType);
+            env.pushValue(casting.subtractionWithValueCast(lNum, rVal), lType);
         }else{
             throw new InterpretingException("Cannot apply substraction to: " + lObj.getType()
                     + " and " + rObj.getType(), line);
@@ -396,20 +481,20 @@ public class Interpreter implements Visitor{
         if(lType instanceof UnitType){
             var right = casting.cast(rObj, lType);
             var rVal = (Number) right.getValue();
-            var result = casting.doAddition((Number) lVal, rVal);
+            var result = casting.additionWithValueCast((Number) lVal, rVal);
             env.pushValue(new Literal<>(result), lType);
 
         }else if(rType instanceof UnitType){
             var left = casting.cast(lObj, rType);
             var lValue = (Number) left.getValue();
             var rValue = (Number) rObj.getValue();
-            var result = casting.doAddition(lValue, rValue);
+            var result = casting.additionWithValueCast(lValue, rValue);
             env.pushValue(new Literal<>(result), rType);
 
         }else if(lVal instanceof Number lNum){
             var right = casting.cast(rObj, lType);
             var rVal = (Number) right.getValue();
-            var result = casting.doAddition(lNum, rVal);
+            var result = casting.additionWithValueCast(lNum, rVal);
             env.pushValue(new Literal<>(result), lType);
 
         }else{
@@ -446,7 +531,7 @@ public class Interpreter implements Visitor{
 
     public void visit(NotOperator operator){
         var obj = env.popValue();
-        boolean value  = casting.castToBoolean(obj);
+        boolean value  = (Boolean) casting.cast(obj, new BoolType()).getValue();
         env.pushValue(new Literal<>(!value), new BoolType());
     }
 
@@ -459,23 +544,10 @@ public class Interpreter implements Visitor{
         var lObj = env.popValue();
         var rValue = rObj.getValue();
         var lValue = lObj.getValue();
-        if(rValue instanceof Integer rInt && rObj.getType() instanceof IntType){
-            Number res;
-            if(lValue instanceof Integer lInt){
-                if(rInt < 0){
-                    res = Math.pow(lInt, rInt);
-                }else{
-                    res = (int) Math.pow(lInt, rInt);
-                }
-            }else if(lValue instanceof Double lDb){
-                res = Math.pow(lDb, rInt);
-            }else{
-                throw new InterpretingException("Cannot exponentiate" + lObj.getType().prettyToString());
-            }
-            env.pushValue( new Literal<>(res), lObj.getType());
-        }else{
-            throw new InterpretingException("Exponent is not an integer but " + rObj.getType().prettyToString(), line);
-        }
+
+        var resultType = casting.calculateTypeForExponentiation(lObj, rObj);
+        var resultValue = casting.exponentiateWithValueCast((Number)lValue, (Number) rValue);
+        env.pushValue(new Literal<>(resultValue), resultType);
     }
 
 
@@ -494,7 +566,7 @@ public class Interpreter implements Visitor{
         boolean value = false;
         for(Expression expr : expressions){
             expr.accept(this);
-            boolean temp = casting.castToBoolean(env.popValue());
+            boolean temp = (Boolean) casting.cast(env.popValue(), new BoolType()).getValue();
             value = value || temp;
         }
         env.pushValue(new Literal<>(value));

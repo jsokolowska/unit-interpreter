@@ -1,9 +1,8 @@
 package tree.expression.operator;
 
-import interpreter.Interpreter;
 import interpreter.Visitor;
 
-public class NegOperator extends UnitOperator {
+public class NegOperator extends Operator {
     @Override
     public String toString() {
         return "-";

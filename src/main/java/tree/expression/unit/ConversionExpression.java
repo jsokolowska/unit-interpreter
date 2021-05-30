@@ -1,14 +1,13 @@
 package tree.expression.unit;
 
 import interpreter.Visitor;
-import tree.expression.operator.UnitOperator;
+import tree.expression.operator.unit.UnitOperator;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ConversionExpression extends UnitExpression {
 
-    private final List<UnitExpression> expressions = new ArrayList<>();
     private final List<UnitOperator> operators = new ArrayList<>();
 
 

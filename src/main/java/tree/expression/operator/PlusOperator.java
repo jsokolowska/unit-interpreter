@@ -1,9 +1,8 @@
 package tree.expression.operator;
 
-import interpreter.Interpreter;
 import interpreter.Visitor;
 
-public class PlusOperator extends UnitOperator{
+public class PlusOperator extends Operator{
     @Override
     public String toString() {
         return "+";

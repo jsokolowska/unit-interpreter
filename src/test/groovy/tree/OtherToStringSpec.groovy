@@ -42,10 +42,6 @@ class OtherToStringSpec extends Specification{
                 new AssignStatement("id", new Expression())) || "int:id=u"
     }
 
-    def "Check block statement toString"(){
-        //todo
-    }
-
     def "Check funcall to string test"(){
         given:
         var funCall = new FunctionCall("id", new Arguments())

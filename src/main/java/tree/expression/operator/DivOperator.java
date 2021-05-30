@@ -3,7 +3,7 @@ package tree.expression.operator;
 import interpreter.Interpreter;
 import interpreter.Visitor;
 
-public class DivOperator extends UnitOperator{
+public class DivOperator extends Operator{
 
     @Override
     public String toString() {

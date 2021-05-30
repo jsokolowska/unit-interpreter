@@ -7,7 +7,7 @@ import tree.expression.Expression;
 import tree.expression.math.*;
 import tree.expression.operator.Operator;
 import tree.expression.operator.OperatorFactory;
-import tree.expression.operator.UnitOperator;
+import tree.expression.operator.unit.UnitOperator;
 import tree.expression.unit.*;
 import tree.expression.unit.value.UnitExpressionLiteral;
 import tree.expression.unit.value.UnitExpressionVariableValue;
@@ -238,7 +238,6 @@ public class Parser {
         }
     }
 
-    //todo
     private UnitParameters parseUnitParameters () throws IOException{
         if(!tokenHasType(TokenType.OPEN_BRACKET)) return null;
 
@@ -260,7 +259,6 @@ public class Parser {
         return params;
     }
 
-    //todo
     private void parseUnitParameter(UnitParameters parameters) throws IOException {
         if (!matchesUnitType(token)) {
             throw new ParserException("Expected type", token);
@@ -318,7 +316,7 @@ public class Parser {
         ConversionExpression expression = new ConversionExpression();
         expression.add(expressionPart);
         while(tokenHasType(TokenType.PLUS) || tokenHasType(TokenType.MINUS) ){
-            UnitOperator op = (UnitOperator) OperatorFactory.getAdditiveOperator(token.getTokenType());
+            UnitOperator op =  OperatorFactory.getAdditiveUnitOperator(token);
             nextToken();
             expressionPart = parseMulUnitExpression();
             expression.add(expressionPart, op);
@@ -335,7 +333,7 @@ public class Parser {
         expression.add(expressionPart);
 
         while(tokenHasType(TokenType.DIVIDE) || tokenHasType(TokenType.MULTIPLY) ){
-            UnitOperator op = (UnitOperator) OperatorFactory.getOperator(token);
+            UnitOperator op =  OperatorFactory.getUnitOperator(token);
             nextToken();
             expressionPart = parsePowerUnitExpression();
             expression.add(expressionPart, op);

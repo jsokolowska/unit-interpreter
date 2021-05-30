@@ -10,6 +10,10 @@ public class PrintStatement extends Statement{
         this.arguments = arguments;
     }
 
+    public Arguments getArguments() {
+        return arguments;
+    }
+
     @Override
     public String toString() {
         return "print(" + arguments + ")";

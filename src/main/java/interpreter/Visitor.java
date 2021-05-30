@@ -5,6 +5,7 @@ import tree.Variable;
 import tree.Visitable;
 import tree.expression.math.*;
 import tree.expression.operator.*;
+import tree.expression.operator.unit.*;
 import tree.expression.unit.*;
 import tree.expression.unit.value.UnitExpressionLiteral;
 import tree.expression.unit.value.UnitExpressionVariableValue;
@@ -70,4 +71,10 @@ public interface Visitor {
     void visit(OrOperator operator);
     void visit(PlusOperator operator);
     void visit(PowerOperator operator);
+
+    void visit(UnitDivOperator operator);
+    void visit(UnitMinusOperator operator);
+    void visit(UnitMulOperator operator);
+    void visit(UnitPlusOperator operator);
+    void visit(UnitPowerOperator operator);
 }
