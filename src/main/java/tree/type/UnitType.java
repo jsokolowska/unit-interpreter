@@ -32,7 +32,7 @@ public class UnitType extends Type {
 
     @Override
     public String prettyToString(){
-        return "Unit " + name;
+        return "unit " + name;
     }
 
 }

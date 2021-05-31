@@ -6,6 +6,10 @@ import tree.expression.operator.DivOperator
 import tree.expression.operator.MinusOperator
 import tree.expression.operator.MulOperator
 import tree.expression.operator.PlusOperator
+import tree.expression.operator.unit.UnitDivOperator
+import tree.expression.operator.unit.UnitMinusOperator
+import tree.expression.operator.unit.UnitMulOperator
+import tree.expression.operator.unit.UnitPlusOperator
 import tree.expression.unit.ConversionExpression
 import tree.expression.unit.MulUnitExpression
 import tree.expression.unit.PowerUnitExpression
@@ -72,8 +76,8 @@ class UnitExpressionToStringSpec extends Specification{
 
         when:
         obj.add(new UnitExpression())
-        obj.add(new UnitExpression(), new MulOperator())
-        obj.add(new UnitExpression(), new DivOperator())
+        obj.add(new UnitExpression(), new UnitMulOperator())
+        obj.add(new UnitExpression(), new UnitDivOperator())
 
         then:
         obj.toString() == "[u*u/u]"
@@ -114,8 +118,8 @@ class UnitExpressionToStringSpec extends Specification{
 
         when:
         obj.add(new UnitExpression())
-        obj.add(new UnitExpression(), new PlusOperator())
-        obj.add(new UnitExpression(), new MinusOperator())
+        obj.add(new UnitExpression(), new UnitPlusOperator())
+        obj.add(new UnitExpression(), new UnitMinusOperator())
 
         then:
         obj.toString() == "u+u-u"
@@ -132,17 +136,17 @@ class UnitExpressionToStringSpec extends Specification{
 
         when:
         obj6.add(new UnitExpression())
-        obj6.add(new UnitExpression(), new MulOperator())
+        obj6.add(new UnitExpression(), new UnitDivOperator())
         obj5.add(obj6)
         obj4.add(new UnitExpression())
         obj4.add(obj5)
         obj4.add(new UnitExpression())
         obj3.add(obj4)
-        obj3.add(new UnitExpression(), new MulOperator())
+        obj3.add(new UnitExpression(), new UnitMulOperator())
         obj2.add(new UnitExpression())
-        obj2.add(new UnitExpression(), new DivOperator())
+        obj2.add(new UnitExpression(), new UnitMulOperator())
         obj1.add(obj2)
-        obj1.add(obj3, new PlusOperator())
+        obj1.add(obj3, new UnitPlusOperator())
 
         then:
         obj1.toString() == "[u/u]+[[u^[-[u*u]]^u]*u]"

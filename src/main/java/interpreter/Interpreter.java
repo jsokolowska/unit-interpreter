@@ -508,7 +508,7 @@ public class Interpreter implements Visitor{
         var lObj = env.popValue();
 
         if(rObj.getValue() instanceof Number rNum && lObj.getValue() instanceof Number lNum){
-            Number resultVal = casting.multiplyWithValueCast(rNum, lNum);
+            var resultVal = casting.multiplyWithValueCast(rNum, lNum);
             Type resultType = casting.calculateTypeForMultiplication(rObj.getType(), lObj.getType());
             env.pushValue(new Literal<>(resultVal), resultType);
         }else{

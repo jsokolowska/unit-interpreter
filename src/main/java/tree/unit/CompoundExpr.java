@@ -65,6 +65,12 @@ public class CompoundExpr implements Visitable {
         return compoundParts.size();
     }
 
+    public void exponentiate (int exponent){
+        for (var auto : compoundParts.entrySet()) {
+            auto.setValue(auto.getValue() * exponent);
+        }
+    }
+
     @Override
     public void accept(Visitor visitor) {
         visitor.visit(this);
@@ -104,5 +110,20 @@ public class CompoundExpr implements Visitable {
             }
         }
         return this.contains(unit);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+        str.append("<");
+        for(var auto: compoundParts.entrySet()){
+            str.append(auto.getKey());
+            str.append("^");
+            str.append(auto.getValue());
+            str.append('*');
+        }
+        str.deleteCharAt(str.length()-1);
+        str.append(">");
+        return str.toString();
     }
 }

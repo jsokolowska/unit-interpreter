@@ -17,6 +17,81 @@ public class Casting {
         this.line = line;
     }
 
+    public StackValue cast (StackValue variable, Type to){
+        Type from = variable.getType();
+
+        if(from.equals(to)) {
+            //no cast needed
+            return variable;
+        }
+
+        var val_obj = variable.getValue();
+
+        if(to instanceof StringType){
+            return castToString(val_obj, from);
+        }
+        if(to instanceof BoolType){
+            return castToBoolean(val_obj, from);
+        }
+        if(to instanceof IntType){
+            return castToInt(val_obj, from);
+        }
+        if(to instanceof DoubleType){
+            return castToDouble(val_obj, from);
+        }
+        if(to instanceof UnitType utype){
+            return castToUnit(val_obj, from, utype);
+        }
+
+        throw new CastingException(line, from.prettyToString(), to.prettyToString());
+    }
+
+    private StackValue castToString(Object value, Type from){
+        String val = String.valueOf(value);
+        if(from instanceof UnitType u){
+            return new StackValue(new Literal<>(val +" [" + u.prettyToString() + "]"), new StringType());
+        }
+        return new StackValue(new Literal<>(val), new StringType());
+    }
+
+    private StackValue castToBoolean(Object value, Type from){
+        if(value instanceof Integer i){
+            return new StackValue(new Literal<>(i>0), new BoolType());
+        }
+        if(value instanceof Double d){
+            return new StackValue(new Literal<>(d>0), new BoolType());
+        }
+        throw new CastingException(line, from.prettyToString(), "boolean");
+    }
+
+    private StackValue castToInt(Object value, Type from){
+        if(value instanceof Integer){
+            return new StackValue(new Literal<>(value), new IntType());
+        }
+        if(value instanceof Double dVal){
+            Integer iVal = Math.toIntExact(Math.round(dVal));
+            return new StackValue(new Literal<>(iVal), new IntType());
+        }
+        throw new CastingException(line, from.prettyToString(), "integer");
+    }
+
+    private StackValue castToDouble(Object value, Type from){
+        if(value instanceof Integer iVal){
+            return new StackValue(new Literal<>(Double.valueOf(iVal)), new DoubleType());
+        }
+        if(value instanceof Double dVal){
+            return new StackValue(new Literal<>(dVal), new DoubleType());
+        }
+        throw new CastingException(line, from.prettyToString(), "float");
+    }
+
+    private StackValue castToUnit(Object value, Type from, UnitType to){
+        if (from instanceof NumericType){
+            return new StackValue(new Literal<>(value), to);
+        }
+        throw new CastingException(line, from.prettyToString(), to.prettyToString());
+    }
+
     public Type calculateTypeForMultiplication(Type first, Type second){
         if(!isNumberType(first) || !isNumberType(second)){
             throw new InterpretingException("Cannot multiplicate " + first.prettyToString() + " and " + second.prettyToString(), line);
@@ -31,6 +106,8 @@ public class Casting {
             return first;
         }else if(second instanceof DoubleType || first instanceof DoubleType){
             return new DoubleType();
+        }else if(first instanceof StringType && second instanceof IntType){
+            return first;
         }
         throw new InterpretingException("Cannot multiplicate " + first + " and " + second, line);
     }
@@ -55,6 +132,34 @@ public class Casting {
         expr.addPart(first.getName(), 1);
         expr.addPart(second.getName(), 1);
         return new CompoundType("compound", expr);
+    }
+
+    public Object multiplyWithValueCast(Object lValue, Object rValue){
+        if (Casting.isZero(lValue) || Casting.isZero(rValue)){
+            return 0;
+        }else if(rValue instanceof Integer rInt && lValue instanceof  Integer lInt){
+            return lInt * rInt;
+        }else if(rValue instanceof Integer rInt && lValue instanceof  Double lDb){
+            return lDb * rInt;
+        }else if(rValue instanceof Double rDb && lValue instanceof  Double lDb){
+            return lDb * rDb;
+        }else if(rValue instanceof Double rDb && lValue instanceof  Integer lInt){
+            return lInt * rDb;
+        }else if(lValue instanceof String str && rValue instanceof Integer int_v){
+            return multiplyString(str, int_v);
+        }else if(rValue instanceof String str && lValue instanceof Integer int_v){
+            return multiplyString(str, int_v);
+        }else{
+            throw new InterpretingException("Unrecognized value", line);
+        }
+    }
+
+    private String multiplyString(String str, int n){
+        if(n < 0){
+            throw new InterpretingException("Cannpt multiply string and int < 0" );
+        }else{
+            return str.repeat(n);
+        }
     }
 
     private boolean isNumberType(Type t){
@@ -101,79 +206,6 @@ public class Casting {
             return new IntType();
         }
         return new DoubleType();
-    }
-
-    public StackValue cast (StackValue variable, Type to){
-        Type from = variable.getType();
-
-        if(from.equals(to)) {
-            //no cast needed
-            return variable;
-        }
-
-        var val_obj = variable.getValue();
-        if(to instanceof UnitType utype){
-            return castToUnit(val_obj, from, utype);
-        }
-        if(to instanceof IntType){
-            return castToInt(val_obj, from);
-        }
-        if(to instanceof DoubleType){
-            return castToDouble(val_obj, from);
-        }
-        if(to instanceof BoolType){
-            return castToBoolean(val_obj, from);
-        }
-        if(to instanceof StringType){
-            return castToString(val_obj, from);
-        }
-        throw new CastingException(line, from.prettyToString(), to.prettyToString());
-    }
-
-    private StackValue castToString(Object value, Type from){
-        String val = String.valueOf(value);
-        if(from instanceof UnitType u){
-            return new StackValue(new Literal<>(val + u.prettyToString()), new StringType());
-        }
-        return new StackValue(new Literal<>(val), new StringType());
-    }
-
-    private StackValue castToUnit(Object value, Type from, UnitType to){
-        if (from instanceof NumericType){
-            return new StackValue(new Literal<>(value), to);
-        }
-        throw new CastingException(line, from.prettyToString(), to.prettyToString());
-    }
-
-    private StackValue castToInt(Object value, Type from){
-        if(value instanceof Integer){
-            return new StackValue(new Literal<>(value), new IntType());
-        }
-        if(value instanceof Double dVal){
-            Integer iVal = Math.toIntExact(Math.round(dVal));
-            return new StackValue(new Literal<>(iVal), new IntType());
-        }
-        throw new CastingException(line, from.prettyToString(), "integer");
-    }
-
-    private StackValue castToDouble(Object value, Type from){
-        if(value instanceof Integer iVal){
-            return new StackValue(new Literal<>(Double.valueOf(iVal)), new DoubleType());
-        }
-        if(value instanceof Double dVal){
-            return new StackValue(new Literal<>(dVal), new DoubleType());
-        }
-        throw new CastingException(line, from.prettyToString(), "float");
-    }
-
-    private StackValue castToBoolean(Object value, Type from){
-        if(value instanceof Integer i){
-            return new StackValue(new Literal<>(i>0), new BoolType());
-        }
-        if(value instanceof Double d){
-            return new StackValue(new Literal<>(d>0), new BoolType());
-        }
-        throw new CastingException(line, from.prettyToString(), "boolean");
     }
 
     public int compareToWithBooleanCast(StackValue left, StackValue right){
@@ -237,29 +269,13 @@ public class Casting {
         }
     }
     
-    public static boolean isZero(Number num){
+    public static boolean isZero(Object num){
         if(num instanceof Integer iNum){
             return iNum == 0;
         }else if (num instanceof Double dNum){
             return Math.abs(dNum) < EPSILON;
         }
         return false;
-    }
-
-    public Number multiplyWithValueCast(Number lValue, Number rValue){
-        if (Casting.isZero(lValue) || Casting.isZero(rValue)){
-            return 0;
-        }else if(rValue instanceof Integer rInt && lValue instanceof  Integer lInt){
-            return lInt * rInt;
-        }else if(rValue instanceof Integer rInt && lValue instanceof  Double lDb){
-            return lDb * rInt;
-        }else if(rValue instanceof Double rDb && lValue instanceof  Double lDb){
-            return lDb * rDb;
-        }else if(rValue instanceof Double rDb && lValue instanceof  Integer lInt){
-            return lInt * rDb;
-        }else{
-            throw new InterpretingException("Unrecognized value", line);
-        }
     }
 
     public Type calculateTypeForExponentiation(StackValue base, StackValue exponent){
@@ -271,11 +287,25 @@ public class Casting {
             if(baseType instanceof IntType && exponent.getValue() instanceof Integer){
                 return new IntType();
             }
+            if(baseType instanceof UnitType unitType && expType instanceof IntType){
+                int exp = (int) exponent.getValue();
+                return exponentiateUnitType(unitType, exp);
+            }
             if(baseType instanceof UnitType){
                 return baseType;
             }
             return new DoubleType();
         }
+    }
+
+    private CompoundType exponentiateUnitType(UnitType t, int exponent){
+        if(t instanceof CompoundType compound){
+            compound.exponentiate(exponent);
+            return compound;
+        }
+        CompoundExpr expr = new CompoundExpr();
+        expr.addPart(t.getName(), exponent);
+        return new CompoundType(expr);
     }
 
     public Number exponentiateWithValueCast(Number lValue, Number rValue){
