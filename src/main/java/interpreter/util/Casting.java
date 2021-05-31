@@ -93,23 +93,24 @@ public class Casting {
     }
 
     public Type calculateTypeForMultiplication(Type first, Type second){
-        if(!isNumberType(first) || !isNumberType(second)){
-            throw new InterpretingException("Cannot multiplicate " + first.prettyToString() + " and " + second.prettyToString(), line);
-        }
         if(first instanceof UnitType u1 && second instanceof UnitType u2){
             return multiplyUnitTypes(u1, u2);
-        }else if(first instanceof UnitType){
+        }else if(first instanceof UnitType && second instanceof NumericType){
             return first;
-        }else if(second instanceof UnitType){
+        }else if(second instanceof UnitType && first instanceof NumericType){
             return second;
         }else if(first instanceof IntType && second instanceof IntType){
             return first;
-        }else if(second instanceof DoubleType || first instanceof DoubleType){
+        }else if(second instanceof DoubleType && first instanceof NumericType){
+            return new DoubleType();
+        }else if(first instanceof DoubleType && second instanceof NumericType){
             return new DoubleType();
         }else if(first instanceof StringType && second instanceof IntType){
             return first;
+        }else if(second instanceof StringType && first instanceof IntType){
+            return second;
         }
-        throw new InterpretingException("Cannot multiplicate " + first + " and " + second, line);
+        throw new InterpretingException("Cannot multiplicate " + first.prettyToString() + " and " + second.prettyToString(), line);
     }
 
     private Type multiplyUnitTypes(UnitType first, UnitType second){
@@ -118,15 +119,16 @@ public class Casting {
             for(var entry : compoundParts.entrySet()){
                 compound2.add(entry.getKey(), entry.getValue());
             }
-            return compound2;
+            return compoundOrFloat(compound2);
         }
         if(first instanceof CompoundType compound){
             compound.add(second.getName(), 1);
-            return compound;
+
+            return compoundOrFloat(compound);
         }
         if(second instanceof CompoundType compound){
             compound.add(first.getName(), 1);
-            return compound;
+            return compoundOrFloat(compound);
         }
         CompoundExpr expr = new CompoundExpr();
         expr.addPart(first.getName(), 1);
@@ -134,8 +136,18 @@ public class Casting {
         return new CompoundType("compound", expr);
     }
 
+    private Type compoundOrFloat(CompoundType c){
+        if(c.size()==0){
+            return new DoubleType();
+        }
+        return c;
+    }
+
     public Object multiplyWithValueCast(Object lValue, Object rValue){
         if (Casting.isZero(lValue) || Casting.isZero(rValue)){
+            if(lValue instanceof String || rValue instanceof String){
+                return "";
+            }
             return 0;
         }else if(rValue instanceof Integer rInt && lValue instanceof  Integer lInt){
             return lInt * rInt;
@@ -180,10 +192,10 @@ public class Casting {
         if(denominator instanceof UnitType unitType){
             return reverse(unitType);
         }
-        if(denominator instanceof DoubleType || numerator instanceof DoubleType){
+        if(denominator instanceof NumericType || numerator instanceof NumericType){
             return new DoubleType();
         }
-        return new IntType();
+        throw new InterpretingException("Cannot divide" + numerator.prettyToString() + " and " + denominator.prettyToString());
     }
 
     private UnitType reverse(UnitType type){
@@ -194,57 +206,6 @@ public class Casting {
         CompoundExpr expr = new CompoundExpr();
         expr.addPart(new CompoundTerm(type, -1));
         return new CompoundType("compound", expr);
-    }
-
-    public static Type getMatchingType(Literal<?> literal){
-        var value = literal.getLiteralValue();
-        if(value instanceof Boolean){
-            return new BoolType();
-        }else if(value instanceof String){
-            return new StringType();
-        }else if(value instanceof Integer){
-            return new IntType();
-        }
-        return new DoubleType();
-    }
-
-    public int compareToWithBooleanCast(StackValue left, StackValue right){
-        var rValue = right.getValue();
-        var lValue = left.getValue();
-        if(rValue instanceof Integer rNum && lValue instanceof Integer lNum){
-            return lNum.compareTo(rNum);
-        }else if(rValue instanceof Double rDouble && lValue instanceof Double lDouble){
-            return lDouble.compareTo(rDouble);
-        }else if(rValue instanceof Double rNum && lValue instanceof Integer lNum) {
-            return - rNum.compareTo(Double.valueOf(lNum));
-        }else if(rValue instanceof Integer rNum && lValue instanceof Double lNum) {
-            return lNum.compareTo(Double.valueOf(rNum));
-        }else {
-            throw new InterpretingException("Cannot compare " + left.getType() + " and " + right.getType(), line);
-        }
-    }
-
-    public Literal<?> subtractionWithValueCast(Number lValue, Number rValue){
-        Number resultVal = null;
-        if(rValue instanceof Double rDouble){
-            resultVal = additionWithValueCast(lValue, -rDouble);
-        }else if(lValue instanceof Integer rInteger){
-            resultVal = additionWithValueCast(lValue, -rInteger);
-        }
-        return new Literal<>(resultVal);
-    }
-
-    public Number additionWithValueCast(Number one, Number two){
-        if(one instanceof Integer rInt && two instanceof  Integer lInt){
-            return lInt + rInt;
-        }else if(one instanceof Integer rInt && two instanceof  Double lDb){
-            return lDb + rInt;
-        }else if(one instanceof Double rDb && two instanceof  Double lDb){
-            return lDb + rDb;
-        }else if(one instanceof Double rDb && two instanceof  Integer lInt){
-            return lInt + rDb;
-        }
-        throw new InterpretingException("Unrecognized value", line);
     }
 
     public Number divideWithValueCast(Number lValue, Number rValue){
@@ -265,8 +226,65 @@ public class Casting {
         }else if(rValue instanceof Double rDb && lValue instanceof  Integer lInt){
             return lInt/rDb;
         }else{
-            throw new InterpretingException("Unrecognized numeric value", line);
+            throw new InterpretingException("Unrecognized value", line);
         }
+    }
+
+    public static Type getMatchingType(Literal<?> literal){
+        var value = literal.getLiteralValue();
+        if(value instanceof Boolean){
+            return new BoolType();
+        }else if(value instanceof String){
+            return new StringType();
+        }else if(value instanceof Integer){
+            return new IntType();
+        }
+        return new DoubleType();
+    }
+
+    public int compareToWithCast(StackValue left, StackValue right){
+        var rValue = right.getValue();
+        var lValue = left.getValue();
+        if(rValue instanceof Integer rNum && lValue instanceof Integer lNum){
+            return lNum.compareTo(rNum);
+        }else if(rValue instanceof Double rDouble && lValue instanceof Double lDouble){
+            return lDouble.compareTo(rDouble);
+        }else if(rValue instanceof Double rNum && lValue instanceof Integer lNum) {
+            return - rNum.compareTo(Double.valueOf(lNum));
+        }else if(rValue instanceof Integer rNum && lValue instanceof Double lNum) {
+            return lNum.compareTo(Double.valueOf(rNum));
+        }else if(rValue instanceof String rStr && lValue instanceof  String lStr){
+            return lStr.compareTo(rStr);
+        }else {
+            throw new InterpretingException("Cannot compare " + left.getType() + " and " + right.getType(), line);
+        }
+    }
+
+    public Number subtractionWithValueCast(Number lValue, Number rValue){
+        Number resultVal = null;
+        if(rValue instanceof Double rDouble){
+            resultVal = (Number) additionWithValueCast(lValue, -rDouble);
+        }else if(rValue instanceof Integer rInteger){
+            resultVal = (Number) additionWithValueCast(lValue, -rInteger);
+        }else{
+            throw new InterpretingException("Cannot subtract", line);
+        }
+        return resultVal;
+    }
+
+    public Object additionWithValueCast(Object left, Object right){
+        if(left instanceof Integer rInt && right instanceof  Integer lInt){
+            return lInt + rInt;
+        }else if(left instanceof Integer rInt && right instanceof  Double lDb){
+            return lDb + rInt;
+        }else if(left instanceof Double rDb && right instanceof  Double lDb){
+            return lDb + rDb;
+        }else if(left instanceof Double rDb && right instanceof  Integer lInt){
+            return lInt + rDb;
+        }else if(left instanceof String lString && right instanceof String rString){
+            return lString + rString;
+        }
+        throw new InterpretingException("Unrecognized value", line);
     }
     
     public static boolean isZero(Object num){
@@ -280,19 +298,17 @@ public class Casting {
 
     public Type calculateTypeForExponentiation(StackValue base, StackValue exponent){
         Type baseType = base.getType();
-        Type expType = base.getType();
-        if(!isNumberType(expType) || !isNumberType(baseType)) {
+        Type expType = exponent.getType();
+        if(!isNumberType(baseType) || !(expType instanceof NumericType) ||
+                (baseType instanceof  UnitType && expType instanceof DoubleType)){
             throw new InterpretingException("Cannot exponentiate" + baseType.prettyToString() + expType.prettyToString());
         }else{
-            if(baseType instanceof IntType && exponent.getValue() instanceof Integer){
+            if(baseType instanceof IntType && expType instanceof IntType){
                 return new IntType();
             }
             if(baseType instanceof UnitType unitType && expType instanceof IntType){
                 int exp = (int) exponent.getValue();
                 return exponentiateUnitType(unitType, exp);
-            }
-            if(baseType instanceof UnitType){
-                return baseType;
             }
             return new DoubleType();
         }
@@ -311,13 +327,16 @@ public class Casting {
     public Number exponentiateWithValueCast(Number lValue, Number rValue){
         if(lValue instanceof Integer lInt){
             if(rValue instanceof Integer rInt){
-                return (int) Math.pow(lInt, rInt);
+                if(rInt >= 0){
+                    return (int)Math.pow(lInt, rInt);
+                }
+                return Math.pow(lInt, rInt);
             }else if(rValue instanceof Double rDouble){
                 return Math.pow(lInt, rDouble);
             }
         }else if(lValue instanceof Double lDouble){
             if(rValue instanceof Integer rInt){
-                return (int) Math.pow(lDouble, rInt);
+                return Math.pow(lDouble, rInt);
             }else if(rValue instanceof Double rDouble){
                 return Math.pow(lDouble, rDouble);
             }

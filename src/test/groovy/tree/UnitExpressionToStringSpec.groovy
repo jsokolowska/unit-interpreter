@@ -149,7 +149,7 @@ class UnitExpressionToStringSpec extends Specification{
         obj1.add(obj3, new UnitPlusOperator())
 
         then:
-        obj1.toString() == "[u/u]+[[u^[-[u*u]]^u]*u]"
+        obj1.toString() == "[u*u]+[[u^[-[u/u]]^u]*u]"
 
     }
 

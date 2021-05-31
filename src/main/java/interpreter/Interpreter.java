@@ -400,25 +400,26 @@ public class Interpreter implements Visitor{
     public void visit(GreaterOperator operator){
         var rObj = env.popValue();
         var lObj = env.popValue();
-        env.pushValue(new Literal<>(casting.compareToWithBooleanCast(lObj, rObj) > 0), new BoolType());
+        env.pushValue(new Literal<>(casting.compareToWithCast(lObj, rObj) > 0), new BoolType());
     }
 
     public void visit(LessEqOperator operator){
         var rObj = env.popValue();
         var lObj = env.popValue();
-        env.pushValue(new Literal<>(casting.compareToWithBooleanCast(lObj, rObj) <= 0), new BoolType());
+        env.pushValue(new Literal<>(casting.compareToWithCast(lObj, rObj) <= 0), new BoolType());
     }
 
     public void visit(LessOperator operator){
         var rObj = env.popValue();
         var lObj = env.popValue();
-        env.pushValue(new Literal<>(casting.compareToWithBooleanCast(lObj, rObj) < 0), new BoolType());
+        env.pushValue(new Literal<>(casting.compareToWithCast(lObj, rObj) < 0), new BoolType());
     }
 
     public void visit(GreaterEqOperator operator){
         var rObj = env.popValue();
         var lObj = env.popValue();
-        env.pushValue(new Literal<>(casting.compareToWithBooleanCast(lObj, rObj) >= 0), new BoolType());
+        env.pushValue(new Literal<>(casting.compareToWithCast(lObj, rObj) >= 0), new BoolType());
+        env.pushValue(new Literal<>(casting.compareToWithCast(lObj, rObj) >= 0), new BoolType());
     }
 
     public void visit(NotEqOperator operator) {
@@ -455,16 +456,16 @@ public class Interpreter implements Visitor{
         if(lType instanceof UnitType){
             var right = casting.cast(rObj, lType);
             var rVal = (Number) right.getValue();
-            env.pushValue(casting.subtractionWithValueCast((Number) lVal, rVal), lType);
+            env.pushValue(new Literal<>(casting.subtractionWithValueCast((Number) lVal, rVal)), lType);
         }else if(rType instanceof UnitType){
             var left = casting.cast(lObj, rType);
             var lValue = (Number) left.getValue();
             var rValue = (Number) rObj.getValue();
-            env.pushValue(casting.subtractionWithValueCast(lValue, rValue), rType);
+            env.pushValue(new Literal<>(casting.subtractionWithValueCast(lValue, rValue)), rType);
         }else if(lVal instanceof Number lNum){
             var right = casting.cast(rObj, lObj.getType());
             var rVal = (Number) right.getValue();
-            env.pushValue(casting.subtractionWithValueCast(lNum, rVal), lType);
+            env.pushValue(new Literal<>(casting.subtractionWithValueCast(lNum, rVal)), lType);
         }else{
             throw new InterpretingException("Cannot apply substraction to: " + lObj.getType()
                     + " and " + rObj.getType(), line);

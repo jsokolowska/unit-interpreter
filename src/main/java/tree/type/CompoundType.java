@@ -36,6 +36,7 @@ public class CompoundType extends UnitType {
     }
 
     public int size(){
+        expr.simplify();
         return expr.size();
     }
 

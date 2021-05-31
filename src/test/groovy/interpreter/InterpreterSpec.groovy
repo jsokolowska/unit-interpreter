@@ -1,6 +1,7 @@
 package interpreter
 
 import interpreter.env.Environment
+import interpreter.util.Casting
 import spock.lang.Specification
 import tree.Program
 import tree.Variable
@@ -32,6 +33,7 @@ import tree.type.StringType
 import tree.type.UnitType
 import tree.unit.CompoundExpr
 import tree.value.Literal
+import util.exception.CastingException
 import util.exception.InterpretingException
 
 class InterpreterSpec extends Specification{
@@ -312,7 +314,8 @@ class InterpreterSpec extends Specification{
         expr.accept(interpreter)
 
         then:
-        thrown(InterpretingException)
+        RuntimeException ex = thrown()
+        ex instanceof CastingException || ex instanceof InterpretingException
 
         where:
         val1   | val2       | op
@@ -336,13 +339,13 @@ class InterpreterSpec extends Specification{
         def stackVal = env.popValue().getValue()
 
         then:
-        stackVal - Math.pow(val1, val2) <= 0.0000001 && stackVal - Math.pow(val1, val2) >= -0.0000001
+        Math.abs(stackVal - Math.pow(val1, val2)) < Casting.EPSILON
 
         where:
         val1            | val2
         1               | 3
-        new Double(2.1) | 0
-        12              | -1
+        2.1d            | 0
+        12              | -2
     }
 
     def "Check power expression for multiple expressions"(){
