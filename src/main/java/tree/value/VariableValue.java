@@ -1,5 +1,6 @@
 package tree.value;
 
+import interpreter.Visitor;
 import tree.Visitable;
 
 public class VariableValue extends Value implements Visitable {
@@ -16,5 +17,10 @@ public class VariableValue extends Value implements Visitable {
 
     public String getIdentifier(){
         return identifier;
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 }

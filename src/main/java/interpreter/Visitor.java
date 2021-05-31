@@ -77,4 +77,5 @@ public interface Visitor {
     void visit(UnitMulOperator operator);
     void visit(UnitPlusOperator operator);
     void visit(UnitPowerOperator operator);
+    void visit(UnitNegOperator operator);
 }

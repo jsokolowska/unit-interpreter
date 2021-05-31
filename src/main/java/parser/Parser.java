@@ -33,10 +33,16 @@ public class Parser {
     private Token token;
     private final TypeManager typeManager;
 
-    public Parser(Scanner scanner, TypeManager typeManager) throws IOException {
+    public Parser(Scanner scanner) throws IOException {
         this.scanner = scanner;
         nextToken();
-        this.typeManager = typeManager;
+        this.typeManager =  new TypeManager();
+    }
+
+    public Parser(Scanner scanner, TypeManager manager) throws IOException {
+        this.scanner = scanner;
+        nextToken();
+        this.typeManager =  manager;
     }
 
     private static boolean matchesType(Token token) {
@@ -178,11 +184,11 @@ public class Parser {
             throw new ParserException("unit type", token);
         }
         UnitType unit = typeManager.getUnitType(token);
-        if(unit == null) throw new ParserException("Unit usage before definition", token.getPosition());
+        if(unit == null) throw new ParserException("Unit usage before definition " + token.getStringValue(), token.getPosition());
+
+        if (!requireNextTokenType(TokenType.POWER)) return new CompoundTerm(unit, 1);
 
         nextToken();
-        if (!tokenHasType(TokenType.POWER)) return new CompoundTerm(unit, 1);
-
         nextToken();
         int exponent;
         if(tokenHasType(TokenType.MINUS)){
@@ -194,7 +200,6 @@ public class Parser {
             exponent = token.getIntegerValue();
         }
         if (exponent == 0) throw new ParserException("exponent in unit expression cannot be 0", token.getPosition());
-
         return new CompoundTerm(unit, exponent);
     }
 
@@ -570,6 +575,7 @@ public class Parser {
         if(!tokenHasType(TokenType.IDENTIFIER)){
             throw new ParserException(TokenType.IDENTIFIER, token);
         }
+        Expression ex = parseOrExpression();
         String identifier = token.getStringValue();
         nextToken();
         if(!tokenHasType(TokenType.CLOSE_BRACKET)){

@@ -1,5 +1,6 @@
 package tree.expression.unit.value;
 
+import interpreter.Visitor;
 import tree.expression.unit.UnitExpression;
 
 public class UnitExpressionVariableValue extends UnitExpression {
@@ -16,5 +17,10 @@ public class UnitExpressionVariableValue extends UnitExpression {
     @Override
     public String toString() {
         return identifier;
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 }

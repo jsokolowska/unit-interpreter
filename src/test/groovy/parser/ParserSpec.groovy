@@ -15,8 +15,12 @@ import util.exception.ParserException
 
 class ParserSpec extends Specification{
 
-    static def prepareParser(str, typeManager = new TypeManager()){
-       new Parser (new Scanner(new StringSource(str)), typeManager)
+    static def prepareParser(str){
+       new Parser (new Scanner(new StringSource(str)))
+    }
+
+    static def prepareParser(str, manager){
+        new Parser (new Scanner(new StringSource(str)), manager)
     }
 
     def "Should parse different return statements"(){
@@ -219,8 +223,8 @@ class ParserSpec extends Specification{
 
         where:
         str                                                 || name     | parts
-        "unit k as<second ^ 2>;"                            || "k"      | [new CompoundTerm(new UnitType("second"), 2)]
-        "unit m2 as<kilogram ^2 / meter ^4>;"               || "m2"     | [new CompoundTerm(new UnitType("kilogram"), 2),
+        "unit k as <second ^ 2>;"                            || "k"      | [new CompoundTerm(new UnitType("second"), 2)]
+        "unit m2 as <kilogram ^2 / meter ^4>;"               || "m2"     | [new CompoundTerm(new UnitType("kilogram"), 2),
                                                                            new CompoundTerm(new UnitType ("meter"), -4)]
         "unit a_a as <second ^ 2 * meter^ 3 / kilogram ^4>;"|| "a_a"    | [new CompoundTerm(new UnitType("second"), 2),
                                                                            new CompoundTerm(new UnitType("meter"), 3),

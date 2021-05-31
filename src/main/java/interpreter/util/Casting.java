@@ -325,6 +325,17 @@ public class Casting {
     }
 
     public Number exponentiateWithValueCast(Number lValue, Number rValue){
+        if(isZero(lValue)){
+            if(rValue instanceof Integer rInt){
+                if (rInt <= 0){
+                    throw new InterpretingException("Cannot exponentiate 0 and" + rInt);
+                }
+            }else{
+                if ((Double) rValue <= 0 || isZero(rValue)){
+                    throw new InterpretingException("Cannot exponentiate 0 and" + rValue);
+                }
+            }
+        }
         if(lValue instanceof Integer lInt){
             if(rValue instanceof Integer rInt){
                 if(rInt >= 0){

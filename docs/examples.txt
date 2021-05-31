@@ -12,9 +12,9 @@ unit newton as <kilo * meter / ( second ^2)>;
 
 
 /** adding conversions **/
-let meter (kiloMeter km) : 1000 * km;
-let kelvin (celsius c) : c + 273.15;
-let farenheit (celsius c) : c * 9/5 + 32;
+let meter as (kiloMeter km) { 1000 * km};
+let kelvin as (celsius c) { c + 273.15};
+let farenheit as (celsius c) { c * 9/5 + 32};
 
 
 /** using conversions **/

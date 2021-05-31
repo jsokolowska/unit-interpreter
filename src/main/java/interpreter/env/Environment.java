@@ -74,6 +74,10 @@ public class Environment {
         return values.pop();
     }
 
+    public boolean isStackEmpty(){
+        return values.size() == 0;
+    }
+
     public boolean hasBroken() {
         return broken;
     }

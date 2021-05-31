@@ -40,6 +40,15 @@ class CastingSpec extends Specification{
         6       | make_compound(["a", "b"], [1,-2])
     }
 
+    def static make_compound(ArrayList<String> terms, ArrayList<Integer> exponents){
+        var expr = new CompoundExpr()
+        var size = terms.size()
+        for(int i=0; i<size; i++){
+            expr.addPart(terms[i], exponents[i])
+        }
+        return new CompoundType(expr);
+    }
+
     def "Cast to boolean"(){
         given:
         var stackVal = new StackValue(new Literal<>(obj), type)
@@ -225,15 +234,6 @@ class CastingSpec extends Specification{
         make_compound(["a"], [-1])                  | new UnitType("a")                       || double_t
         make_compound(["a"], [2])                   | make_compound(["a"], [-1])              || new UnitType("a")
         double_t                                    | make_compound(["a", "b", "c"], [1,1,1]) || second
-    }
-
-    def static make_compound(ArrayList<String> terms, ArrayList<Integer> exponents){
-        var expr = new CompoundExpr()
-        var size = terms.size()
-        for(int i=0; i<size; i++){
-            expr.addPart(terms[i], exponents[i])
-        }
-        return new CompoundType(expr);
     }
 
     def "Check calculate type for multiplication errors"(){
