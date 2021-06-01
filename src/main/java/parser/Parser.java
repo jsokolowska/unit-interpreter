@@ -429,7 +429,7 @@ public class Parser {
             if((type = typeManager.getType(token))==null){
                 if(tokenHasType(TokenType.IDENTIFIER)){
                     throw new ParserException("Type usage before definition", token.getPosition());
-                }else{
+                }else if(!tokenHasType(TokenType.TYPE_VOID)){
                     return null;
                 }
             }

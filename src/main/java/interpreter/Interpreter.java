@@ -91,7 +91,7 @@ public class Interpreter implements Visitor{
         Parameters params = fun.getParams();
         List<Expression> args = functionCall.getArgs().getArgList();
         if(params.size()!= args.size()){
-            throw new InterpretingException("Wrong number of expressions passed to function call or conversion call", line);
+            throw new InterpretingException("Wrong number of arguments passed to function call or conversion call", line);
         }
         for (var a : args){
             a.accept(this);
@@ -99,10 +99,15 @@ public class Interpreter implements Visitor{
         env.pushNewCallScope();
         fun.accept(this);
         //get return value out of call scope
-        var temp = env.popValue();
-        env.popCallScope();
-        env.pushValue(temp);
+        if(!env.isStackEmpty()){
+            var temp = env.popValue();
+            env.popCallScope();
+            env.pushValue(temp);
+        }else{
+            env.popCallScope();
+        }
         env.setReturned(false);
+        env.setReturnedWithValue(false);
         env.setContinued(false);
         env.setBroken(false);
     }
@@ -120,7 +125,7 @@ public class Interpreter implements Visitor{
 
         var args = functionCall.getArgs().getArgList();;
         if(args.size() != 1){
-            throw new InterpretingException("Wrong number of expressions passed to buit-in conversion call", line);
+            throw new InterpretingException("Wrong number of arguments passed to buit-in conversion call", line);
         }
 
         //push provided expression to the stack
@@ -139,13 +144,13 @@ public class Interpreter implements Visitor{
         Statement stmt = function.getBody();
         stmt.accept(this);
         if(env.hasReturned()){
-            if(function.getReturnType()==null){
-                throw new InterpretingException("Unexpected return statement", line);
-            }else{
-                if(env.isStackEmpty()){
-                    throw new InterpretingException("Empty return statement", line);
+            if(env.hasReturnedWithValue()){
+                if(function.getReturnType() == null){
+                    throw new InterpretingException("Return value for function that returns void", line);
                 }
                 env.pushValue(casting.cast(env.popValue(), function.getReturnType()));
+            }else if(function.getReturnType() != null){
+                throw new InterpretingException("Empty return statement for non-void function", line);
             }
         }else{
             if(function.getReturnType() != null){
@@ -274,6 +279,7 @@ public class Interpreter implements Visitor{
         Expression retExpr = statement.getReturnExpression();
         if(retExpr!=null){
             retExpr.accept(this);
+            env.setReturnedWithValue(true);
         }
         env.setReturned(true);
     }
@@ -485,7 +491,6 @@ public class Interpreter implements Visitor{
         var rObj = env.popValue();
         var lObj = env.popValue();
         env.pushValue(new Literal<>(casting.compareToWithCast(lObj, rObj) >= 0), new BoolType());
-        env.pushValue(new Literal<>(casting.compareToWithCast(lObj, rObj) >= 0), new BoolType());
     }
 
     public void visit(NotEqOperator operator) {
@@ -503,13 +508,8 @@ public class Interpreter implements Visitor{
         var lObj = env.popValue();
 
         Type resultType = casting.calculateTypeForDivision(lObj.getType(), rObj.getType());
-        if(rObj.getValue() instanceof Number rNum && lObj.getValue() instanceof Number lNum){
-            Number resultVal = casting.divideWithValueCast(lNum, rNum);
-            env.pushValue(new Literal<>(resultVal), resultType);
-        }else{
-            throw new InterpretingException("Cannot apply division to: " + lObj.getType()
-                                            + " and " + rObj.getType(), line);
-        }
+        Number resultVal = casting.divideWithValueCast((Number) lObj.getValue(), (Number) rObj.getValue());
+        env.pushValue(new Literal<>(resultVal), resultType);
     }
 
     public void visit(MinusOperator operator){

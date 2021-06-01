@@ -990,6 +990,7 @@ class ParserSpec extends Specification{
         then:
         thrown(ParserException)
     }
+
     def "Should parse functions"(){
         given:
         def parser = prepareParser(str)
@@ -1003,7 +1004,8 @@ class ParserSpec extends Specification{
         where:
         str << ["int main(){}",
                 "float k(int i){return i;}",
-                "meter m2(string aa, int k){}"]
+                "meter m2(string aa, int k){}",
+                "void f( int i){}"]
     }
 
     def "Should throw parser util.exception for improper function definition"(){

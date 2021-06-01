@@ -1,0 +1,25 @@
+unit farenheit;
+unit kiloMeter;
+
+unit joule as  <kilogram * meter^2 / second ^2>;
+unit newton as <kilogram * meter /  second ^2>;
+
+
+let meter as (kiloMeter km) { 1000 * km};
+
+int main(){
+    print("Hello world");
+
+    joule j = 12;
+    newton n = 10;
+    type (j*n) ;
+    type (j/n) ;
+
+    kiloMeter km = 4;
+
+    int x = -6*4 + 10^2;
+    print( meter(km));
+    print(x);
+
+    return 0;
+}

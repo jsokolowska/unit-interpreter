@@ -3,7 +3,6 @@ package interpreter.env;
 import interpreter.util.Casting;
 import interpreter.util.StackValue;
 import tree.Variable;
-import tree.expression.unit.value.UnitExpressionLiteral;
 import tree.type.Type;
 import tree.value.Literal;
 
@@ -15,66 +14,59 @@ public class Environment {
     private boolean returned;
     private boolean broken;
     private boolean continued;
+    private boolean returnedWithValue;
 
-    public Environment(){
+    public Environment() {
         this.values = new Stack<>();
         this.callScopes = new Stack<>();
     }
 
-    public void pushNewCallScope(){
-        this.callScopes.push( new CallScope());
+    public void pushNewCallScope() {
+        this.callScopes.push(new CallScope());
     }
 
-    public void pushNewBlock(){
-        callScopes.peek().addBlockScope( new BlockScope());
+    public void pushNewBlock() {
+        callScopes.peek().addBlockScope(new BlockScope());
     }
 
-    public void popBlock(){
+    public void popBlock() {
         callScopes.peek().popBlockScope();
     }
 
-    public void pushCallScope(CallScope scope){
-        callScopes.push(scope);
-    }
-
-    public void popCallScope(){
+    public void popCallScope() {
         callScopes.pop();
     }
 
-    public void addVariable(Variable var){
+    public void addVariable(Variable var) {
         callScopes.peek().addVariable(var);
     }
 
-    public boolean variableExistsInBlock(String id){
+    public boolean variableExistsInBlock(String id) {
         return callScopes.peek().variableExistsInBlock(id);
     }
 
-    public boolean variableExistsInCallScope(String id){
-        return this.callScopes.peek().variableExistsInCallScope(id);
-    }
-
-    public Variable getVariable(String id){
+    public Variable getVariable(String id) {
         return callScopes.peek().getVariable(id);
     }
 
-    public void pushValue(Literal<?> value){
+    public void pushValue(Literal<?> value) {
         Type type = Casting.getMatchingType(value);
         values.push(new StackValue(value, type));
     }
 
-    public void pushValue(StackValue val){
+    public void pushValue(StackValue val) {
         values.push(val);
     }
 
-    public void pushValue(Literal<?> val, Type type){
+    public void pushValue(Literal<?> val, Type type) {
         values.push(new StackValue(val, type));
     }
 
-    public StackValue popValue(){
+    public StackValue popValue() {
         return values.pop();
     }
 
-    public boolean isStackEmpty(){
+    public boolean isStackEmpty() {
         return values.size() == 0;
     }
 
@@ -86,11 +78,11 @@ public class Environment {
         return returned;
     }
 
-    public boolean hasContinued(){
+    public boolean hasContinued() {
         return continued;
     }
 
-    public void setReturned(boolean returned){
+    public void setReturned(boolean returned) {
         this.returned = returned;
     }
 
@@ -100,5 +92,13 @@ public class Environment {
 
     public void setContinued(boolean continued) {
         this.continued = continued;
+    }
+
+    public void setReturnedWithValue(boolean returnedWithValue) {
+        this.returnedWithValue = returnedWithValue;
+    }
+
+    public boolean hasReturnedWithValue() {
+        return returnedWithValue;
     }
 }

@@ -252,5 +252,6 @@ class ScannerSpec extends Specification{
         "second"    || TokenType.TYPE_SEC
         "true"      || TokenType.BOOL_LITERAL
         "false"     || TokenType.BOOL_LITERAL
+        "void"      || TokenType.TYPE_VOID
     }
 }

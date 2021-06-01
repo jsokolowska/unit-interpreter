@@ -5,7 +5,6 @@ import interpreter.Visitor;
 import tree.expression.Expression;
 
 public class TypeStatement extends Statement{
-    //todo set expression instead of identifier and fix it in parser, interpreter and related tests
     private final Expression ex;
 
     public TypeStatement (Expression ex){

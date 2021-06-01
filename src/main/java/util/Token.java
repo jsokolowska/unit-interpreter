@@ -56,6 +56,7 @@ public class Token {
         TYPE_METER,
         TYPE_KG,
         TYPE_SEC,
+        TYPE_VOID,
         COMPOUND,           // compound
         INT_LITERAL,        // number : "0" | non_zero_number;
         FLOAT_LITERAL,      // for floating point values

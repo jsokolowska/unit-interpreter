@@ -955,7 +955,9 @@ class InterpreterSpec extends Specification{
         outStream.getStringValue() == "2\n4\n"
 
         where:
-        str << ["int f(){return 2;} int main(){ print(f()); f(); print(4); return 0;}"]
+        str << ["int f(){return 2;} int main(){ print(f()); f(); print(4); return 0;}",
+                "void f(){print(2); print(4);} int main(){f(); return 0;}",
+                "void f(){print(2); print(4); return;} int main(){f(); return 0;}"]
     }
 
     def "Check break, continue and return inside of while statement"(){
@@ -983,9 +985,8 @@ class InterpreterSpec extends Specification{
         given:
         var scanner = new Scanner(new StringSource(str))
         var parser = new Parser(scanner)
-        var env = prepEnv()
         var outStream = new StringOutputStream()
-        var interpreter = new Interpreter(parser.parse(),  env, new PrintStream(outStream))
+        var interpreter = new Interpreter(parser.parse(), new Environment(), new PrintStream(outStream))
 
         when:
         interpreter.execute()
@@ -997,5 +998,30 @@ class InterpreterSpec extends Specification{
         str                                                                                 || res
         "unit k; int main(){k k_var = 12.1; print(int(k_var)); return 0;}"                  || "12\n"
         "unit k; int main(){k k_var = 12.5; print(float(k_var)); return 0;}"                || "12.5\n"
+    }
+
+    def "Check interpreting errors"(){
+        given:
+        var parser = new Parser(new Scanner(new StringSource(str)))
+        var outStream = new StringOutputStream()
+        var interpreter = new Interpreter(parser.parse(),  new Environment(), new PrintStream(outStream))
+
+        when:
+        interpreter.execute()
+
+        then:
+        thrown(InterpretingException)
+
+        where:
+        str     <<["int main(){int(12, 3); return 0;}",
+                   "int main(){k(12); return 0; }",
+                   "int f(){} int main(){f(19); return 0;}",
+                   "int main(){}",
+                   "int main(){return;}",
+                    "int main() {return k+12;}",
+                    "int m(){return 0;}",
+                    "int main() { m = 2; return 0;}",
+                    "int main(){ int i = - true; return 0;}",
+                    "int main(){int i = true/false; return 0;}"]
     }
 }
