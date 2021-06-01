@@ -702,6 +702,8 @@ class ParserSpec extends Specification{
         "k()"           || "k(none)"
         "k(8+12, 0, -5)"|| "k([8+12], 0, [-5])"
         "meter(6)"      || "meter(6)"
+        "int(12.5)"     || "int(12.5)"
+        "float(2)"      || "float(2)"
     }
 
     def "Should throw ParserException error on improper function calls"() {
@@ -802,7 +804,6 @@ class ParserSpec extends Specification{
         str             || msg_str
         "type(k)"       || "SEMICOLON"
         "type 9"        || "OPEN_BRACKET"
-        "type(0"        || "IDENTIFIER"
         "type(uu"       || "CLOSE_BRACKET"
     }
     def "Should parse function call statement"(){
@@ -871,6 +872,7 @@ class ParserSpec extends Specification{
         str                             || msg_str
         "if(2) return;"                 || "if(2)<return:null>\nelse<null>"
         "if(2) return 2; else continue;"|| "if(2)<return:2>\nelse<continue>"
+        "if(i<3)print(2);"              || "if([i<3])<print(2)>\nelse<null>"
     }
     def "Should not parse improper if else statement"(){
         given:

@@ -805,19 +805,6 @@ class InterpreterSpec extends Specification{
         env.hasReturned()
     }
 
-    def "Check visit type statement"() {
-        given:
-        var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
-        var type_stmt = new TypeStatement("identifier")
-
-        when:
-        type_stmt.accept(interpreter)
-
-        then:
-        thrown(InterpretingException)
-    }
-
     def "Check continue statement"(){
         given:
         var env = prepEnv()
@@ -874,16 +861,17 @@ class InterpreterSpec extends Specification{
 
     def "Check function call statement"() {
         given:
-        var scanner = new Scanner(new StringSource("int f(int t){return 12+t;} int main(){ f(5); return 3;}"))
+        var scanner = new Scanner(new StringSource("int f(int t){return 12+t;} int main(){ print(f(5)); return 3;}"))
         var parser = new Parser(scanner)
         var env = prepEnv()
-        var interpreter = new Interpreter(parser.parse(), env)
+        var outStream = new StringOutputStream()
+        var interpreter = new Interpreter(parser.parse(), env, new PrintStream(outStream))
 
         when:
         interpreter.execute()
 
         then:
-        env.popValue().getValue() == 17
+        outStream.getStringValue() == "17\n"
     }
 
     def "Check while statement"() {
@@ -934,6 +922,80 @@ class InterpreterSpec extends Specification{
 
         then:
         outStream.getStringValue() == "21 [unit kilogram]\n"
+    }
 
+    def "Check call scopes"(){
+        given:
+        var str = "int f(){int i=10; print(i); return 2;} int main(){int i=0; f(); return 4;}";
+        var scanner = new Scanner(new StringSource(str))
+        var parser = new Parser(scanner)
+        var env = prepEnv()
+        var outStream = new StringOutputStream()
+        var interpreter = new Interpreter(parser.parse(),  env, new PrintStream(outStream))
+
+        when:
+        interpreter.execute()
+
+        then:
+        outStream.getStringValue() == "10\n"
+    }
+
+    def "Check function calls and return values"(){
+        given:
+        var scanner = new Scanner(new StringSource(str))
+        var parser = new Parser(scanner)
+        var env = prepEnv()
+        var outStream = new StringOutputStream()
+        var interpreter = new Interpreter(parser.parse(),  env, new PrintStream(outStream))
+
+        when:
+        interpreter.execute()
+
+        then:
+        outStream.getStringValue() == "2\n4\n"
+
+        where:
+        str << ["int f(){return 2;} int main(){ print(f()); f(); print(4); return 0;}"]
+    }
+
+    def "Check break, continue and return inside of while statement"(){
+        given:
+        var scanner = new Scanner(new StringSource(str))
+        var parser = new Parser(scanner)
+        var env = prepEnv()
+        var outStream = new StringOutputStream()
+        var interpreter = new Interpreter(parser.parse(),  env, new PrintStream(outStream))
+
+        when:
+        interpreter.execute()
+
+        then:
+        outStream.getStringValue() == res
+
+        where:
+        str                                                                                 || res
+        "int main(){while(true){print(2); break; print(3);} return 0;}"                     || "2\n"
+        "int main(){while(true){print(2); return -1; print(3);} return 0;}"                 || "2\n"
+        "int main(){int i=0; while(i<3){i = i+1; if(i == 2){continue;} print(i);}return 0;}"|| "1\n3\n"
+    }
+
+    def "Check provided conversions"(){
+        given:
+        var scanner = new Scanner(new StringSource(str))
+        var parser = new Parser(scanner)
+        var env = prepEnv()
+        var outStream = new StringOutputStream()
+        var interpreter = new Interpreter(parser.parse(),  env, new PrintStream(outStream))
+
+        when:
+        interpreter.execute()
+
+        then:
+        outStream.getStringValue() == res
+
+        where:
+        str                                                                                 || res
+        "unit k; int main(){k k_var = 12.1; print(int(k_var)); return 0;}"                  || "12\n"
+        "unit k; int main(){k k_var = 12.5; print(float(k_var)); return 0;}"                || "12.5\n"
     }
 }

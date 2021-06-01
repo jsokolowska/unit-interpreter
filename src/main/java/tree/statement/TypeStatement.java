@@ -5,21 +5,20 @@ import interpreter.Visitor;
 import tree.expression.Expression;
 
 public class TypeStatement extends Statement{
-    private final String identifier;
     //todo set expression instead of identifier and fix it in parser, interpreter and related tests
     private final Expression ex;
 
-    public TypeStatement (String identifier){
-        this.identifier = identifier;
+    public TypeStatement (Expression ex){
+        this.ex = ex;
     }
 
-    public String getIdentifier(){
-        return identifier;
+    public Expression getExpression() {
+        return ex;
     }
 
     @Override
     public String toString() {
-        return "type:" + identifier;
+        return "type:" + ex;
     }
 
     @Override

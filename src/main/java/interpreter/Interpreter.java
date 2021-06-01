@@ -64,12 +64,13 @@ public class Interpreter implements Visitor{
         if(main == null){
             throw new InterpretingException("Program must contain function main");
         }
+        env.pushNewCallScope();
         main.accept(this);
+        env.popCallScope();
     }
 
     public void visit(Variable var){
-        Variable known = env.getVariable(var.getIdentifier());
-        if(known != null)
+        if(env.variableExistsInBlock(var.getIdentifier()))
             throw new InterpretingException("Variable redefinition " + var.getIdentifier(), line);
 
         env.addVariable(var);
@@ -80,9 +81,14 @@ public class Interpreter implements Visitor{
 
         AbstractFunction function = program.getFunctionOrConversionFunction(funName);
         if(function == null){
-            throw new InterpretingException("Unknown function or conversion identifier " + funName, line);
+            visitProvidedConversion(functionCall);
+        }else{
+            visitFunction(functionCall, function);
         }
-        Parameters params = function.getParams();
+    }
+
+    public void visitFunction(FunctionCall functionCall, AbstractFunction fun){
+        Parameters params = fun.getParams();
         List<Expression> args = functionCall.getArgs().getArgList();
         if(params.size()!= args.size()){
             throw new InterpretingException("Wrong number of expressions passed to function call or conversion call", line);
@@ -90,10 +96,38 @@ public class Interpreter implements Visitor{
         for (var a : args){
             a.accept(this);
         }
-
         env.pushNewCallScope();
-        function.accept(this);
+        fun.accept(this);
+        //get return value out of call scope
+        var temp = env.popValue();
         env.popCallScope();
+        env.pushValue(temp);
+        env.setReturned(false);
+        env.setContinued(false);
+        env.setBroken(false);
+    }
+
+    public void visitProvidedConversion(FunctionCall functionCall){
+        String funName = functionCall.getIdentifier();
+        Type t;
+        if(funName.equals("int")){
+            t = new IntType();
+        }else if(funName.equals("float")){
+            t = new DoubleType();
+        }else{
+            throw new InterpretingException("Unknown function or conversion identifier " + funName, line);
+        }
+
+        var args = functionCall.getArgs().getArgList();;
+        if(args.size() != 1){
+            throw new InterpretingException("Wrong number of expressions passed to buit-in conversion call", line);
+        }
+
+        //push provided expression to the stack
+        args.get(0).accept(this);
+        var result = env.popValue();
+        var converted = casting.cast(result, t);
+        env.pushValue(converted);
     }
 
     public void visit(Function function){
@@ -247,12 +281,11 @@ public class Interpreter implements Visitor{
     public void visit(TypeStatement statement){
         if(env.hasBroken() || env.hasContinued() || env.hasReturned()) return;
         line = statement.getLine();
-        String id = statement.getIdentifier();
-        Variable var = env.getVariable(id);
-        if(var == null){
-            throw new InterpretingException("Unrecognized identifier", line);
-        }
-        Type t = var.getType();
+        Expression ex = statement.getExpression();
+
+        ex.accept(this);
+
+        Type t = env.popValue().getType();
         printStream.println(t.prettyToString());
     }
 
@@ -278,11 +311,14 @@ public class Interpreter implements Visitor{
 
         condition.accept(this);
         boolean conditionValue = (boolean) casting.cast(env.popValue(), new BoolType()).getValue();
-        while(conditionValue && !env.hasBroken()){
+        while(conditionValue && !env.hasBroken() && !env.hasReturned()){
             body.accept(this);
             condition.accept(this);
             conditionValue = (boolean) casting.cast(env.popValue(), new BoolType()).getValue();
+            env.setContinued(false);
         }
+        env.setBroken(false);
+        env.setContinued(false);
     }
 
     public void visit(ConversionExpression expression){

@@ -37,7 +37,7 @@ class OtherToStringSpec extends Specification{
         new PrintStatement(new Arguments())         || "print(" + new Arguments().toString() + ")"
         new ReturnStatement()                       || "return:null"
         new ReturnStatement(new Expression())       || "return:" + new Expression().toString()
-        new TypeStatement("id")                     || "type:id"
+        new TypeStatement(new Expression())                     || "type:u"
         new VariableDeclarationStatement(new Variable(new IntType(), "id"),
                 new AssignStatement("id", new Expression())) || "int:id=u"
     }

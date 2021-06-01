@@ -69,7 +69,7 @@ identifier : ((underscore  (letter | digit)) | letter) {letter | digit | undersc
 literal: base_type| string | number;
 #types
 type: base_type | unit_type;
-base_type: "int" | "float" | "bool" | "string";
+base_type: "int" | "float" | "bool" | "string"; #todo add void type
 unit_type: base_unit | identifier | compound_type;
 base_unit: "kilogram" | "meter" | "second";
 compound_type: "compound" "<" compound_expr ">";    #todo in parser -> compound type "on the fly"

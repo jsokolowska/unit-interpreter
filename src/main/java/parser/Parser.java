@@ -478,8 +478,8 @@ public class Parser {
             throw new ParserException(TokenType.OPEN_BRACKET, token);
         }
         nextToken();
-        Expression ifCondition = parseExpression();
-        nextToken();
+        Expression ifCondition = parseOrExpression();
+        //nextToken();
         if(!tokenHasType(TokenType.CLOSE_BRACKET)){
             throw new ParserException(TokenType.CLOSE_BRACKET, token);
         }
@@ -572,12 +572,7 @@ public class Parser {
             throw new ParserException(TokenType.OPEN_BRACKET, token);
         }
         nextToken();
-        if(!tokenHasType(TokenType.IDENTIFIER)){
-            throw new ParserException(TokenType.IDENTIFIER, token);
-        }
         Expression ex = parseOrExpression();
-        String identifier = token.getStringValue();
-        nextToken();
         if(!tokenHasType(TokenType.CLOSE_BRACKET)){
             throw new ParserException(TokenType.CLOSE_BRACKET, token);
         }
@@ -586,7 +581,7 @@ public class Parser {
             throw new ParserException(TokenType.SEMICOLON, token);
         }
         nextToken();
-        return new TypeStatement(identifier);
+        return new TypeStatement(ex);
     }
 
     private BlockStatement parseBlockStatement() throws IOException {
@@ -825,7 +820,13 @@ public class Parser {
             identifier = type.getName();
         }else if (tokenHasType(TokenType.IDENTIFIER)){
             identifier = token.getStringValue();
-        }else{ return null; }
+        }else if (tokenHasType(TokenType.TYPE_INT)){
+            identifier = "int";
+        }else if (tokenHasType(TokenType.TYPE_FLOAT)){
+            identifier = "float";
+        }else{
+            return null;
+        }
 
         if(!requireNextTokenType(TokenType.OPEN_BRACKET)) return null; // could be variable
         nextToken();
