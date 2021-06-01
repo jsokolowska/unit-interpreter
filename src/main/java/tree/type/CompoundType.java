@@ -11,9 +11,16 @@ public class CompoundType extends UnitType {
         super(name);
         this.expr = expr;
     }
+
     public CompoundType(CompoundExpr expr) {
         super(null);
         this.expr = expr;
+    }
+
+    public CompoundType(UnitType t) {
+        super(null);
+        this.expr = new CompoundExpr();
+        expr.addPart(t.getName(), 1);
     }
 
     public CompoundExpr getExpr() {

@@ -4,6 +4,7 @@ import tree.Variable;
 import tree.type.Type;
 import tree.value.Literal;
 
+//todo refactor to use Objects instead of literals
 public class StackValue {
     private final Literal<?> value;
     private final Type type;

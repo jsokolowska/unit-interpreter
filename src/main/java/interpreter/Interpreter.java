@@ -61,8 +61,11 @@ public class Interpreter implements Visitor{
 
     public void visit(Program program){
         Function main = program.getFunction("main");
-        if(main == null){
+        if(main == null ){
             throw new InterpretingException("Program must contain function main");
+        }
+        if(main.getParams().size() != 0){
+            throw new InterpretingException("Main function cannot take any arguments");
         }
         env.pushNewCallScope();
         main.accept(this);
@@ -175,6 +178,9 @@ public class Interpreter implements Visitor{
         Variable variable = env.getVariable(variableValue.getIdentifier());
         if(variable == null){
             throw new InterpretingException("Unknown identifier: " + variableValue.getIdentifier(), line);
+        }
+        if(variable.getValue() == null){
+            throw new InterpretingException("Using uninitialized variable " + variable.getIdentifier(), line);
         }
         StackValue stackValue = new StackValue(variable);
         env.pushValue(stackValue);

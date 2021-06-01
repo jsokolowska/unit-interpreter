@@ -938,6 +938,8 @@ class ParserSpec extends Specification{
         "int k;"            || "int:k=null"
         "second s = 12^2;"  || "[u]second:s=[12^2]"
         "k k = 2;"          || "null"
+        "compound c;"       || "[u]inferred:c=null"
+        "compound c = 2;"   || "[u]inferred:c=2"
     }
 
     def "Should throw ParserException for improper var declaration"(){

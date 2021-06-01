@@ -23,11 +23,14 @@ public class TypeManager {
         baseTypes.put(Token.TokenType.TYPE_SEC, new UnitType("second"));
         baseTypes.put(Token.TokenType.TYPE_KG, new UnitType("kilogram"));
         baseTypes.put(Token.TokenType.TYPE_METER, new UnitType("meter"));
+        baseTypes.put(Token.TokenType.COMPOUND, new InferredCompound());
     }
+
     public TypeManager(){
         units.put("second", new UnitType("second"));
         units.put("kilogram", new UnitType("kilogram"));
         units.put("meter", new UnitType("meter"));
+        units.put("compound", new InferredCompound());
     }
 
     public Type getType(Token typeToken) {

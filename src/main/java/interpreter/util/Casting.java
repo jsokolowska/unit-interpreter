@@ -86,6 +86,17 @@ public class Casting {
     }
 
     private StackValue castToUnit(Object value, Type from, UnitType to){
+        if(to instanceof InferredCompound){
+            if(from instanceof NumericType){
+                throw new InterpretingException("Cannot infer unit type from numerical value", line);
+            }
+            if(from instanceof CompoundType){
+                return new StackValue(new Literal<>(value), to);
+            }
+            if(from instanceof UnitType u){
+                return new StackValue(new Literal<>(value),new CompoundType(u));
+            }
+        }
         if (from instanceof NumericType){
             return new StackValue(new Literal<>(value), to);
         }

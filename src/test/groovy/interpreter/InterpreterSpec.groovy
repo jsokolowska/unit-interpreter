@@ -1024,4 +1024,23 @@ class InterpreterSpec extends Specification{
                     "int main(){ int i = - true; return 0;}",
                     "int main(){int i = true/false; return 0;}"]
     }
+
+    def "Check inferred types"() {
+        given:
+        var parser = new Parser(new Scanner(new StringSource(str)))
+        var outStream = new StringOutputStream()
+        var interpreter = new Interpreter(parser.parse(), new Environment(), new PrintStream(outStream))
+
+        when:
+        interpreter.execute()
+
+        then:
+        res.each {
+            outStream.getStringValue().contains(it)
+        }
+
+        where:
+        str << ["unit joule as  <kilogram * meter^2 / second ^2>; int main(){compound c; joule j = 12; c = j; type(j); return 0;} "]
+        res << [["compound joule", "kilogram^1", "meter^2", "second^-2"]]
+    }
 }
