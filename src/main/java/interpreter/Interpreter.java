@@ -26,6 +26,7 @@ import util.exception.InterpretingException;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Interpreter implements Visitor{
@@ -60,7 +61,7 @@ public class Interpreter implements Visitor{
     }
 
     public void visit(Program program){
-        Function main = program.getFunction("main");
+        AbstractFunction main = program.getFunctionOrConversionFunction("main()");
         if(main == null ){
             throw new InterpretingException("Program must contain function main");
         }
@@ -80,25 +81,41 @@ public class Interpreter implements Visitor{
     }
 
     public void visit(FunctionCall functionCall){
-        String funName = functionCall.getIdentifier();
+        if(tryVisitProvidedConversion(functionCall)) return;
+        //make signature
+        List <Expression> args = functionCall.getArgs().getArgList();
+        for(var e : args){
+            e.accept(this);
+        }
 
-        AbstractFunction function = program.getFunctionOrConversionFunction(funName);
+        int size = args.size();
+        List<StackValue> evaluatedArgs = new ArrayList<>(size);
+        for(int i = 0; i < size; i++){
+            evaluatedArgs.add(env.popValue());
+        }
+
+        StringBuilder keyBuilder = new StringBuilder();
+        for(var eval : evaluatedArgs){
+            keyBuilder.append(eval.getType().toString());
+            keyBuilder.append(",");
+        }
+        if(!keyBuilder.isEmpty()){
+            keyBuilder.deleteCharAt(keyBuilder.length()-1);
+        }
+        String key = functionCall.getIdentifier() + "(" + keyBuilder + ")";
+        AbstractFunction function = program.getFunctionOrConversionFunction(key);
+
         if(function == null){
-            visitProvidedConversion(functionCall);
+            throw new InterpretingException("Call does not match any of known function signatures", line);
         }else{
-            visitFunction(functionCall, function);
+            for (StackValue e : evaluatedArgs){
+                env.pushValue(e);
+            }
+            visitFunction(function);
         }
     }
 
-    public void visitFunction(FunctionCall functionCall, AbstractFunction fun){
-        Parameters params = fun.getParams();
-        List<Expression> args = functionCall.getArgs().getArgList();
-        if(params.size()!= args.size()){
-            throw new InterpretingException("Wrong number of arguments passed to function call or conversion call", line);
-        }
-        for (var a : args){
-            a.accept(this);
-        }
+    public void visitFunction(AbstractFunction fun){
         env.pushNewCallScope();
         fun.accept(this);
         //get return value out of call scope
@@ -115,7 +132,7 @@ public class Interpreter implements Visitor{
         env.setBroken(false);
     }
 
-    public void visitProvidedConversion(FunctionCall functionCall){
+    public boolean tryVisitProvidedConversion(FunctionCall functionCall){
         String funName = functionCall.getIdentifier();
         Type t;
         if(funName.equals("int")){
@@ -123,7 +140,7 @@ public class Interpreter implements Visitor{
         }else if(funName.equals("float")){
             t = new DoubleType();
         }else{
-            throw new InterpretingException("Unknown function or conversion identifier " + funName, line);
+            return false;
         }
 
         var args = functionCall.getArgs().getArgList();;
@@ -136,6 +153,7 @@ public class Interpreter implements Visitor{
         var result = env.popValue();
         var converted = casting.cast(result, t);
         env.pushValue(converted);
+        return true;
     }
 
     public void visit(Function function){
@@ -163,7 +181,7 @@ public class Interpreter implements Visitor{
     }
 
     public void visit(Parameters parameters){
-        var paramMap = parameters.getParameters();
+        var paramMap = parameters.getParamMap();
         for (String key : paramMap.keySet()){
             Variable var = new Variable(paramMap.get(key),key);
             env.addVariable(var);
@@ -195,7 +213,7 @@ public class Interpreter implements Visitor{
     }
 
     private void setParameterValues(Parameters parameters){
-        var paramMap = parameters.getParameters();
+        var paramMap = parameters.getParamMap();
         var it = paramMap.entrySet().stream().toList().listIterator(paramMap.size());
         while(it.hasPrevious()){
             var current_param = it.previous();
@@ -219,6 +237,7 @@ public class Interpreter implements Visitor{
 
         StackValue castResult = casting.cast(val, var.getType());
         var.setValue(castResult.getValueAsLiteral());
+        var.setType(castResult.getType());
     }
 
     public void visit(BlockStatement statement){

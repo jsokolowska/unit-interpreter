@@ -1,0 +1,15 @@
+unit joule as  <kilogram * meter^2 / second ^2>;
+unit newton as <kilogram * meter /  second ^2>;
+
+int main(){
+    joule j = 12;
+    newton n = 6;
+
+    compound c1 = j * n;
+    compound c2 = j / n;
+
+    type(c1);
+    type(c2);
+
+    return 0;
+}

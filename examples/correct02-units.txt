@@ -23,3 +23,12 @@ int main(){
 
     return 0;
 }
+
+//todo jak traktowane są operatory relacyjne?
+//todo dodać w parserze sprawdzanie sygnatur konwersji i wykrywanie identycznych -> użytkownik powinien być w stanie zdefiniować dwie różne konwersje do jednej jednostki
+//todo dodać to też w interpreterze
+
+//todo upewnij się czy można zdefiniować konwersję typu "compound" i jeśli tak to to zablokuj
+//todo sprawdź konwersje z wieloma argumentami
+//todo int main - zweryfikuj
+//todo dodać konwersje int -> jednostka

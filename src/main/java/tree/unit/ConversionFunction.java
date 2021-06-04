@@ -14,6 +14,7 @@ public class ConversionFunction extends AbstractFunction implements Visitable {
         this.conversionExpression = conversionExpression;
         this.to = to;
         this.params = parameters;
+        this.name = to.toString();
     }
 
     public UnitExpression getConversionExpression() {

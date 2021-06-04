@@ -12,6 +12,11 @@ public class CompoundType extends UnitType {
         this.expr = expr;
     }
 
+    public CompoundType(CompoundType t){
+        super("");
+        this.expr = new CompoundExpr(t.getExpr());
+    }
+
     public CompoundType(CompoundExpr expr) {
         super(null);
         this.expr = expr;
@@ -63,9 +68,6 @@ public class CompoundType extends UnitType {
 
     @Override
     public String prettyToString(){
-        if(name != null){
-            return "compound " + name + " " + expr.toString();
-        }
         return "compound " + expr.toString();
     }
 }

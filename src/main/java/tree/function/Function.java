@@ -7,19 +7,14 @@ import tree.statement.Statement;
 import tree.type.Type;
 
 public class Function extends AbstractFunction implements Visitable {
-    private final String identifier;
     private final Type returnType;
     private final Statement body;
 
     public Function(String identifier, Statement body, Parameters params, Type returnType){
-        this.identifier = identifier;
+        this.name = identifier;
         this.body = body;
         this.params = params;
         this.returnType = returnType;
-    }
-
-    public String getIdentifier() {
-        return identifier;
     }
 
     public Statement getBody() {

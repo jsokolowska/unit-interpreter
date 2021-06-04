@@ -10,8 +10,19 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class CompoundExpr implements Visitable {
-    private final Map<String, Integer> compoundParts = new HashMap<>();
+    private final Map<String, Integer> compoundParts;
 
+    public CompoundExpr(){
+        compoundParts = new HashMap<>();
+    }
+
+    public CompoundExpr(CompoundExpr expr){
+        compoundParts = new HashMap<>();
+        var sourceParts = expr.getCompoundParts();
+        for(var part : sourceParts.entrySet()){
+            compoundParts.put(part.getKey(), part.getValue());
+        }
+    }
 
     public void addPart(CompoundTerm part){
         Integer presVal = compoundParts.get(part.getUnitName());

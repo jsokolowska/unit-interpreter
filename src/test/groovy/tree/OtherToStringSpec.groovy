@@ -11,6 +11,7 @@ import tree.statement.ReturnStatement
 import tree.statement.TypeStatement
 import tree.statement.VariableDeclarationStatement
 import tree.type.IntType
+import tree.unit.CompoundExpr
 import tree.value.FunctionCall
 
 class OtherToStringSpec extends Specification{
@@ -65,6 +66,25 @@ class OtherToStringSpec extends Specification{
     def "Check empty arguments to string"(){
         expect:
         new Arguments().toString() == "none"
+    }
+
+    def "Check compound expression copy" (){
+        given:
+        var expr1 = new CompoundExpr()
+        var i1 = new Integer(12)
+        var i2 = new Integer(15)
+        expr1.addPart("1", i1)
+        expr1.addPart("2", i2)
+        var expr2  = new CompoundExpr(expr1)
+
+        when:
+        expr1.reverse()
+
+        then:
+        !expr2.getCompoundParts().containsValue(-12)
+        !expr2.getCompoundParts().containsValue(-15)
+        expr1.getCompoundParts().containsValue(-12)
+        expr1.getCompoundParts().containsValue(-15)
     }
 
 }

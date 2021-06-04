@@ -73,7 +73,7 @@ public class Parser {
         Function function = parseFunction();
         // try parsing functions until you get to the end of file
         while (function != null) {
-            if(program.functionExists(function.getIdentifier())){
+            if(program.functionExist(function.getSignature())){
                 throw new ParserException("Function redefinition not allowed", token.getPosition());
             }
             program.add(function);

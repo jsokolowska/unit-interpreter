@@ -91,7 +91,7 @@ public class Casting {
                 throw new InterpretingException("Cannot infer unit type from numerical value", line);
             }
             if(from instanceof CompoundType){
-                return new StackValue(new Literal<>(value), to);
+                return new StackValue(new Literal<>(value), from);
             }
             if(from instanceof UnitType u){
                 return new StackValue(new Literal<>(value),new CompoundType(u));
@@ -127,19 +127,21 @@ public class Casting {
     private Type multiplyUnitTypes(UnitType first, UnitType second){
         if(first instanceof CompoundType compound1 && second instanceof CompoundType compound2){
             Map<String, Integer> compoundParts = compound1.getCompoundTerms();
+            var c = new CompoundType(compound2);
             for(var entry : compoundParts.entrySet()){
-                compound2.add(entry.getKey(), entry.getValue());
+                c.add(entry.getKey(), entry.getValue());
             }
-            return compoundOrFloat(compound2);
+            return compoundOrFloat(c);
         }
         if(first instanceof CompoundType compound){
-            compound.add(second.getName(), 1);
-
-            return compoundOrFloat(compound);
+            var c = new CompoundType(compound);
+            c.add(second.getName(), 1);
+            return compoundOrFloat(c);
         }
         if(second instanceof CompoundType compound){
-            compound.add(first.getName(), 1);
-            return compoundOrFloat(compound);
+            var c = new CompoundType(compound);
+            c.add(first.getName(), 1);
+            return compoundOrFloat(c);
         }
         CompoundExpr expr = new CompoundExpr();
         expr.addPart(first.getName(), 1);
@@ -327,8 +329,9 @@ public class Casting {
 
     private CompoundType exponentiateUnitType(UnitType t, int exponent){
         if(t instanceof CompoundType compound){
-            compound.exponentiate(exponent);
-            return compound;
+            var c = new CompoundType(compound);
+            c.exponentiate(exponent);
+            return c;
         }
         CompoundExpr expr = new CompoundExpr();
         expr.addPart(t.getName(), exponent);

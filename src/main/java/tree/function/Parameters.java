@@ -24,7 +24,7 @@ public class Parameters implements Visitable {
         return false;
     }
 
-    public Map<String, Type> getParameters() {
+    public Map<String, Type> getParamMap() {
         return parameters;
     }
 
