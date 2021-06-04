@@ -23,9 +23,3 @@ int main(){
 
     return 0;
 }
-
-//todo jak traktowane są operatory relacyjne?
-
-//todo upewnij się czy można zdefiniować konwersję typu "compound" i jeśli tak to to zablokuj
-//todo int main - zweryfikuj
-//todo dodać konwersje int -> jednostka

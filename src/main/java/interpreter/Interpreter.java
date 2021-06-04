@@ -149,7 +149,7 @@ public class Interpreter implements Visitor{
         }
         if(t == null) return false;
 
-        var args = functionCall.getArgs().getArgList();;
+        var args = functionCall.getArgs().getArgList();
         if(args.size() != 1){
             throw new InterpretingException("Wrong number of arguments passed to built-in conversion call", line);
         }

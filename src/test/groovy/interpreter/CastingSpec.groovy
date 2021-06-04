@@ -46,7 +46,7 @@ class CastingSpec extends Specification{
         for(int i=0; i<size; i++){
             expr.addPart(terms[i], exponents[i])
         }
-        return new CompoundType(expr);
+        return new CompoundType(expr)
     }
 
     def "Cast to boolean"(){
@@ -131,7 +131,7 @@ class CastingSpec extends Specification{
         var stack_val = new StackValue(new Literal<Object>(lit), type)
 
         when:
-        casting.cast(stack_val, dest_type);
+        casting.cast(stack_val, dest_type)
 
         then:
         thrown(CastingException)
@@ -256,7 +256,7 @@ class CastingSpec extends Specification{
 
     def "Check multiplyString"(){
         given:
-        String str = "s-s";
+        String str = "s-s"
 
         expect:
         casting.multiplyString(str, 3) == "s-ss-ss-s"
@@ -386,8 +386,8 @@ class CastingSpec extends Specification{
 
     def "Compare to with cast"(){
         given:
-        var first_stack = new StackValue(new Literal<Object>(first), null);
-        var second_stack = new StackValue(new Literal<Object>(second), null);
+        var first_stack = new StackValue(new Literal<Object>(first), null)
+        var second_stack = new StackValue(new Literal<Object>(second), null)
 
         expect:
         casting.compareToWithCast(first_stack, second_stack) == res
@@ -407,8 +407,8 @@ class CastingSpec extends Specification{
 
     def "Check errors for comparison"(){
         given:
-        var first_stack = new StackValue(new Literal<Object>(first), null);
-        var second_stack = new StackValue(new Literal<Object>(second), null);
+        var first_stack = new StackValue(new Literal<Object>(first), null)
+        var second_stack = new StackValue(new Literal<Object>(second), null)
 
         when:
         casting.compareToWithCast(first_stack, second_stack)
@@ -502,8 +502,8 @@ class CastingSpec extends Specification{
 
     def "Check type exponentiaiton calculation"(){
         given:
-        var base = new StackValue(new Literal<Object>(null), base_t);
-        var exp = new StackValue(new Literal<Object>(exp_val), exp_t);
+        var base = new StackValue(new Literal<Object>(null), base_t)
+        var exp = new StackValue(new Literal<Object>(exp_val), exp_t)
 
         expect:
         casting.calculateTypeForExponentiation(base, exp)  == res_t
@@ -521,8 +521,8 @@ class CastingSpec extends Specification{
 
     def "Check type exponentiaiton calculation errors"(){
         given:
-        var base = new StackValue(new Literal<Object>(null), base_t);
-        var exp = new StackValue(new Literal<Object>(null), exp_t);
+        var base = new StackValue(new Literal<Object>(null), base_t)
+        var exp = new StackValue(new Literal<Object>(null), exp_t)
 
         when:
         casting.calculateTypeForExponentiation(base, exp)
