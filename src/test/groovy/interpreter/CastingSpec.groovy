@@ -84,7 +84,7 @@ class CastingSpec extends Specification{
         lit    | type                               || res_val
         2      | int_t                              || 2
         2.3d   | double_t                           || 2
-        9.9d   | double_t                           || 10
+        9.9d   | double_t                           || 9
         3.1d   | new UnitType("a")                  || 3
         1.12d  | make_compound(["a", "c"],[-7,9])   || 1
 

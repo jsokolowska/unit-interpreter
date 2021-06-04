@@ -20,6 +20,10 @@ int main(){
     int x = -6*4 + 10^2;
     print( meter(km));
     print(x);
-
+    print("km > n", km > n);
+    print("km >= n", km >= n);
+    print("km < n", km < n);
+    print("km <= n", km <= n);
+    print(joule(2) == newton(4.5-2.5));
     return 0;
 }

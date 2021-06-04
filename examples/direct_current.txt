@@ -1,0 +1,29 @@
+unit amper;
+unit hour;
+
+unit volt as <meter^2 * kilogram / second^3 * amper>;
+unit ohm as <volt/amper>;
+
+ohm parallel_resistors ( ohm r1, ohm r2){
+    return r1 * r2 / (r1 + r2);
+}
+
+ohm series_resistors (ohm r1, ohm r2){
+    return r1 + r2;
+}
+
+int main (){
+    ohm resistor1 = 20;
+    ohm resistor2 = 40;
+
+    amper a = 10;
+
+    volt voltage_for_parallel = parallel_resistors(resistor1, resistor2) * a;
+
+    compound voltage_for_series = series_resistors(resistor1, resistor2) * a;
+
+    print(voltage_for_parallel);
+    print(voltage_for_series);
+
+    return 0;
+}

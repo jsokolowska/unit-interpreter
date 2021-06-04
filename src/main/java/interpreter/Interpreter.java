@@ -86,7 +86,6 @@ public class Interpreter implements Visitor{
     }
 
     public void visit(FunctionCall functionCall){
-        if(tryVisitProvidedConversion(functionCall)) return;
         //make signature
         List <Expression> args = functionCall.getArgs().getArgList();
         for(var e : args){
@@ -100,8 +99,9 @@ public class Interpreter implements Visitor{
         }
 
         StringBuilder keyBuilder = new StringBuilder();
-        for(var eval : evaluatedArgs){
-            keyBuilder.append(eval.getType().toString());
+        var it = evaluatedArgs.listIterator(evaluatedArgs.size());
+        while(it.hasPrevious()){
+            keyBuilder.append(it.previous().getType().toString());
             keyBuilder.append(",");
         }
         if(!keyBuilder.isEmpty()){
@@ -111,10 +111,13 @@ public class Interpreter implements Visitor{
         AbstractFunction function = program.getFunctionOrConversionFunction(key);
 
         if(function == null){
-            throw new InterpretingException("Call does not match any of known function signatures", line);
+            if(!tryVisitProvidedConversion(functionCall)){
+                throw new InterpretingException("Call does not match any of known function signatures", line);
+            }
         }else{
-            for (StackValue e : evaluatedArgs){
-                env.pushValue(e);
+            var iterator = evaluatedArgs.listIterator(evaluatedArgs.size());
+            while(iterator.hasPrevious()){
+                env.pushValue(iterator.previous());
             }
             visitFunction(function);
         }
@@ -165,7 +168,6 @@ public class Interpreter implements Visitor{
     public void visit(Function function){
         function.getParams().accept(this);
 
-        //todo is void type possible? What if there is a return instruction but without value
         setParameterValues(function.getParams());
 
         Statement stmt = function.getBody();
@@ -579,8 +581,11 @@ public class Interpreter implements Visitor{
         }else if(lType instanceof NumericType && rType instanceof NumericType){
             var result = casting.additionWithValueCast(lVal, rVal);
             env.pushValue(new Literal<>(result), lType);
+        }else if(lType instanceof StringType || rType instanceof StringType){
+            String res = casting.cast(lObj, new StringType()).getValue() + (String) casting.cast(rObj, new StringType()).getValue();
+            env.pushValue(new Literal<>(res));
         }else{
-            throw new InterpretingException("Cannot apply substraction to: " + lObj.getType()
+            throw new InterpretingException("Cannot apply addition to: " + lObj.getType()
                     + " and " + rObj.getType(), line);
         }
     }
@@ -589,14 +594,9 @@ public class Interpreter implements Visitor{
         var rObj = env.popValue();
         var lObj = env.popValue();
 
-        if(rObj.getValue() instanceof Number rNum && lObj.getValue() instanceof Number lNum){
-            var resultVal = casting.multiplyWithValueCast(rNum, lNum);
-            Type resultType = casting.calculateTypeForMultiplication(rObj.getType(), lObj.getType());
-            env.pushValue(new Literal<>(resultVal), resultType);
-        }else{
-            throw new InterpretingException("Cannot apply division to: " + lObj.getType()
-                    + " and " + rObj.getType(), line);
-        }
+        var resultVal = casting.multiplyWithValueCast(rObj.getValue(), lObj.getValue());
+        Type resultType = casting.calculateTypeForMultiplication(rObj.getType(), lObj.getType());
+        env.pushValue(new Literal<>(resultVal), resultType);
     }
 
     public void visit(NegOperator operator){

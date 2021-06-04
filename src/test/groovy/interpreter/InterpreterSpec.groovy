@@ -235,6 +235,9 @@ class InterpreterSpec extends Specification{
         12                  | 12                    | new EqOperator()          || true
         new Double(12.09)   | new Double(12.09)     | new EqOperator()          || true
         2                   | "str"                 | new NotEqOperator()       || true
+        //string multiplication
+        2                   | "k"                   | new MulOperator()         || val2.repeat(val1)
+        "str"               | 4                     | new MulOperator()         || val1.repeat(val2)
     }
 
     def "Check expression with operators for expressions with numeric values"(){
@@ -503,11 +506,10 @@ class InterpreterSpec extends Specification{
 
         where:
         val1   | val2       | op
-        12     | "-"        | new PlusOperator()
         "k"    | 6          | new MinusOperator()
         "w"    | "r"        | new DivOperator()
         -9     | "k"        | new PowerOperator()
-        2      | "l"        | new MulOperator()
+        2.4d   | "l"        | new MulOperator()
     }
 
     def "Check power expression"(){

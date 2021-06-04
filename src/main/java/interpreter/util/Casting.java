@@ -69,7 +69,7 @@ public class Casting {
             return new StackValue(new Literal<>(value), new IntType());
         }
         if(value instanceof Double dVal){
-            Integer iVal = Math.toIntExact(Math.round(dVal));
+            Integer iVal = Math.toIntExact(Math.round(Math.floor(dVal)));
             return new StackValue(new Literal<>(iVal), new IntType());
         }
         throw new CastingException(line, from.prettyToString(), "integer");
@@ -97,7 +97,7 @@ public class Casting {
                 return new StackValue(new Literal<>(value),new CompoundType(u));
             }
         }
-        if (from instanceof NumericType){
+        if (from instanceof NumericType || from instanceof  UnitType){
             return new StackValue(new Literal<>(value), to);
         }
         throw new CastingException(line, from.prettyToString(), to.prettyToString());
