@@ -1072,7 +1072,8 @@ class ParserSpec extends Specification{
                 "int a(){} int a(){}",
                 "let meter as (second s) {2}; let meter as (second s) {2}; int main(){}",
                 "let meter as (second s, second s) {2}",
-                "int a (int k, int k){}"
+                "int a (int k, int k){}",
+                "let meter as (float s, second s) {2}"
         ]
     }
 }

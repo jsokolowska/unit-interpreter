@@ -1000,6 +1000,38 @@ class InterpreterSpec extends Specification{
         "unit k; int main(){k k_var = 12.5; print(float(k_var)); return 0;}"                || "12.5\n"
     }
 
+    def "Check function calls for overloaded functions"(){
+        given:
+        def str = "void a(int k){print(\"a(int)\");} void a(float k){print(\"a(float)\");} " +
+                "int main(){int i =0; float f = 0; a(i); a(f); return 1;}"
+        var scanner = new Scanner(new StringSource(str))
+        var parser = new Parser(scanner)
+        var outStream = new StringOutputStream()
+        var interpreter = new Interpreter(parser.parse(), new Environment(), new PrintStream(outStream))
+
+        when:
+        interpreter.execute()
+
+        then:
+        outStream.getStringValue() == "a(int)\na(float)\n"
+    }
+
+    def "Check function calls for overloaded conversions"(){
+        given:
+        def str = "let meter as (kilogram k) {2}; let meter as (second s){3};" +
+                "int main(){kilogram k=1; second s=1; print(meter(s)); print(meter(k)); return 0;}"
+        var scanner = new Scanner(new StringSource(str))
+        var parser = new Parser(scanner)
+        var outStream = new StringOutputStream()
+        var interpreter = new Interpreter(parser.parse(), new Environment(), new PrintStream(outStream))
+
+        when:
+        interpreter.execute()
+
+        then:
+        outStream.getStringValue() == "3 [unit meter]\n2 [unit meter]\n"
+    }
+
     def "Check interpreting errors"(){
         given:
         var parser = new Parser(new Scanner(new StringSource(str)))
