@@ -25,6 +25,7 @@ import tree.value.VariableValue;
 import util.Token;
 import util.Token.TokenType;
 import util.exception.ParserException;
+import util.position.Position;
 
 import java.io.IOException;
 
@@ -59,10 +60,14 @@ public class Parser {
         while (true) {
             UnitDeclaration unitDeclaration;
             ConversionFunction conversionFunction;
+            Position functionPosition = token.getPosition();
             if ((unitDeclaration = parseUnitDeclaration())!= null) {
                 program.add(unitDeclaration);
                 nextToken();
-            } else if ((conversionFunction = parseUnitConversion()) != null) {
+            }else if ((conversionFunction = parseUnitConversion()) != null) {
+                if(program.functionExist(conversionFunction.getSignature())){
+                    throw new ParserException("Illegal function overloading", functionPosition);
+                }
                 program.add(conversionFunction);
                 nextToken();
             }else{
@@ -265,6 +270,7 @@ public class Parser {
     }
 
     private void parseUnitParameter(UnitParameters parameters) throws IOException {
+        Position paramPos = token.getPosition();
         if (!matchesUnitType(token)) {
             throw new ParserException("Expected type", token);
         }
@@ -275,6 +281,9 @@ public class Parser {
         nextToken();
         if (!tokenHasType(TokenType.IDENTIFIER)){
             throw new ParserException(TokenType.IDENTIFIER, token);
+        }
+        if(parameters.contains(token.getStringValue(), type)){
+            throw new ParserException("Indistinguishable parameters", paramPos);
         }
         parameters.addParameter(token.getStringValue(), type);
     }
@@ -302,6 +311,7 @@ public class Parser {
     }
 
     private void parseParameter (Parameters parameters) throws IOException {
+        Position paramPos = token.getPosition();
         if (!matchesType(token)) {
             throw new ParserException("Expected type", token);
         }
@@ -312,6 +322,9 @@ public class Parser {
         nextToken();
         if (!tokenHasType(TokenType.IDENTIFIER)){
             throw new ParserException(TokenType.IDENTIFIER, token);
+        }
+        if(parameters.contains(token.getStringValue(), type)){
+            throw new ParserException("Indistinguishable parameters", paramPos);
         }
         parameters.addParameter(token.getStringValue(), type);
     }

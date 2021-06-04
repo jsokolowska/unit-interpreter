@@ -1040,14 +1040,16 @@ class ParserSpec extends Specification{
 
 
         where:
-        str <<[ "int main (){}",
-                "unit k; int main (){}",
-                "unit a as <meter^2/kilogram^2>; int main(){}",
-                "unit a; unit b; let b as (a aaa){aaa+2}; a k(){}",
-                "int main(){} meter m(){}",
-                "int a(){} int b(){} int x(){}",
-                "int m(int k, float z){return true +2;}"
-
+        str <<[
+//                "int main (){}",
+//                "unit k; int main (){}",
+//                "unit a as <meter^2/kilogram^2>; int main(){}",
+//                "unit a; unit b; let b as (a aaa){aaa+2}; a k(){}",
+//                "int main(){} meter m(){}",
+//                "int a(){} int b(){} int x(){}",
+//                "int m(int k, float z){return true +2;}",
+//                "int m(int k){} int m (float k){}",
+                "let meter as (second s) {2}; let meter as (second s, second s2) {2};"
         ]
     }
 
@@ -1067,7 +1069,10 @@ class ParserSpec extends Specification{
                 " ",
                 "unit a; unit b; k(){} let b as (a aaa){aaa+2};",
                 "int main(){} meter m(){} unit b;",
-                "int a(){} int a(){}"
+                "int a(){} int a(){}",
+                "let meter as (second s) {2}; let meter as (second s) {2}; int main(){}",
+                "let meter as (second s, second s) {2}",
+                "int a (int k, int k){}"
         ]
     }
 }
