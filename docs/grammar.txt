@@ -1,0 +1,87 @@
+module grammar;
+# main part
+program : {unit_dcl | conversion_dcl} function_def {function_def};
+function_def : type identifier parameters block_stmt;
+parameters : "(" [type identifier {"," type identifier}] ")" ;
+block_stmt : "{" [stmt  {stmt}] "}";
+stmt: block_stmt | return_stmt | loop_stmt | call_stmt | if_stmt | print_stmt |
+assign_stmt | var_dcl_stmt | break_stmt | continue_stmt | type_check_stmt;
+
+# flow control statements
+return_stmt : "return" [ expr ] ";";
+loop_stmt : "while" "(" expr ")" stmt ;
+call_stmt: identifier "(" args ")" ";";
+args: [expr {"," expr}];                #arguments
+if_stmt : "if" "(" expr ")" stmt ["else" stmt];
+break_stmt : "break" ";";
+continue_stmt : "continue" ";";
+
+# bulit-in statements
+print_stmt : "print" "(" args ")" ";";
+type_check_stmt: "type" "(" expr ")";
+assign_stmt : identifier "=" expr ";";
+var_dcl_stmt : type ( (identifier ";") | [assign_stmt] );
+
+# defining custom units
+unit_dcl : "unit" identifier ["as" compound_expr ] ";";
+# conversionFunction expression for compound unit definition
+# only one division is possible
+compound_expr: "<" compound_term ["/" compound_term] ">" ";";
+compound_term: compound_exp {"*" compound_exp};
+compound_exp: unit_type ["^" exponent];
+exponent: ["-"] non_zero_number;
+
+# defining unit relationships
+conversion_dcl: "let" unit_type "as" unit_parameters conv_fun;
+# expressions limited to arithmetic operations
+conv_fun : "{" conv_unit_expr "}" ";";
+conv_unit_expr: multi_unit_expr {add_op multi_unit_expr};
+multi_unit_expr: power_unit_expr {multi_op power_unit_expr};
+power_unit_expr: {unary_unit_expr "^"} unary_unit_expr;
+unary_unit_expr: ["-"] unit_expr;
+unit_expr: "(" conv_unit_expr ")" | unit_value;
+unit_value: number | identifier;
+unit_parameters: "(" [unit_type identifier {"," unit_type identifier}] ")" ;
+
+
+# operator precedence
+expr : unit_type "(" ( or_expr  | or_expr ) ")";
+or_expr : and_expr { "||" and_expr};
+and_expr : comp_expr {"&&" comp_expr};
+comp_expr : rel_expr {comp_op rel_expr};
+rel_expr : arithmetic_expr {rel_op arithmetic_expr};
+arithmetic_expr: multi_expr {add_op multi_expr};
+multi_expr: power_expr {multi_op power_expr};
+power_expr: {unary_expr "^"} unary_expr;
+unary_expr: {unary_op} not_unary_expr;
+not_unary_expr: "(" expr ")" | value;
+
+# operators
+comp_op: "==" | "!=";
+rel_op: "<="|">="|"<"|">";
+add_op: "+" | "-";
+multi_op: "/" | "*" ;
+unary_op: "!"|"-";
+
+# values
+value : call_stmt |  literal | identifier;
+identifier : ((underscore  (letter | digit)) | letter) {letter | digit | underscore};
+literal: base_type| string | number;
+#types
+type: base_type | unit_type;
+base_type: "int" | "float" | "bool" | "string" | "void";
+unit_type: base_unit | identifier | "compound";
+base_unit: "kilogram" | "meter" | "second";
+string: "\"" {character} "\"";
+character: letter | digit |special_char;
+letter: "a"-"z" | "A"-"Z";
+special_char: underscore | "\\" escape_char | "." | "," | "(" | ")" | "{" | "}" | " "
+              | ":" |"-";
+escape_char: "t" | "n" | "\\";
+
+number : integer ["." {"0"} non_zero_number];
+integer : "0" | non_zero_number;
+non_zero_number :  non_zero_digit {digit};
+digit: "0" | non_zero_digit;
+non_zero_digit: "1" - "9";
+underscore: "_";
