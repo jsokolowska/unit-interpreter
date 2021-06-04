@@ -544,11 +544,11 @@ class InterpreterSpec extends Specification{
         var left_t = make_compound(["a", "f", "r"], [1,-3, 2])
         env.pushValue(new StackValue(new Literal<Object>(val1), left_t))
         env.pushValue(new Literal<Object>(val2))
-        left_t.exponentiate(val2)
 
         when:
         interpreter.visit(new PowerOperator())
         def stackVal = env.popValue()
+        left_t.exponentiate(val2)
 
         then:
         Math.abs(stackVal.getValue() - Math.pow(val1, val2)) < Casting.EPSILON

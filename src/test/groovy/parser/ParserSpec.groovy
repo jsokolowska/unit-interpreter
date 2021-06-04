@@ -296,8 +296,8 @@ class ParserSpec extends Specification{
         where:
         str                         || param_str
         "(int val)"                 || "(int:val)"
-        "(second s, meter k)"       || "([u]second:s,[u]meter:k)"
-        "(meter k, int a, int b)"   || "([u]meter:k,int:a,int:b)"
+        "(second s, meter k)"       || "(second:s,meter:k)"
+        "(meter k, int a, int b)"   || "(meter:k,int:a,int:b)"
         "()"                        || "(none)"
     }
 
@@ -444,7 +444,7 @@ class ParserSpec extends Specification{
 
         where:
         str                                 || res_str
-        "let meter as (kilogram k){k^2-8};" || "meter:([u]kilogram:k)->{[k^2]-8}"
+        "let meter as (kilogram k){k^2-8};" || "meter:(kilogram:k)->{[k^2]-8}"
     }
 
     def "Should throw Parser Exception when provided with improper unit conversion"(){
@@ -936,10 +936,10 @@ class ParserSpec extends Specification{
         where:
         str                 || res_str
         "int k;"            || "int:k=null"
-        "second s = 12^2;"  || "[u]second:s=[12^2]"
+        "second s = 12^2;"  || "second:s=[12^2]"
         "k k = 2;"          || "null"
-        "compound c;"       || "[u]inferred:c=null"
-        "compound c = 2;"   || "[u]inferred:c=2"
+        "compound c;"       || "inferred:c=null"
+        "compound c = 2;"   || "inferred:c=2"
     }
 
     def "Should throw ParserException for improper var declaration"(){
@@ -972,13 +972,13 @@ class ParserSpec extends Specification{
         result.toString() == res_str
 
         where:
-        str                             || res_str
-        "{int k;}"                      || "{int:k=null\n}"
-        "{second s = 12^2; int k;}"     || "{[u]second:s=[12^2]\nint:k=null\n}"
-        "{return 3; break ; continue;}" || "{return:3\nbreak\ncontinue\n}"
-        "{{{}}}"                        || "{{{}\n}\n}"
-        "{type(k);return 0;}"           || "{type:k\nreturn:0\n}"
-        "{print(\"a\"); return 0;}"     || "{print(a)\nreturn:0\n}"
+        str                                     || res_str
+        "{int k;}"                              || "{int:k=null\n}"
+        "{second s = 12^2; int k;}"             || "{second:s=[12^2]\nint:k=null\n}"
+        "{return 3; break ; continue;}"         || "{return:3\nbreak\ncontinue\n}"
+        "{{{}}}"                                || "{{{}\n}\n}"
+        "{type(k);return 0;}"                   || "{type:k\nreturn:0\n}"
+        "{print(\"a\"); return 0;}"             || "{print(a)\nreturn:0\n}"
         "{if(2)return; else return; return;}"   || "{if(2)<return:null>\nelse<return:null>\nreturn:null\n}"
     }
 

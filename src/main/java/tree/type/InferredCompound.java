@@ -12,6 +12,6 @@ public class InferredCompound extends UnitType{
 
     @Override
     public String toString() {
-        return "[u]inferred";
+        return "inferred";
     }
 }
