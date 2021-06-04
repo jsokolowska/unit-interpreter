@@ -46,6 +46,10 @@ public class Parser {
         this.typeManager =  manager;
     }
 
+    public TypeManager getTypeManager() {
+        return typeManager;
+    }
+
     private static boolean matchesType(Token token) {
         return token.isBaseType() || token.isBaseUnit() || token.getTokenType() == TokenType.IDENTIFIER;
     }

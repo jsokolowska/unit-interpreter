@@ -35,21 +35,24 @@ public class Interpreter implements Visitor{
     private Integer line;
     private final Casting casting;
     private final PrintStream printStream;
+    private final TypeManager typeManager;
 
-    public Interpreter(Program program, Environment env, PrintStream printStream) throws IOException {
+    public Interpreter(Program program, Environment env, PrintStream printStream, TypeManager typeManager) throws IOException {
         this.program = program;
         this.env = env;
         line = 0;
         this.casting = new Casting(line);
         this.printStream = printStream;
+        this.typeManager = typeManager;
     }
 
-    public Interpreter(Program program, Environment env) throws IOException {
+    public Interpreter(Program program, Environment env, TypeManager typeManager) throws IOException {
         this.program = program;
         this.env = env;
         line = 0;
         this.casting = new Casting(line);
         printStream = System.out;
+        this.typeManager = typeManager;
     }
 
     public void execute() {
@@ -61,9 +64,11 @@ public class Interpreter implements Visitor{
     }
 
     public void visit(Program program){
-        AbstractFunction main = program.getFunctionOrConversionFunction("main()");
-        if(main == null ){
-            throw new InterpretingException("Program must contain function main");
+        Function main = (Function) program.getFunctionOrConversionFunction("main()");
+        if(main == null){
+            throw new InterpretingException("Program must contain function main with signature int main ()");
+        }else if(! new IntType().equals(main.getReturnType())){
+            throw new InterpretingException("Program must contain function main with signature int main ()");
         }
         if(main.getParams().size() != 0){
             throw new InterpretingException("Main function cannot take any arguments");
@@ -140,12 +145,13 @@ public class Interpreter implements Visitor{
         }else if(funName.equals("float")){
             t = new DoubleType();
         }else{
-            return false;
+            t = typeManager.getUnitType(funName);
         }
+        if(t == null) return false;
 
         var args = functionCall.getArgs().getArgList();;
         if(args.size() != 1){
-            throw new InterpretingException("Wrong number of arguments passed to buit-in conversion call", line);
+            throw new InterpretingException("Wrong number of arguments passed to built-in conversion call", line);
         }
 
         //push provided expression to the stack

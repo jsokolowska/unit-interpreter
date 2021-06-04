@@ -46,7 +46,6 @@ import tree.statement.BreakStatement
 import tree.statement.ContinueStatement
 import tree.statement.PrintStatement
 import tree.statement.ReturnStatement
-import tree.statement.TypeStatement
 import tree.statement.VariableDeclarationStatement
 import tree.type.BoolType
 import tree.type.CompoundType
@@ -54,7 +53,6 @@ import tree.type.DoubleType
 import tree.type.IntType
 import tree.type.NumericType
 import tree.type.StringType
-import tree.type.TypeManager
 import tree.type.UnitType
 import tree.unit.CompoundExpr
 import tree.value.Literal
@@ -64,10 +62,8 @@ import util.exception.InterpretingException
 
 class InterpreterSpec extends Specification{
 
-    static var bool_t = new BoolType()
     static var int_t = new IntType()
     static var double_t = new DoubleType()
-    static var string_t = new StringType()
 
     static def prepEnv(){
         var env = new Environment()
@@ -82,12 +78,12 @@ class InterpreterSpec extends Specification{
         for(int i=0; i<size; i++){
             expr.addPart(terms[i], exponents[i])
         }
-        return new CompoundType(expr);
+        return new CompoundType(expr)
     }
 
     def "Should throw exception when program does not have main function"(){
         given:
-        var interpreter = new Interpreter(new Program(), null)
+        var interpreter = new Interpreter(new Program(), null, null)
 
         when:
         interpreter.execute()
@@ -100,7 +96,7 @@ class InterpreterSpec extends Specification{
         given:
         var env = prepEnv()
         var variable = new Variable(new IntType(), "var")
-        var interpreter = new Interpreter(new Program(), env)
+        var interpreter = new Interpreter(new Program(), env, null)
         env.addVariable(variable)
 
         when:
@@ -114,7 +110,7 @@ class InterpreterSpec extends Specification{
         given:
         var env = prepEnv()
         var variable = new Variable(new IntType(), "var")
-        var interpreter = new Interpreter(new Program(),env)
+        var interpreter = new Interpreter(new Program(),env, null)
 
         when:
         interpreter.visit(variable)
@@ -126,7 +122,7 @@ class InterpreterSpec extends Specification{
     def "Check pushing literals to stack"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(new Program(), env)
+        var interpreter = new Interpreter(new Program(), env, null)
 
         when:
         interpreter.visit(lit)
@@ -145,7 +141,7 @@ class InterpreterSpec extends Specification{
     def "Check visiting parameters"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(new Program(), env)
+        var interpreter = new Interpreter(new Program(), env, null)
         var params = new Parameters()
         params.addParameter(str, type)
 
@@ -169,7 +165,7 @@ class InterpreterSpec extends Specification{
     def "Check AndExpression"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
         AndExpression expr = new AndExpression()
         expr.add(new Literal<>(val1))
         expr.add(new Literal<>(val2))
@@ -191,7 +187,7 @@ class InterpreterSpec extends Specification{
     def "Check OrExpression"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
         var expr = new OrExpression()
         expr.add(new Literal<>(val1))
         expr.add(new Literal<>(val2))
@@ -213,7 +209,7 @@ class InterpreterSpec extends Specification{
     def "Check ExpressionWithOperators for logical expression"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
         var expr = new ExpressionWithOperators()
         expr.add(new Literal<>(val1))
         expr.add(new Literal<>(val2), op)
@@ -244,7 +240,7 @@ class InterpreterSpec extends Specification{
     def "Check expression with operators for expressions with numeric values"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
         var expr = new ExpressionWithOperators()
         expr.add(new Literal<>(val1))
         expr.add(new Literal<>(val2), op)
@@ -279,8 +275,8 @@ class InterpreterSpec extends Specification{
 
     def "Check additive expression with operators for expressions with unit types"(){
         given:
-        var env = prepEnv();
-        var interpreter = new Interpreter(null, env)
+        var env = prepEnv()
+        var interpreter = new Interpreter(null, env, null)
 
         when:
         env.pushValue(new Literal<Object>(left), left_t)
@@ -308,7 +304,7 @@ class InterpreterSpec extends Specification{
         var left_t = make_compound(["a", "b", "c"], [1,-2,1])
         var right_t = make_compound(["d", "c"], [8,-2])
         var expected_t = make_compound(["a", "b", "c", "d"], [1,-2,-1,8])
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
 
         when:
         env.pushValue(new Literal<Object>(left), left_t)
@@ -333,7 +329,7 @@ class InterpreterSpec extends Specification{
         var left_t = make_compound(["a", "b", "c"], [1,-2,1])
         var right_t = make_compound(["d", "c"], [8,-2])
         var expected_t = make_compound(["a", "b", "c", "d"], [1,-2,3,-8])
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
 
         when:
         env.pushValue(new Literal<Object>(left), left_t)
@@ -356,7 +352,7 @@ class InterpreterSpec extends Specification{
         given:
         var env = prepEnv()
         var left_t = make_compound(["a", "b", "c"], [1,-2,1])
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
 
         when:
         env.pushValue(new Literal<Object>(left), left_t)
@@ -382,7 +378,7 @@ class InterpreterSpec extends Specification{
         given:
         var env = prepEnv()
         var right_t = make_compound(["a", "b", "c"], [1,-2,1])
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
 
         when:
         env.pushValue(new Literal<Object>(left))
@@ -404,7 +400,7 @@ class InterpreterSpec extends Specification{
     def "Check negative unary expression"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
         var expr = new UnaryExpression()
         expr.add(new Literal<>(val), new NegOperator())
 
@@ -425,7 +421,7 @@ class InterpreterSpec extends Specification{
     def "Check negative unary expression for unit values"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null,env)
+        var interpreter = new Interpreter(null,env, null)
         var in_type = make_compound(["a", "b", "c"], [1,2,3])
         var stack_var = new StackValue(new Literal<Object>(val), in_type)
 
@@ -447,7 +443,7 @@ class InterpreterSpec extends Specification{
     def "Check not unary expression"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
         var expr = new UnaryExpression()
         expr.add(new Literal<>(val), new NotOperator())
 
@@ -471,14 +467,14 @@ class InterpreterSpec extends Specification{
 
     def "Check division errors"(){
         given:
-        var env = prepEnv();
-        var interpreter = new Interpreter(null, env)
-        var expr = new ExpressionWithOperators();
+        var env = prepEnv()
+        var interpreter = new Interpreter(null, env, null)
+        var expr = new ExpressionWithOperators()
         expr.add(new Literal(val1))
         expr.add(new Literal(val2), new DivOperator())
 
         when:
-        expr.accept(interpreter);
+        expr.accept(interpreter)
 
         then:
         thrown(InterpretingException)
@@ -493,7 +489,7 @@ class InterpreterSpec extends Specification{
     def "Check expression with operators exceptions"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
         var expr = new ExpressionWithOperators()
         expr.add(new Literal<>(val1))
         expr.add(new Literal<>(val2), op)
@@ -517,7 +513,7 @@ class InterpreterSpec extends Specification{
     def "Check power expression"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
         var expr = new PowerExpression()
         expr.add(new Literal<>(val1))
         expr.add(new Literal<>(val2))
@@ -540,7 +536,7 @@ class InterpreterSpec extends Specification{
     def "Check power expression with unit variables"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null,  env)
+        var interpreter = new Interpreter(null,  env, null)
         var left_t = make_compound(["a", "f", "r"], [1,-3, 2])
         env.pushValue(new StackValue(new Literal<Object>(val1), left_t))
         env.pushValue(new Literal<Object>(val2))
@@ -564,7 +560,7 @@ class InterpreterSpec extends Specification{
     def "Check power expression with unit variables errors"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
         var left_t = make_compound(["a", "f", "r"], [1,-3, 2])
         env.pushValue(new StackValue(new Literal<Object>(val1), left_t))
         env.pushValue(new Literal<Object>(val2), exp_t)
@@ -584,7 +580,7 @@ class InterpreterSpec extends Specification{
     def "Check power expression in unit conversion"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null,  env)
+        var interpreter = new Interpreter(null,  env, null)
         env.pushValue(new StackValue(new Literal<Object>(left), left_t))
         env.pushValue(new Literal<Object>(right), right_t)
 
@@ -622,7 +618,7 @@ class InterpreterSpec extends Specification{
     def "Check unit operator types"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
         env.pushValue(new Literal<Object>(left))
         env.pushValue(new Literal<Object>(right))
 
@@ -658,7 +654,7 @@ class InterpreterSpec extends Specification{
     def "Check visit unit variable value"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
         var variable = new Variable(new UnitType("a"), "var")
         variable.setValue(new Literal<Object>(2))
         var unit_var_value = new UnitExpressionVariableValue("var")
@@ -674,7 +670,7 @@ class InterpreterSpec extends Specification{
     def "Check visit unit variable value error"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
         var unit_var_value = new UnitExpressionVariableValue("var")
 
         when:
@@ -687,7 +683,7 @@ class InterpreterSpec extends Specification{
     def "Check visit unit literal"() {
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
         var lit = new UnitExpressionLiteral(15)
 
         when:
@@ -700,7 +696,7 @@ class InterpreterSpec extends Specification{
     def "Check visit unary unit expression"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
         var expr = new UnaryUnitExpression()
         expr.add(new UnitExpressionLiteral<>(value))
 
@@ -711,13 +707,13 @@ class InterpreterSpec extends Specification{
         Math.abs(env.popValue().getValue() + value) < Casting.EPSILON
 
         where:
-        value <<[12, 0, -4, -9.4d, 8.5d]
+        value << [12, 0, -4, -9.4d, 8.5d]
     }
 
     def "Check visit power unit expression"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
         var expr = new PowerUnitExpression()
         expr.add(new UnitExpressionLiteral(1))
         expr.add(new UnitExpressionLiteral(5.7d))
@@ -734,7 +730,7 @@ class InterpreterSpec extends Specification{
     def "Check visit mul unit expression"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
         var expr = new MulUnitExpression()
         expr.add(new UnitExpressionLiteral(1))
         expr.add(new UnitExpressionLiteral(5.7d), new UnitMulOperator())
@@ -751,12 +747,12 @@ class InterpreterSpec extends Specification{
     def "Check visit conversion expression"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
-        var conv_expr = new ConversionExpression();
+        var interpreter = new Interpreter(null, env, null)
+        var conv_expr = new ConversionExpression()
         var expr = new MulUnitExpression()
         expr.add(new UnitExpressionLiteral(1.05d))
         expr.add(new UnitExpressionLiteral(7.3d), new UnitMulOperator())
-        conv_expr.add(expr);
+        conv_expr.add(expr)
         conv_expr.add(new UnitExpressionLiteral(12), new UnitMinusOperator())
 
         when:
@@ -771,7 +767,7 @@ class InterpreterSpec extends Specification{
         given:
         var env = prepEnv()
         var outStream = new StringOutputStream()
-        var interpreter = new Interpreter(null, env, new PrintStream(outStream))
+        var interpreter = new Interpreter(null, env, new PrintStream(outStream), null)
         var expr1 = new Literal<>(val1)
         var expr2 = new Literal<>(val2)
         var args = new Arguments()
@@ -795,7 +791,7 @@ class InterpreterSpec extends Specification{
     def "Check visit return statement with no return value"() {
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
         var print_stmt = new ReturnStatement()
 
         when:
@@ -808,7 +804,7 @@ class InterpreterSpec extends Specification{
     def "Check continue statement"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
         var stmt = new ContinueStatement()
 
         when:
@@ -821,7 +817,7 @@ class InterpreterSpec extends Specification{
     def "Check break statement"(){
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
         var stmt = new BreakStatement()
 
         when:
@@ -834,7 +830,7 @@ class InterpreterSpec extends Specification{
     def "Check assign statement"() {
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
         var stmt = new AssignStatement("identifier", new Literal(12))
         var variable = new Variable(new IntType(), "identifier")
         env.addVariable(variable)
@@ -849,7 +845,7 @@ class InterpreterSpec extends Specification{
     def "Check var declaration statement"() {
         given:
         var env = prepEnv()
-        var interpreter = new Interpreter(null, env)
+        var interpreter = new Interpreter(null, env, null)
         var stmt = new VariableDeclarationStatement(int_t, "identifier")
 
         when:
@@ -865,7 +861,7 @@ class InterpreterSpec extends Specification{
         var parser = new Parser(scanner)
         var env = prepEnv()
         var outStream = new StringOutputStream()
-        var interpreter = new Interpreter(parser.parse(), env, new PrintStream(outStream))
+        var interpreter = new Interpreter(parser.parse(), env, new PrintStream(outStream), parser.getTypeManager())
 
         when:
         interpreter.execute()
@@ -879,7 +875,7 @@ class InterpreterSpec extends Specification{
         var scanner = new Scanner(new StringSource("int main(){ int k = 0; while(k < 10){ k= k+1;} return 3;}"))
         var parser = new Parser(scanner)
         var env = prepEnv()
-        var interpreter = new Interpreter(parser.parse(), env)
+        var interpreter = new Interpreter(parser.parse(), env, parser.getTypeManager())
 
         when:
         interpreter.execute()
@@ -894,7 +890,7 @@ class InterpreterSpec extends Specification{
         var parser = new Parser(scanner)
         var env = prepEnv()
         var outStream = new StringOutputStream()
-        var interpreter = new Interpreter(parser.parse(),env, new PrintStream(outStream))
+        var interpreter = new Interpreter(parser.parse(),env, new PrintStream(outStream), parser.getTypeManager())
 
         when:
         interpreter.execute()
@@ -915,7 +911,7 @@ class InterpreterSpec extends Specification{
         var parser = new Parser(scanner)
         var env = prepEnv()
         var outStream = new StringOutputStream()
-        var interpreter = new Interpreter(parser.parse(),  env, new PrintStream(outStream))
+        var interpreter = new Interpreter(parser.parse(),  env, new PrintStream(outStream), parser.getTypeManager())
 
         when:
         interpreter.execute()
@@ -926,12 +922,12 @@ class InterpreterSpec extends Specification{
 
     def "Check call scopes"(){
         given:
-        var str = "int f(){int i=10; print(i); return 2;} int main(){int i=0; f(); return 4;}";
+        var str = "int f(){int i=10; print(i); return 2;} int main(){int i=0; f(); return 4;}"
         var scanner = new Scanner(new StringSource(str))
         var parser = new Parser(scanner)
         var env = prepEnv()
         var outStream = new StringOutputStream()
-        var interpreter = new Interpreter(parser.parse(),  env, new PrintStream(outStream))
+        var interpreter = new Interpreter(parser.parse(),  env, new PrintStream(outStream), parser.getTypeManager())
 
         when:
         interpreter.execute()
@@ -946,7 +942,7 @@ class InterpreterSpec extends Specification{
         var parser = new Parser(scanner)
         var env = prepEnv()
         var outStream = new StringOutputStream()
-        var interpreter = new Interpreter(parser.parse(),  env, new PrintStream(outStream))
+        var interpreter = new Interpreter(parser.parse(),  env, new PrintStream(outStream), parser.getTypeManager())
 
         when:
         interpreter.execute()
@@ -966,7 +962,7 @@ class InterpreterSpec extends Specification{
         var parser = new Parser(scanner)
         var env = prepEnv()
         var outStream = new StringOutputStream()
-        var interpreter = new Interpreter(parser.parse(),  env, new PrintStream(outStream))
+        var interpreter = new Interpreter(parser.parse(),  env, new PrintStream(outStream), parser.getTypeManager())
 
         when:
         interpreter.execute()
@@ -986,7 +982,7 @@ class InterpreterSpec extends Specification{
         var scanner = new Scanner(new StringSource(str))
         var parser = new Parser(scanner)
         var outStream = new StringOutputStream()
-        var interpreter = new Interpreter(parser.parse(), new Environment(), new PrintStream(outStream))
+        var interpreter = new Interpreter(parser.parse(), new Environment(), new PrintStream(outStream), parser.getTypeManager())
 
         when:
         interpreter.execute()
@@ -998,6 +994,8 @@ class InterpreterSpec extends Specification{
         str                                                                                 || res
         "unit k; int main(){k k_var = 12.1; print(int(k_var)); return 0;}"                  || "12\n"
         "unit k; int main(){k k_var = 12.5; print(float(k_var)); return 0;}"                || "12.5\n"
+        "unit k; int main(){print(k(12)); print(meter(23)); return 0;}"                     || "12 [unit k]\n23 [unit meter]\n"
+        "unit k as <meter^2>; int main () {print(k(12)); return 0;}"                        || "12 [compound <meter^2>]\n"
     }
 
     def "Check function calls for overloaded functions"(){
@@ -1007,7 +1005,7 @@ class InterpreterSpec extends Specification{
         var scanner = new Scanner(new StringSource(str))
         var parser = new Parser(scanner)
         var outStream = new StringOutputStream()
-        var interpreter = new Interpreter(parser.parse(), new Environment(), new PrintStream(outStream))
+        var interpreter = new Interpreter(parser.parse(), new Environment(), new PrintStream(outStream), parser.getTypeManager())
 
         when:
         interpreter.execute()
@@ -1023,7 +1021,7 @@ class InterpreterSpec extends Specification{
         var scanner = new Scanner(new StringSource(str))
         var parser = new Parser(scanner)
         var outStream = new StringOutputStream()
-        var interpreter = new Interpreter(parser.parse(), new Environment(), new PrintStream(outStream))
+        var interpreter = new Interpreter(parser.parse(), new Environment(), new PrintStream(outStream), parser.getTypeManager())
 
         when:
         interpreter.execute()
@@ -1036,7 +1034,7 @@ class InterpreterSpec extends Specification{
         given:
         var parser = new Parser(new Scanner(new StringSource(str)))
         var outStream = new StringOutputStream()
-        var interpreter = new Interpreter(parser.parse(),  new Environment(), new PrintStream(outStream))
+        var interpreter = new Interpreter(parser.parse(),  new Environment(), new PrintStream(outStream), parser.getTypeManager())
 
         when:
         interpreter.execute()
@@ -1054,14 +1052,17 @@ class InterpreterSpec extends Specification{
                     "int m(){return 0;}",
                     "int main() { m = 2; return 0;}",
                     "int main(){ int i = - true; return 0;}",
-                    "int main(){int i = true/false; return 0;}"]
+                    "int main(){int i = true/false; return 0;}",
+                    "void main (){}",
+                    "int main (int k){return 2;}"
+                    ]
     }
 
     def "Check inferred types"() {
         given:
         var parser = new Parser(new Scanner(new StringSource(str)))
         var outStream = new StringOutputStream()
-        var interpreter = new Interpreter(parser.parse(), new Environment(), new PrintStream(outStream))
+        var interpreter = new Interpreter(parser.parse(), new Environment(), new PrintStream(outStream), parser.getTypeManager())
 
         when:
         interpreter.execute()

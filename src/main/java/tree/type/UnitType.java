@@ -14,6 +14,7 @@ public class UnitType extends Type {
 
     @Override
     public boolean equals (Object obj){
+        if(obj == null) return false;
         if(obj instanceof CompoundType comp){
             CompoundExpr expr = comp.getExpr();
             return expr.equals(this);

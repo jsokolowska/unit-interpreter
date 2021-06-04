@@ -22,7 +22,7 @@ public class Main {
             Scanner scanner = new Scanner(source);
             Parser parser = new Parser(scanner);
             Environment env = new Environment();
-            Interpreter interpreter = new Interpreter(parser.parse(), env);
+            Interpreter interpreter = new Interpreter(parser.parse(), env, parser.getTypeManager());
             interpreter.execute();
         }catch (FileNotFoundException f){
             System.out.println("File does not exist");

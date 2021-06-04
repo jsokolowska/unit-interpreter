@@ -49,6 +49,9 @@ public class TypeManager {
         if (typeToken.isBaseUnit()) return (UnitType) baseTypes.get(type);
         return null;
     }
+    public  UnitType getUnitType(String unitName){
+        return units.get(unitName);
+    }
 
     public void addUnit(String name, CompoundExpr expr){
 

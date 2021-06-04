@@ -63,6 +63,7 @@ public class CompoundType extends UnitType {
 
     @Override
     public boolean equals(Object obj) {
+        if(obj == null) return false;
         return this.getExpr().equals(obj);
     }
 
