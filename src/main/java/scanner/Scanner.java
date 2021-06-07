@@ -1,8 +1,8 @@
 package scanner;
 
-import exception.ScannerException;
 import source.Source;
 import util.Token;
+import util.exception.ScannerException;
 import util.position.Position;
 import util.position.PositionWrapper;
 
@@ -260,7 +260,7 @@ public class Scanner {
                     idLen += 2;
                     return true;
                 }
-                // only identifiers can start with "_" so throw exception
+                // only identifiers can start with "_" so throw util.exception
                 throw new ScannerException(source.getPosition(),"Invalid identifier");
             }
             return false;

@@ -1,0 +1,23 @@
+unit joule as <kilogram * meter^2 / second ^2>;
+unit newton as <kilogram * meter /  second ^2>;
+
+int main(){
+    joule j = 12;
+    newton n = 6;
+
+    compound c1 = j * n;
+    compound c2 = j / n;
+
+    if(c1 > c2){
+       print("if: ", c1, c2);
+    }else if(2 > n){
+        print("else if: ", c1, c2);
+        while(c1 < c2){
+            c1 = c1 * 2;
+        }
+    }else{
+        print("else: ", c1, c2);
+    }
+
+    return 0;
+}

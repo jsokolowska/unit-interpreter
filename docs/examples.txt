@@ -12,22 +12,22 @@ unit newton as <kilo * meter / ( second ^2)>;
 
 
 /** adding conversions **/
-let meter (kiloMeter km) : 1000 * km;
-let kelvin (celsius c) : c + 273.15;
-let farenheit (celsius c) : c * 9/5 + 32;
+let meter as (kiloMeter km) { 1000 * km};
+let kelvin as (celsius c) { c + 273.15};
+let farenheit as (celsius c) { c * 9/5 + 32};
 
 
 /** using conversions **/
 celsius c = 10;
 farenheit f = farenheit(c);
-int temp = int(f); //conversion to numeric is supported
+int temp = int(f); //conversionFunction to numeric is supported
 
 /** unit arithmetic **/
 /-- addition: possible as long as both components are of the same type --/
 kelvin + kelvin //OK
 kelvin + celcius //Not OK, language does not support implicit conversions
-kelvin + kelvin (celcius) //OK, after conversion types match
-kelvin + 4 //Not OK, implicit conversion between numeric and unit is not supported
+kelvin + kelvin (celcius) //OK, after conversionFunction types match
+kelvin + 4 //Not OK, implicit conversionFunction between numeric and unit is not supported
 kelvin + kelvin (4) //OK
 
 /-- multiplication: possible for any units, the result will be either a base unit or compound unit --/
