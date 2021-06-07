@@ -13,24 +13,24 @@ public class Scanner {
     private Token currentToken;
     private int currChar;
     private Position tokenPosition;
-    private StringBuilder tempId;
-    private int tempLen;
 
-    public Scanner (PositionWrapper positionWrapper) throws IOException, ScannerException {
+    public Scanner (PositionWrapper positionWrapper) throws IOException {
         this.source = positionWrapper;
         currentToken = new Token(Token.TokenType.UNKNOWN);
         currChar = source.get();
         nextToken();
     }
-    public Scanner (Source source) throws IOException, ScannerException {
+
+    public Scanner (Source source) throws IOException{
         this(new PositionWrapper(source));
     }
-    public Token getToken() throws IOException, ScannerException {
-        Token temp = currentToken;
-        nextToken();
-        return temp;
+
+    /** @return current token */
+    public Token peek() {
+        return currentToken;
     }
-    private void nextToken() throws IOException, ScannerException {
+
+    private void nextToken() throws IOException {
         ignoreWhitespaces();
         tokenPosition = source.getPosition();
         if (buildEOT()){
@@ -45,13 +45,21 @@ public class Scanner {
             return;
         }
         currentToken = new Token(Token.TokenType.UNKNOWN, (char) currChar, tokenPosition);
-
     }
+
+    /** Moves to the next token and returns it*/
+    public Token getToken() throws IOException{
+        Token temp = this.currentToken;
+        nextToken();
+        return temp;
+    }
+
     private void ignoreWhitespaces() throws IOException {
         while (Character.isWhitespace(currChar)){
             currChar = source.get();
         }
     }
+
     private boolean buildEOT() throws IOException {
         if(currChar == Source.EOT){
             currentToken = new Token(Token.TokenType.EOT, tokenPosition);
@@ -60,73 +68,65 @@ public class Scanner {
         }
         return false;
     }
-    private boolean buildOperators() throws IOException, ScannerException {
-        Token.TokenType tempType = ScannerMaps.singleOperators.get((char)currChar);
-        if (tempType != null)
+
+    private boolean buildOperators() throws IOException {
+        Token.TokenType type = ScannerMaps.singleOperators.get((char)currChar);
+        if (type != null)
         {
-            currentToken = new Token(tempType, currChar, tokenPosition);
+            currentToken = new Token(type, currChar, tokenPosition);
             currChar = source.get();
             return true;
         }
         return buildDoubleOperators();
     }
-    private boolean buildDoubleOperators() throws IOException, ScannerException {
+
+    private boolean buildDoubleOperators() throws IOException {
         int firstChar = currChar;
         switch(firstChar){
             case '=':
-                currChar = source.get();
-                if (currChar == '='){
-                    currentToken = new Token(Token.TokenType.EQUAL, "==", tokenPosition);
-                    currChar = source.get();
-                }else{
-                    currentToken = new Token(Token.TokenType.ASSIGN, "=", tokenPosition);
-                }break;
+                buildComparisonOperators(Token.TokenType.ASSIGN, Token.TokenType.EQUAL);
+                break;
             case '!':
-                currChar = source.get();
-                if(currChar == '='){
-                    currentToken = new Token(Token.TokenType.NOT_EQUAL, "!=", tokenPosition);
-                    currChar = source.get();
-                }else{
-                    currentToken = new Token(Token.TokenType.NOT, "!", tokenPosition);
-                }break;
+                buildComparisonOperators(Token.TokenType.NOT, Token.TokenType.NOT_EQUAL);
+                break;
             case '<':
-                currChar = source.get();
-                if(currChar == '='){
-                    currentToken = new Token(Token.TokenType.LESS_EQUAL, "<=", tokenPosition);
-                    currChar = source.get();
-                }else{
-                    currentToken = new Token(Token.TokenType.LESS, "<", tokenPosition);
-                }break;
+                buildComparisonOperators(Token.TokenType.LESS, Token.TokenType.LESS_EQUAL);
+                break;
             case '>':
-                currChar = source.get();
-                if(currChar == '='){
-                    currentToken = new Token(Token.TokenType.GREATER_EQUAL, ">=", tokenPosition);
-                    currChar = source.get();
-                }else{
-                    currentToken = new Token(Token.TokenType.GREATER, ">", tokenPosition);
-                }break;
+                buildComparisonOperators(Token.TokenType.GREATER, Token.TokenType.GREATER_EQUAL);
+                break;
             case '&':
-                currChar = source.get();
-                if (currChar =='&'){
-                    currentToken = new Token(Token.TokenType.AND, "&&", tokenPosition);
-                    currChar = source.get();
-                }else{
-                    throw new ScannerException(source.getPosition(), "Missing &");
-                }break;
+                buildLogicalOperators(Token.TokenType.AND, '&');
+                break;
             case '|':
-                currChar = source.get();
-                if (currChar == '|'){
-                    currentToken = new Token(Token.TokenType.OR, "||", tokenPosition);
-                    currChar = source.get();
-                }else{
-                    throw new ScannerException(source.getPosition(), "Missing |");
-                }break;
+                buildLogicalOperators(Token.TokenType.OR, '|');
+                break;
             default:
                 return false;
         }
         return true;
     }
-    private boolean buildStringLiteral () throws ScannerException, IOException {
+    private void buildComparisonOperators (Token.TokenType shorter, Token.TokenType longer) throws IOException {
+        currChar = source.get();
+        if(currChar == '='){
+            currentToken = new Token(longer, tokenPosition);
+            currChar = source.get();
+        }else{
+            currentToken = new Token(shorter, tokenPosition);
+        }
+    }
+
+    private void buildLogicalOperators ( Token.TokenType type, char expected) throws IOException {
+        currChar = source.get();
+        if (currChar == expected){
+            currentToken = new Token(type, tokenPosition);
+            currChar = source.get();
+        }else{
+            throw new ScannerException(source.getPosition(), "Missing " + expected);
+        }
+    }
+
+    private boolean buildStringLiteral () throws IOException {
         if(currChar !='"'){
             return false;
         }
@@ -144,27 +144,31 @@ public class Scanner {
         currChar = source.get();
         return true;
     }
+
     private boolean buildNumber() throws IOException {
         if (!Character.isDigit(currChar)){
             return false;
         }
+
         // first character is digit so its either a number or a mistake
         int value = buildInteger();
-        float fraction = 0;
+        currentToken = new Token(Token.TokenType.INT_LITERAL, value, tokenPosition);
+
         if (currChar == '.'){
             currChar = source.get();
-            fraction = buildFraction();
+            buildFraction(value);
         }
-        currentToken = new Token(Token.TokenType.NUMERIC_LITERAL, value + fraction, tokenPosition);
         return true;
     }
+
     private int buildInteger() throws IOException {
-        if(isZeroNum()){
+        if(isZeroNumber()){
             return 0;
         }
-        return buildNonZeroNum();
+        return buildNonZeroNumber();
     }
-    private boolean isZeroNum() throws IOException {
+
+    private boolean isZeroNumber() throws IOException {
         if (currChar != '0'){
             return false;
         }
@@ -174,7 +178,8 @@ public class Scanner {
         }
         return true;
     }
-    private int buildNonZeroNum() throws IOException {
+
+    private int buildNonZeroNumber() throws IOException {
         int value = 0;
         while(Character.isDigit(currChar) && value < Token.MAX_NUMBER){
             value = 10 * value + (currChar - '0');
@@ -185,16 +190,22 @@ public class Scanner {
         }
         return value;
     }
-    private float buildFraction () throws IOException {
-        int exponent = ignoreZeros() + 1;
-        float value = 0;
-        while(Character.isDigit(currChar)){
-            value += (currChar - '0')/(float)(Math.pow(10, exponent));
-            currChar = source.get();
-            exponent ++;
+
+    private void buildFraction (int value) throws IOException {
+        int scale = ignoreZeros();
+        int fractionValue = 0;
+        if (!Character.isDigit(currChar)) {
+            throw new ScannerException(tokenPosition, "Improper floating point number");
         }
-        return value;
+        while(Character.isDigit(currChar)){
+            fractionValue = fractionValue * 10 + currChar - '0';
+            currChar = source.get();
+            scale ++;
+        }
+        double final_val = value + (float)fractionValue / Math.pow(10, scale);
+        currentToken = new Token(Token.TokenType.FLOAT_LITERAL, final_val, tokenPosition);
     }
+
     private int ignoreZeros() throws IOException {
         int numIgnored = 0;
         while(currChar == '0'){
@@ -203,57 +214,77 @@ public class Scanner {
         }
         return numIgnored;
     }
-    private boolean buildIdentifier() throws IOException{
-        tempId = new StringBuilder();
-        tempLen = 0;
-        if(isValidIdBeginning()){
-            while(isValidIdPart() && tempLen < Token.MAX_IDENTIFIER_LEN){
-                tempId.append((char)currChar);
-                tempLen ++;
-                currChar = source.get();
-            }
-            if(isValidIdPart()){
-                //max len exceeded
-                throw new ScannerException(tokenPosition, "Invalid identifier (max identifier " +
-                                                           "length" + Token.MAX_IDENTIFIER_LEN + ")");
-            }
-            if(buildKeyword()){
+
+    private boolean buildIdentifier() throws IOException {
+        IdentifierScanner scanner = new IdentifierScanner();
+        return scanner.buildIdentifier();
+    }
+
+    private class IdentifierScanner{
+        private final StringBuilder identifier = new StringBuilder();
+        private int idLen = 0;
+
+        public boolean buildIdentifier() throws IOException{
+            if(isValidIdBeginning()){
+                while(isValidIdPart() && idLen < Token.MAX_IDENTIFIER_LEN){
+                    identifier.append((char)currChar);
+                    idLen ++;
+                    currChar = source.get();
+                }
+                if(isValidIdPart()){
+                    //max len exceeded
+                    throw new ScannerException(tokenPosition, "Invalid identifier (max identifier " +
+                            "length" + Token.MAX_IDENTIFIER_LEN + ")");
+                }
+                if(buildKeyword(identifier)){
+                    return true;
+                }
+                currentToken = new Token(Token.TokenType.IDENTIFIER, identifier.toString(), tokenPosition);
                 return true;
             }
-            currentToken = new Token(Token.TokenType.IDENTIFIER, tempId.toString(), tokenPosition);
-            return true;
+            return false;
         }
-        return false;
-    }
-    private boolean isValidIdBeginning() throws IOException {
-        if(Character.isAlphabetic(currChar)){
-            tempId.append((char)currChar);
-            currChar = source.get();
-            tempLen ++;
-            return true;
-        }else if (currChar == '_'){
-            tempId.append((char)currChar);
-            currChar = source.get();
-            if(Character.isLetterOrDigit(currChar)) {
-                tempId.append((char)currChar);
+
+        private boolean isValidIdBeginning() throws IOException {
+            if(Character.isAlphabetic(currChar)){
+                identifier.append((char)currChar);
                 currChar = source.get();
-                tempLen += 2;
+                idLen++;
+                return true;
+            }else if (currChar == '_'){
+                identifier.append((char)currChar);
+                currChar = source.get();
+                if(Character.isLetterOrDigit(currChar)) {
+                    identifier.append((char)currChar);
+                    currChar = source.get();
+                    idLen += 2;
+                    return true;
+                }
+                // only identifiers can start with "_" so throw exception
+                throw new ScannerException(source.getPosition(),"Invalid identifier");
+            }
+            return false;
+        }
+
+        private boolean isValidIdPart (){
+            return Character.isLetterOrDigit(currChar) || currChar == '_';
+        }
+
+        private boolean buildKeyword (StringBuilder identifier){
+            Token.TokenType tempType = ScannerMaps.keywords.get(identifier.toString());
+            if(tempType!=null){
+                currentToken = new Token(tempType, identifier.toString(), tokenPosition);
+                return true;
+            }else if (identifier.toString().equals("true") ){
+                currentToken = new Token(Token.TokenType.BOOL_LITERAL,  true, tokenPosition);
+                return true;
+            }else if (identifier.toString().equals("false") ){
+                currentToken = new Token(Token.TokenType.BOOL_LITERAL,   false, tokenPosition);
                 return true;
             }
-            // only identifiers can start with "_" so throw exception
-            throw new ScannerException(source.getPosition(),"Invalid identifier");
+
+            return false;
         }
-        return false;
     }
-    private boolean isValidIdPart (){
-        return Character.isLetterOrDigit(currChar) || currChar == '_';
-    }
-    private boolean buildKeyword (){
-        Token.TokenType tempType = ScannerMaps.keywords.get(tempId.toString());
-        if(tempType!=null){
-            currentToken = new Token(tempType, tempId.toString(), tokenPosition);
-            return true;
-        }
-        return false;
-    }
+
 }

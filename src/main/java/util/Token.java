@@ -50,8 +50,16 @@ public class Token {
 
         //literals
         IDENTIFIER,         // identifier : ((underscore  (letter | digit)) | letter) {letter | digit | underscore};
-        BASE_TYPE,          // int, float, bool, string, compound, kilo, meter, second
-        NUMERIC_LITERAL,    // number : "0" | non_zero_number;
+        TYPE_INT,
+        TYPE_FLOAT,
+        TYPE_BOOL,
+        TYPE_STRING,
+        TYPE_METER,
+        TYPE_KG,
+        TYPE_SEC,
+        COMPOUND,           // compound
+        INT_LITERAL,        // number : "0" | non_zero_number;
+        FLOAT_LITERAL,      // for floating point values
         STRING_LITERAL,     // string: "\"" {character} "\"";
         BOOL_LITERAL,       // "true", "false"
 
@@ -66,25 +74,45 @@ public class Token {
     public Token (TokenType type){
         this(type, null, null);
     }
-    public Token (TokenType type, Object value){
-        this(type, value, null);
-    }
+
     public Token (TokenType type, Position position){
         this(type, null, position);
     }
+
     public Token (TokenType type, Object value, Position position){
         this.type = type;
         this.value = value;
         this.position = position;
     }
 
+    public Boolean getBoolValue(){
+        return (Boolean) value;
+    }
+
     public String getStringValue(){
         return (String) value;
     }
-    public Float getFloatValue(){return (Float) value;}
+
+    public double getDoubleValue(){return (Double) value;}
+
+    public int getIntegerValue(){return (Integer) value;}
+
     public TokenType getTokenType() {return type;}
 
     public Position getPosition() {return position;}
+
+    public boolean isBaseUnit (){
+        return type == TokenType.TYPE_METER
+                || type == TokenType.TYPE_SEC
+                || type == TokenType.TYPE_KG;
+    }
+
+    public boolean isBaseType (){
+        return  type == TokenType.TYPE_BOOL
+                || type == TokenType.TYPE_FLOAT
+                || type == TokenType.TYPE_INT
+                || type == TokenType.TYPE_STRING;
+    }
 
     @Override
     public String toString() {
@@ -98,6 +126,7 @@ public class Token {
         str += " }";
         return str;
     }
+
     @Override
     public boolean equals(Object obj){
         if(obj == null){
@@ -110,9 +139,7 @@ public class Token {
         if(this.getTokenType()!= token.getTokenType()){
             return false;
         }
-        if(this.getPosition().equals(token.getPosition())) {
-            return true;
-        }
-        return false;
+        return this.getPosition().equals(token.getPosition());
     }
+
 }

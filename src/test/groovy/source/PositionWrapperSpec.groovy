@@ -10,6 +10,7 @@ class PositionWrapperSpec extends Specification {
             assert positionWrapper.getColumn() == col_list[i]
             assert positionWrapper.getLine() == line_list[i]
         }
+
         where:
         str         || line_list        | col_list
         "tak\nnie"  || [1,1,1,2,2,2,2]  | [1,2,3,0,1,2,3]
