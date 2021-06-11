@@ -1,1 +1,0 @@
-- dodać zakaz redefiniowania funkcji i jednostek do dokumentacji
