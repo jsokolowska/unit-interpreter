@@ -1,0 +1,30 @@
+unit joule as <kilogram * meter^2 / second ^2>;
+
+int mod (int n, int by){
+    if(by <= 0){
+        return 0;
+    }
+    int res = n/by;
+    return n - res * by;
+}
+
+int main(){
+    joule  j = 1;
+    while( j < 100){
+        int mod3 = mod(int(j), 3);
+        int mod5 = mod(int(j), 5);
+        if(mod5 == 0){
+            if(mod3 == 0){
+                print("fizzbuzz");
+            }else{
+                print("buzz");
+            }
+        }else if(mod3 == 0){
+            print("fizz");
+        }else{
+            print(int(j));
+        }
+        j = j + joule(1);
+    }
+    return 0;
+}

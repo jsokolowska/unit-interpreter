@@ -9,9 +9,10 @@ public class FileSource implements Source{
     private final BufferedReader bufferedReader;
     private int currentChar;
 
-    public FileSource (String filePath) throws FileNotFoundException {
+    public FileSource (String filePath) throws IOException {
         FileReader fileReader = new FileReader(filePath);
         bufferedReader = new BufferedReader(fileReader);
+        currentChar = bufferedReader.read();
     }
 
     @Override

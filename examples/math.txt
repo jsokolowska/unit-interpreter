@@ -1,0 +1,17 @@
+float abs (int val){
+    return abs(float(val));
+}
+
+float abs (float val){
+    if(val > 0){
+        return val;
+    }else{
+        return -val;
+    }
+}
+
+int main(){
+    meter m = 12;
+
+    compound c =
+}
