@@ -1,8 +1,8 @@
 # unit-interpreter
 Simple interpreter for language with units and unit conversions for TKOM 2021.
 
-##Code examples
-###unit definitions
+## Code examples
+### unit definitions
 ```
 unit kelvin;
 unit celcius;
@@ -12,7 +12,7 @@ unit kilometer;
 unit joule as <kilogram * meter^2 / second^2>;
 unit newton as <kilogram * meter / second^2>;
 ```
-###unit conversions
+### unit conversions
 ```
     let kiloMeter as (meter m) { 1000 * m };
     let kelvin (celsius c) { c + 273.15 };
